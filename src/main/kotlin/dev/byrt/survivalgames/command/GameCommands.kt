@@ -1,0 +1,84 @@
+package dev.byrt.survivalgames.command
+
+import dev.byrt.survivalgames.text.ChatUtility
+import dev.byrt.survivalgames.game.Game
+import dev.byrt.survivalgames.game.GameManager
+import dev.byrt.survivalgames.game.GameRounds
+import dev.byrt.survivalgames.game.GameState
+
+import org.bukkit.command.CommandSender
+import org.incendo.cloud.annotations.Argument
+
+import org.incendo.cloud.annotations.Command
+import org.incendo.cloud.annotations.CommandDescription
+import org.incendo.cloud.annotations.Permission
+import org.incendo.cloud.annotations.processing.CommandContainer
+import org.incendo.cloud.processors.confirmation.annotation.Confirmation
+
+@Suppress("unused", "unstableApiUsage")
+@CommandContainer
+class GameCommands {
+    @Command("game start")
+    @CommandDescription("Starts the game.")
+    @Permission("burb.cmd.game")
+    @Confirmation
+    fun start(sender: CommandSender) {
+        if(GameManager.getGameState() == GameState.IDLE) {
+            ChatUtility.broadcastDev("<yellow>${sender.name}<green> started a Survival Games game.", false)
+            Game.start()
+        }
+    }
+
+    @Command("game stop")
+    @CommandDescription("Stops the game.")
+    @Permission("burb.cmd.game")
+    fun stop(sender: CommandSender) {
+        if(GameManager.getGameState() != GameState.IDLE) {
+            ChatUtility.broadcastDev("<yellow>${sender.name}<red> stopped a Survival Games game.", false)
+            Game.stop()
+        }
+    }
+
+    @Command("game reload")
+    @CommandDescription("Reloads the game.")
+    @Permission("burb.cmd.game")
+    fun reload(sender: CommandSender) {
+        if(GameManager.getGameState() == GameState.GAME_END) {
+            ChatUtility.broadcastDev("${sender.name} reloaded the game.", false)
+            Game.reload()
+        }
+    }
+
+    @Command("game next_phase")
+    @CommandDescription("Pushes the game to it's next phase.")
+    @Permission("burb.cmd.game")
+    @Confirmation
+    fun nextPhase(sender: CommandSender) {
+        if(GameManager.getGameState() == GameState.IDLE) return
+        ChatUtility.broadcastDev("<yellow>${sender.name} <gold>pushed the game into its next state.", false)
+        GameManager.nextState()
+    }
+
+    @Command("game force_state <state>")
+    @CommandDescription("Pushes the game to it's next phase.")
+    @Permission("burb.cmd.game")
+    @Confirmation
+    fun nextPhase(sender: CommandSender, @Argument(value = "state") state: GameState) {
+        if(GameManager.getGameState() == GameState.IDLE) return
+        ChatUtility.broadcastDev("<yellow>${sender.name} <red>forced the game into $state state.", false)
+        GameManager.forceState(state)
+    }
+
+    @Command("game set_rounds <amount>")
+    @CommandDescription("Sets the total number of rounds.")
+    @Permission("burb.cmd.game")
+    fun setRounds(sender: CommandSender, @Argument amount: Int) {
+        if(amount !in 1..3) return
+        if(GameManager.getGameState() == GameState.IDLE) {
+            ChatUtility.broadcastDev("<yellow>${sender.name} <gray>set the total number of rounds to $amount.", false)
+            GameRounds.setTotalRounds(amount)
+        } else {
+            return
+        }
+    }
+}

@@ -1,0 +1,120 @@
+package dev.byrt.survivalgames.text
+
+import dev.byrt.survivalgames.team.Team
+import net.kyori.adventure.audience.Audience
+import net.kyori.adventure.key.Key
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.ComponentLike
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.ShadowColor
+import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.tag.Tag
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags
+
+object Formatting {
+    //TODO: SG RESOURCE PACK
+    val SG_FONT = Key.key("burb", "font")
+    val GLYPH_FONT = Key.key("burb", "glyph")
+
+    /**
+     * Creates a new text component with the glyph font.
+     */
+    fun glyph(value: String) = Component.text(value)
+        .font(GLYPH_FONT)
+        .color(NamedTextColor.WHITE)
+        .shadowColor(ShadowColor.none())
+
+    /** Prefix enum for allowing MiniMessage usage of the <prefix:NAME> tag in messages. **/
+    enum class Prefix(val prefixName: String, val value: String) {
+        NO_PREFIX("", ""),
+        DEV_PREFIX("dev", "\uD001"),
+        ADMIN_PREFIX("admin", "\uD002"),
+        SPECTATOR_PREFIX("spectator", "\uD003");
+
+        companion object {
+            fun ofName(str : String): Prefix {
+                for(p in entries) {
+                    if (p.prefixName == str) return p
+                }
+                return NO_PREFIX
+            }
+        }
+    }
+
+    /** Prefix enum for allowing MiniMessage usage of the <unicodeprefix:NAME> tag in messages. **/
+    enum class UnicodePrefix(val prefixName: String, val value: String) {
+        NO_PREFIX("", ""),
+        WARNING_PREFIX("warning", "⚠"),
+        SKULL_PREFIX("skull", "☠"),
+        LOCK_PREFIX("locked", "\uD83D\uDD12"),
+        UNLOCKED_PREFIX("unlocked", "\uD83D\uDD13");
+
+        companion object {
+            fun ofName(str : String): UnicodePrefix {
+                for(p in entries) {
+                    if (p.prefixName == str) return p
+                }
+                return NO_PREFIX
+            }
+        }
+    }
+
+    private val SG_COLOUR = TagResolver.resolver("sgcolour", Tag.styling(TextColor.color(34, 224, 97)))
+    private val PLAYER_COLOUR = TagResolver.resolver("playercolour", Tag.styling(Team.PLAYER.textColour))
+    private val SPECTATOR_COLOUR = TagResolver.resolver("speccolour", Tag.styling(TextColor.color(170, 170, 170)))
+    private val NOTIFICATION_COLOUR = TagResolver.resolver("notifcolour", Tag.styling(TextColor.color(219, 0, 96)))
+
+    val allTags = MiniMessage.builder()
+        .tags(
+            TagResolver.builder()
+                .resolver(StandardTags.defaults())
+                .resolver(SG_COLOUR)
+                .resolver(PLAYER_COLOUR)
+                .resolver(SPECTATOR_COLOUR)
+                .resolver(NOTIFICATION_COLOUR)
+                .resolver(prefix())
+                .resolver(unicodePrefix())
+                .build()
+        )
+        .build()
+
+    val restrictedTags = MiniMessage.builder()
+        .tags(
+            TagResolver.builder()
+                .resolver(StandardTags.color())
+                .resolver(StandardTags.decorations())
+                .resolver(StandardTags.reset())
+                .resolver(SG_COLOUR)
+                .resolver(PLAYER_COLOUR)
+                .resolver(SPECTATOR_COLOUR)
+                .resolver(NOTIFICATION_COLOUR)
+                .build()
+        )
+        .build()
+
+    /** Builds a prefix tag. **/
+    private fun prefix() : TagResolver {
+        return TagResolver.resolver("prefix") { args, _ ->
+            val prefixName = args.popOr("Name not supplied.")
+            Tag.selfClosingInserting(
+                Component.text(Prefix.ofName(prefixName.toString()).value).font(GLYPH_FONT)
+            )
+        }
+    }
+
+    /** Builds a unicode prefix tag. **/
+    private fun unicodePrefix() : TagResolver {
+        return TagResolver.resolver("unicodeprefix") { args, _ ->
+            val prefixName = args.popOr("Name not supplied.")
+            Tag.selfClosingInserting(
+                Component.text(UnicodePrefix.ofName(prefixName.toString()).value)
+            )
+        }
+    }
+
+    public fun Audience.sendTranslated(key: String, vararg args: ComponentLike) {
+        sendMessage(Component.translatable(key, *args))
+    }
+}

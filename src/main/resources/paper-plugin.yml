@@ -1,0 +1,7 @@
+name: SurvivalGames
+version: "${version}"
+main: dev.byrt.survivalgames.Main
+api-version: "1.21.11"
+authors: [Byrt, Lucy]
+description: When she survival on my game.
+website: https://bigrat.monster
