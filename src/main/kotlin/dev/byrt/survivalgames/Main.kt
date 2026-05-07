@@ -46,7 +46,7 @@ class Main : JavaPlugin() {
         GlobalTranslator.translator().addSource(SGTranslator())
         server.pluginManager.registerEvents(TextAlignment, this)
         resourcePackLoader = ResourcePackLoader(
-            GitHubReleasesRegistry("ByrtZ/BurbResourcePack"),
+            GitHubReleasesRegistry("ByrtZ/SurvivalGamesResourcePack"),
             dataPath.resolve("packs").createDirectories(),
             "master"
         )

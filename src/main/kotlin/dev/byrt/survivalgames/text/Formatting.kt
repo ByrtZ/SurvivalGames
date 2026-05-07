@@ -14,9 +14,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags
 
 object Formatting {
-    //TODO: SG RESOURCE PACK
-    val SG_FONT = Key.key("burb", "font")
-    val GLYPH_FONT = Key.key("burb", "glyph")
+    val SG_FONT = Key.key("sg", "font")
+    val GLYPH_FONT = Key.key("sg", "glyph")
 
     /**
      * Creates a new text component with the glyph font.

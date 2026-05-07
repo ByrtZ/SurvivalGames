@@ -14,8 +14,7 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 object ChatUtility {
-    //TODO: SG RESOURCE PACK
-    const val SG_FONT_TAG = "<font:burb:font>"
+    const val SG_FONT_TAG = "<font:sg:font>"
     const val HEART_UNICODE = "❤"
     /** Sends a message to the specified audience. **/
     fun messageAudience(recipient: Audience, message: String, restricted: Boolean, vararg placeholders: TagResolver) {
