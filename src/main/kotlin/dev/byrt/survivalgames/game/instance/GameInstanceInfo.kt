@@ -1,4 +1,4 @@
-package dev.byrt.survivalgames.game
+package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
@@ -9,15 +9,16 @@ import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.bossbar.BossBar.Color
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
+import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
 import java.util.*
 
-object GameInfo {
+class GameInstanceInfo(val instance: GameInstance) {
     public val scoreboard = Bukkit.getScoreboardManager().newScoreboard
     private var objective = scoreboard.registerNewObjective(
-        "${plugin.name.lowercase()}-info-${UUID.randomUUID()}",
+        "${plugin.name.lowercase()}-info-${instance.gameInstanceId}",
         Criteria.DUMMY,
         Formatting.allTags.deserialize("<gold><bold>${ChatUtility.SG_FONT_TAG}FROOMIN IT<reset>")
     )
@@ -48,7 +49,7 @@ object GameInfo {
 
     fun buildScoreboard() {
         plugin.logger.info("Building scoreboard...")
-        objective.displaySlot = null
+        objective.displaySlot = DisplaySlot.SIDEBAR
         objective.numberFormat(NumberFormat.blank())
 
         // Modifiable game text
@@ -109,15 +110,15 @@ object GameInfo {
     }
 
     fun updateRound() {
-        if (GameManager.getGameState() == GameState.IDLE) {
+        if (instance.manager.getGameState() == GameState.IDLE) {
             currentRoundLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}NONE"))
         } else {
-            currentRoundLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${GameRounds.getRound().ordinal + 1}/${GameRounds.getTotalRounds()}"))
+            currentRoundLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${instance.rounds}/${instance.rounds.getTotalRounds()}"))
         }
     }
 
     fun updateStatus() {
-        when (GameManager.getGameState()) {
+        when (instance.manager.getGameState()) {
             GameState.IDLE -> {
                 gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}GAME STATUS:<reset> "))
                 gameStatusLine.suffix(Formatting.allTags.deserialize("<gray>${ChatUtility.SG_FONT_TAG}AWAITING<reset> ${ChatUtility.SG_FONT_TAG}<gray>PLAYERS..."))
@@ -126,7 +127,7 @@ object GameInfo {
 
             GameState.STARTING -> {
                 objective.displaySlot = DisplaySlot.SIDEBAR
-                if (GameRounds.getRound() == Round.ONE) {
+                if (instance.rounds.getRound() == 1) {
                     gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}GAME BEGINS:<reset> "))
                 } else {
                     gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}ROUND BEGINS:<reset> "))
@@ -152,12 +153,12 @@ object GameInfo {
     }
 
     fun updateTimer() {
-        if (GameManager.getGameState() == GameState.OVERTIME) {
+        if (instance.manager.getGameState() == GameState.OVERTIME) {
             gameStatusLine.suffix(Formatting.allTags.deserialize(""))
-        } else if (GameManager.getGameState() == GameState.IDLE) {
+        } else if (instance.manager.getGameState() == GameState.IDLE) {
             gameStatusLine.suffix(Formatting.allTags.deserialize("<gray>${ChatUtility.SG_FONT_TAG}AWAITING PLAYERS..."))
         } else {
-            gameStatusLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${GameTimer.getDisplayTimer()}"))
+            gameStatusLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${instance.timer.getDisplayTimer()}"))
         }
     }
 
@@ -167,14 +168,14 @@ object GameInfo {
                 BossBar.bossBar(Formatting.allTags.deserialize(""), 0f, Color.RED, BossBar.Overlay.PROGRESS)
 
             override fun run() {
-                if (GameManager.getGameState() != GameState.IDLE) {
+                if (instance.manager.getGameState() != GameState.IDLE) {
                     for (player in Bukkit.getOnlinePlayers()) {
                         if (!player.activeBossBars().contains(timerBossBar)) timerBossBar.addViewer(player)
                     }
                 }
-                when(GameTimer.getTimerState()) {
+                when(instance.timer.getTimerState()) {
                     GameTimerState.ACTIVE -> {
-                        when (GameManager.getGameState()) {
+                        when (instance.manager.getGameState()) {
                             GameState.IDLE -> {
                                 for (player in Bukkit.getOnlinePlayers()) {
                                     timerBossBar.removeViewer(player)
@@ -183,19 +184,19 @@ object GameInfo {
                             }
 
                             GameState.STARTING -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("GAME STARTING IN: ${if (GameTimer.getTimer() <= 9) "<red>" else "<#ffff00>"}${GameTimer.getDisplayTimer()}"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("GAME STARTING IN: ${if (instance.timer.getTimer() <= 9) "<red>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
                             }
 
                             GameState.IN_GAME -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("TIME LEFT: ${if (GameTimer.getTimer() <= 89) "<red>" else "<#ffff00>"}${GameTimer.getDisplayTimer()}"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("TIME LEFT: ${if (instance.timer.getTimer() <= 89) "<red>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
                             }
 
                             GameState.ROUND_END -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("NEXT ROUND IN: <#ffff00>${GameTimer.getDisplayTimer()}"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("NEXT ROUND IN: <#ffff00>${instance.timer.getDisplayTimer()}"))
                             }
 
                             GameState.GAME_END -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("BACK TO HUB: <#ffff00>${GameTimer.getDisplayTimer()}"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("BACK TO HUB: <#ffff00>${instance.timer.getDisplayTimer()}"))
                             }
 
                             GameState.OVERTIME -> {

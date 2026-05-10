@@ -1,6 +1,6 @@
 package dev.byrt.survivalgames.team
 
-import dev.byrt.survivalgames.game.GameInfo
+import dev.byrt.survivalgames.game.instance.GameInstanceInfo
 import dev.byrt.survivalgames.logger
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -33,7 +33,7 @@ class TeamManager<T> @PublishedApi internal constructor(
     private val playerTeams = mutableMapOf<UUID, T>()
 
     private val scoreboardTeams = allTeams.associateWith {
-        GameInfo.scoreboard.registerNewTeam(it.name).apply {
+        GameInstanceInfo.scoreboard.registerNewTeam(it.name).apply {
             displayName(Component.text(it.name))
             setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER)
             setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER)

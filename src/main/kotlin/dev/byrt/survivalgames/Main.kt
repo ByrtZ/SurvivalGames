@@ -17,7 +17,7 @@ import org.incendo.cloud.processors.confirmation.ConfirmationManager
 import org.incendo.cloud.processors.confirmation.annotation.ConfirmationBuilderModifier
 
 import com.noxcrew.interfaces.InterfacesListeners
-import dev.byrt.survivalgames.game.Game
+import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.resource.ResourcePackApplier
 import dev.byrt.survivalgames.resource.ResourcePackLoader
 import dev.byrt.survivalgames.resource.registry.GitHubReleasesRegistry
@@ -54,7 +54,7 @@ class Main : JavaPlugin() {
         resourcePackApplier = ResourcePackApplier(resourcePackLoader)
         server.pluginManager.registerEvents(resourcePackApplier, this)
 
-        Game.setup()
+        GameManager.setup()
         setupCommands()
         setupEventListeners()
         InterfacesListeners.install(this)
@@ -62,7 +62,7 @@ class Main : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("Stopping Survival Games plugin.")
-        Game.cleanup()
+        GameManager.cleanup()
     }
 
     private fun setupCommands() {

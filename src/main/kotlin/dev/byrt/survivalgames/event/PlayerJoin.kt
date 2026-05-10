@@ -1,6 +1,6 @@
 package dev.byrt.survivalgames.event
 
-import dev.byrt.survivalgames.game.GameInfo
+import dev.byrt.survivalgames.game.instance.GameInstanceInfo
 import dev.byrt.survivalgames.text.Formatting
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -12,6 +12,6 @@ class PlayerJoin: Listener {
     fun onJoin(e: PlayerJoinEvent) {
         e.joinMessage(Formatting.allTags.deserialize("${if(e.player.isOp) "<dark_red>" else "<speccolour>"}${e.player.name}<reset> joined the game."))
         //PlayerManager.registerPlayer(e.player)
-        e.player.scoreboard = GameInfo.scoreboard
+        e.player.scoreboard = GameInstanceInfo.scoreboard
     }
 }

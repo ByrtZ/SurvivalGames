@@ -1,9 +1,9 @@
-package dev.byrt.survivalgames.game
+package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.text.ChatUtility
 import org.bukkit.command.CommandSender
 
-object GameTimer {
+class GameInstanceTimer(val instance: GameInstance) {
     private var timer = 0
     private var gameTimerState = GameTimerState.INACTIVE
     private var displayTime = "00:00"
@@ -12,7 +12,7 @@ object GameTimer {
         if (newTime == timer) return
         this.timer = newTime
         this.displayTime = String.format("%02d:%02d", (this.timer + 1) / 60, (this.timer + 1) % 60)
-        GameInfo.updateTimer()
+        instance.info.updateTimer()
         if (sender != null) {
             ChatUtility.broadcastDev("<dark_gray>Timer Updated: <yellow>${newTime}s<green> remaining<dark_gray> [${sender.name}].", true)
         }

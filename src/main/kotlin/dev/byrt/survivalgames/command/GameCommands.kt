@@ -1,14 +1,10 @@
 package dev.byrt.survivalgames.command
 
+import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.text.ChatUtility
-import dev.byrt.survivalgames.game.Game
-import dev.byrt.survivalgames.game.GameManager
-import dev.byrt.survivalgames.game.GameRounds
-import dev.byrt.survivalgames.game.GameState
-
-import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.incendo.cloud.annotations.Argument
-
 import org.incendo.cloud.annotations.Command
 import org.incendo.cloud.annotations.CommandDescription
 import org.incendo.cloud.annotations.Permission
@@ -19,66 +15,66 @@ import org.incendo.cloud.processors.confirmation.annotation.Confirmation
 @CommandContainer
 class GameCommands {
     @Command("game start")
-    @CommandDescription("Starts the game.")
+    @CommandDescription("Starts the game in the executing player's game container.")
     @Permission("burb.cmd.game")
     @Confirmation
-    fun start(sender: CommandSender) {
-        if(GameManager.getGameState() == GameState.IDLE) {
-            ChatUtility.broadcastDev("<yellow>${sender.name}<green> started a Survival Games game.", false)
-            Game.start()
+    fun start(sender: Player) {
+        if(sender.sgPlayer().currentContainer != null) {
+            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() == GameState.IDLE) {
+                ChatUtility.broadcastDev("<dark_gray>${sender.name} started a match in container ${sender.sgPlayer().currentContainer?.containerId}.", false)
+                sender.sgPlayer().currentContainer?.instance?.manager?.nextState()
+            }
         }
     }
 
     @Command("game stop")
-    @CommandDescription("Stops the game.")
+    @CommandDescription("Stops the game in the executing player's game container.")
     @Permission("burb.cmd.game")
-    fun stop(sender: CommandSender) {
-        if(GameManager.getGameState() != GameState.IDLE) {
-            ChatUtility.broadcastDev("<yellow>${sender.name}<red> stopped a Survival Games game.", false)
-            Game.stop()
-        }
-    }
-
-    @Command("game reload")
-    @CommandDescription("Reloads the game.")
-    @Permission("burb.cmd.game")
-    fun reload(sender: CommandSender) {
-        if(GameManager.getGameState() == GameState.GAME_END) {
-            ChatUtility.broadcastDev("${sender.name} reloaded the game.", false)
-            Game.reload()
+    fun stop(sender: Player) {
+        if(sender.sgPlayer().currentContainer != null) {
+            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() != GameState.IDLE) {
+                ChatUtility.broadcastDev("<dark_gray>${sender.name} stopped a match in container ${sender.sgPlayer().currentContainer?.containerId}.", false)
+                sender.sgPlayer().currentContainer?.instance?.manager?.setGameState(GameState.GAME_END)
+            }
         }
     }
 
     @Command("game next_phase")
-    @CommandDescription("Pushes the game to it's next phase.")
+    @CommandDescription("Pushes the game to it's next phase in the executing player's game container.")
     @Permission("burb.cmd.game")
     @Confirmation
-    fun nextPhase(sender: CommandSender) {
-        if(GameManager.getGameState() == GameState.IDLE) return
-        ChatUtility.broadcastDev("<yellow>${sender.name} <gold>pushed the game into its next state.", false)
-        GameManager.nextState()
+    fun nextPhase(sender: Player) {
+        if(sender.sgPlayer().currentContainer != null) {
+            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() == GameState.IDLE) return
+            ChatUtility.broadcastDev("<dark_gray>${sender.name} pushed match ${sender.sgPlayer().currentContainer?.containerId} to its next state.", false)
+            sender.sgPlayer().currentContainer?.instance?.manager?.nextState()
+        }
     }
 
     @Command("game force_state <state>")
-    @CommandDescription("Pushes the game to it's next phase.")
+    @CommandDescription("Forces the game into the specified phase in the executing player's game container.")
     @Permission("burb.cmd.game")
     @Confirmation
-    fun nextPhase(sender: CommandSender, @Argument(value = "state") state: GameState) {
-        if(GameManager.getGameState() == GameState.IDLE) return
-        ChatUtility.broadcastDev("<yellow>${sender.name} <red>forced the game into $state state.", false)
-        GameManager.forceState(state)
+    fun nextPhase(sender: Player, @Argument(value = "state") state: GameState) {
+        if(sender.sgPlayer().currentContainer != null) {
+            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() == GameState.IDLE) return
+            ChatUtility.broadcastDev("<dark_gray>${sender.name} forced match ${sender.sgPlayer().currentContainer?.containerId} into $state state.", false)
+            sender.sgPlayer().currentContainer?.instance?.manager?.forceState(state)
+        }
     }
 
     @Command("game set_rounds <amount>")
-    @CommandDescription("Sets the total number of rounds.")
+    @CommandDescription("Sets the total number of rounds in the executing player's game container.")
     @Permission("burb.cmd.game")
-    fun setRounds(sender: CommandSender, @Argument amount: Int) {
-        if(amount !in 1..3) return
-        if(GameManager.getGameState() == GameState.IDLE) {
-            ChatUtility.broadcastDev("<yellow>${sender.name} <gray>set the total number of rounds to $amount.", false)
-            GameRounds.setTotalRounds(amount)
-        } else {
-            return
+    fun setRounds(sender: Player, @Argument amount: Int) {
+
+        if(sender.sgPlayer().currentContainer != null) {
+            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() == GameState.IDLE) {
+                if(amount <= 1) return
+                if(amount == sender.sgPlayer().currentContainer?.instance?.rounds?.getTotalRounds()) return
+                ChatUtility.broadcastDev("<dark_gray>${sender.name} set the total number of rounds in match ${sender.sgPlayer().currentContainer?.containerId} to $amount.", false)
+                sender.sgPlayer().currentContainer?.instance?.rounds?.setTotalRounds(amount)
+            }
         }
     }
 }

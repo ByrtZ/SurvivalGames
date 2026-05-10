@@ -15,12 +15,12 @@ import org.bukkit.event.block.BlockPlaceEvent
 class BlockEvent: Listener {
     @EventHandler
     private fun onBlockPlace(e: BlockPlaceEvent) {
-        e.isCancelled = !(e.player.isOp && e.player.gameMode == GameMode.CREATIVE)
+        e.isCancelled = true
     }
 
     @EventHandler
     private fun onBlockBreak(e: BlockBreakEvent) {
-        e.isCancelled = !(e.player.isOp && e.player.gameMode == GameMode.CREATIVE)
+        e.isCancelled = true
     }
 
     @EventHandler

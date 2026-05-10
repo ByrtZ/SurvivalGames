@@ -1,4 +1,4 @@
-package dev.byrt.survivalgames.game
+package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.plugin
@@ -13,16 +13,16 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitRunnable
 import java.time.Duration
 
-object GameTask {
+class GameInstanceTask(val instance: GameInstance) {
     private var gameRunnables = mutableMapOf<Int, BukkitRunnable>()
     private var currentGameTaskId = 0
     fun startGameLoop() {
         val gameRunnable = object : BukkitRunnable() {
             override fun run() {
-                GameInfo.updateTimer()
+                GameInstanceInfo.updateTimer()
                 /** STARTING **/
-                if (GameManager.getGameState() == GameState.STARTING && GameTimer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (GameTimer.getTimer() == 80) {
+                if (GameInstanceManager.getGameState() == GameState.STARTING && GameInstanceTimer.getTimerState() == GameTimerState.ACTIVE) {
+                    if (GameInstanceTimer.getTimer() == 80) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.showTitle(
                                 Title.title(
@@ -38,7 +38,7 @@ object GameTask {
                             //player.playSound(Sounds.Music.GAME_INTRO_JINGLE)
                         }
                     }
-                    if (GameTimer.getTimer() == 75) {
+                    if (GameInstanceTimer.getTimer() == 75) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.showTitle(
                                 Title.title(
@@ -53,7 +53,7 @@ object GameTask {
                             )
                         }
                     }
-                    if (GameTimer.getTimer() == 25) {
+                    if (GameInstanceTimer.getTimer() == 25) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.playSound(player.location, Sounds.Tutorial.TUTORIAL_POP, 1f, 1f)
                             player.sendMessage(
@@ -81,18 +81,18 @@ object GameTask {
                             )
                         }
                     }
-                    if (GameTimer.getTimer() == 70) {
+                    if (GameInstanceTimer.getTimer() == 70) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             //Jukebox.startMusicLoop(player, Music.LOADING_MELODY)
                         }
                     }
-                    if (GameTimer.getTimer() <= 15) {
+                    if (GameInstanceTimer.getTimer() <= 15) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.removePotionEffect(PotionEffectType.BLINDNESS)
                         }
                     }
-                    if (GameTimer.getTimer() in 4..10) {
-                        if (GameTimer.getTimer() == 10) {
+                    if (GameInstanceTimer.getTimer() in 4..10) {
+                        if (GameInstanceTimer.getTimer() == 10) {
                             for (player in Bukkit.getOnlinePlayers()) {
                                 player.playSound(Sounds.Alert.ALARM)
                                 //Jukebox.stopMusicLoop(player, Music.LOADING_MELODY)
@@ -102,7 +102,7 @@ object GameTask {
                             player.showTitle(
                                 Title.title(
                                     Component.text("Starting in").color(NamedTextColor.AQUA),
-                                    Component.text("►${GameTimer.getTimer()}◄").decoration(TextDecoration.BOLD, true),
+                                    Component.text("►${GameInstanceTimer.getTimer()}◄").decoration(TextDecoration.BOLD, true),
                                     Title.Times.times(
                                         Duration.ofSeconds(0),
                                         Duration.ofSeconds(5),
@@ -113,15 +113,15 @@ object GameTask {
                             player.playSound(Sounds.Timer.CLOCK_TICK)
                         }
                     }
-                    if (GameTimer.getTimer() in 1..3) {
+                    if (GameInstanceTimer.getTimer() in 1..3) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.playSound(Sounds.Timer.CLOCK_TICK)
                             player.playSound(Sounds.Timer.STARTING_123)
-                            if (GameTimer.getTimer() == 3) {
+                            if (GameInstanceTimer.getTimer() == 3) {
                                 player.showTitle(
                                     Title.title(
                                         Component.text("Starting in").color(NamedTextColor.AQUA),
-                                        Component.text("►${GameTimer.getTimer()}◄").color(NamedTextColor.GREEN)
+                                        Component.text("►${GameInstanceTimer.getTimer()}◄").color(NamedTextColor.GREEN)
                                             .decoration(TextDecoration.BOLD, true),
                                         Title.Times.times(
                                             Duration.ofSeconds(0),
@@ -131,11 +131,11 @@ object GameTask {
                                     )
                                 )
                             }
-                            if (GameTimer.getTimer() == 2) {
+                            if (GameInstanceTimer.getTimer() == 2) {
                                 player.showTitle(
                                     Title.title(
                                         Component.text("Starting in").color(NamedTextColor.AQUA),
-                                        Component.text("►${GameTimer.getTimer()}◄").color(NamedTextColor.YELLOW)
+                                        Component.text("►${GameInstanceTimer.getTimer()}◄").color(NamedTextColor.YELLOW)
                                             .decoration(TextDecoration.BOLD, true),
                                         Title.Times.times(
                                             Duration.ofSeconds(0),
@@ -145,11 +145,11 @@ object GameTask {
                                     )
                                 )
                             }
-                            if (GameTimer.getTimer() == 1) {
+                            if (GameInstanceTimer.getTimer() == 1) {
                                 player.showTitle(
                                     Title.title(
                                         Component.text("Starting in").color(NamedTextColor.AQUA),
-                                        Component.text("►${GameTimer.getTimer()}◄").color(NamedTextColor.RED)
+                                        Component.text("►${GameInstanceTimer.getTimer()}◄").color(NamedTextColor.RED)
                                             .decoration(TextDecoration.BOLD, true),
                                         Title.Times.times(
                                             Duration.ofSeconds(0),
@@ -161,53 +161,53 @@ object GameTask {
                             }
                         }
                     }
-                    if (GameTimer.getTimer() <= 0) {
-                        GameManager.nextState()
+                    if (GameInstanceTimer.getTimer() <= 0) {
+                        GameInstanceManager.nextState()
                     }
                 }
 
                 /** IN GAME **/
-                if (GameManager.getGameState() == GameState.IN_GAME && GameTimer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (GameTimer.getTimer() in 11..59 || GameTimer.getTimer() % 60 == 0) {
+                if (GameInstanceManager.getGameState() == GameState.IN_GAME && GameInstanceTimer.getTimerState() == GameTimerState.ACTIVE) {
+                    if (GameInstanceTimer.getTimer() in 11..59 || GameInstanceTimer.getTimer() % 60 == 0) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.playSound(Sounds.Timer.CLOCK_TICK)
                         }
                     }
-                    if (GameTimer.getTimer() in 0..10) {
+                    if (GameInstanceTimer.getTimer() in 0..10) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.playSound(Sounds.Timer.CLOCK_TICK_HIGH)
                         }
                     }
-                    if (GameTimer.getTimer() <= 0) {
-                        GameManager.nextState()
+                    if (GameInstanceTimer.getTimer() <= 0) {
+                        GameInstanceManager.nextState()
                     }
                 }
 
                 /** OVERTIME **/
-                if (GameManager.getGameState() == GameState.OVERTIME && GameTimer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (GameTimer.getTimer() in 11..30 || GameTimer.getTimer() % 60 == 0) {
+                if (GameInstanceManager.getGameState() == GameState.OVERTIME && GameInstanceTimer.getTimerState() == GameTimerState.ACTIVE) {
+                    if (GameInstanceTimer.getTimer() in 11..30 || GameInstanceTimer.getTimer() % 60 == 0) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.playSound(Sounds.Timer.CLOCK_TICK)
                         }
                     }
-                    if (GameTimer.getTimer() in 0..10) {
+                    if (GameInstanceTimer.getTimer() in 0..10) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.playSound(Sounds.Timer.CLOCK_TICK_HIGH)
                         }
                     }
-                    if (GameTimer.getTimer() <= 0) {
-                        GameManager.nextState()
+                    if (GameInstanceTimer.getTimer() <= 0) {
+                        GameInstanceManager.nextState()
                     }
                 }
 
                 /** ROUND END **/
-                if (GameTimer.getTimer() <= 0 && GameManager.getGameState() == GameState.ROUND_END && GameTimer.getTimerState() == GameTimerState.ACTIVE) {
-                    GameManager.nextState()
+                if (GameInstanceTimer.getTimer() <= 0 && GameInstanceManager.getGameState() == GameState.ROUND_END && GameInstanceTimer.getTimerState() == GameTimerState.ACTIVE) {
+                    GameInstanceManager.nextState()
                 }
 
                 /** GAME END **/
-                if (GameManager.getGameState() == GameState.GAME_END && GameTimer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (GameTimer.getTimer() == 1) {
+                if (GameInstanceManager.getGameState() == GameState.GAME_END && GameInstanceTimer.getTimerState() == GameTimerState.ACTIVE) {
+                    if (GameInstanceTimer.getTimer() == 1) {
                         for (player in Bukkit.getOnlinePlayers()) {
                             player.showTitle(
                                 Title.title(
@@ -221,14 +221,14 @@ object GameTask {
                                 )
                             )
                         }
-                        GameManager.nextState()
+                        GameInstanceManager.nextState()
                         stopGameLoop()
                     }
                 }
 
                 /** TIMER DECREMENTS IF ACTIVE **/
-                if (GameTimer.getTimerState() == GameTimerState.ACTIVE) {
-                    GameTimer.decrement()
+                if (GameInstanceTimer.getTimerState() == GameTimerState.ACTIVE) {
+                    GameInstanceTimer.decrement()
                 }
             }
         }
@@ -239,6 +239,6 @@ object GameTask {
 
     fun stopGameLoop() {
         gameRunnables.remove(currentGameTaskId)?.cancel()
-        GameTimer.setTimer(0, null)
+        GameInstanceTimer.setTimer(0, null)
     }
 }

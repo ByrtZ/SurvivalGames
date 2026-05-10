@@ -1,13 +1,11 @@
 package dev.byrt.survivalgames.event
 
-import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent
-import dev.byrt.survivalgames.game.GameManager
-import dev.byrt.survivalgames.game.GameState
+import dev.byrt.survivalgames.game.instance.GameInstanceManager
+import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 
-import io.papermc.paper.event.entity.EntityKnockbackEvent
-
-import org.bukkit.entity.Explosive
 import org.bukkit.entity.Player
+
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -16,9 +14,10 @@ import org.bukkit.event.entity.EntityDamageEvent
 @Suppress("unused", "unstableApiUsage")
 class DamageEvent: Listener {
     @EventHandler
+    //TODO: player.sgPlayer().currentContainer.instance.manager.getGameState()
     private fun onDamage(e: EntityDamageEvent) {
         // Cancel ALL damage when not in the following game states
-        if(GameManager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
+        if(GameInstanceManager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
             e.isCancelled = true
             return
         } else {
@@ -59,19 +58,9 @@ class DamageEvent: Listener {
 
     @EventHandler
     private fun onDamageByEntity(e: EntityDamageByEntityEvent) {
-        if(GameManager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
+        if(GameInstanceManager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
             e.isCancelled = true
             return
         }
-    }
-
-    @EventHandler
-    private fun onKnockback(e: EntityKnockbackEvent) {
-        e.isCancelled = true
-    }
-
-    @EventHandler
-    private fun onKnockbackByEntity(e: EntityKnockbackByEntityEvent) {
-        e.isCancelled = true
     }
 }

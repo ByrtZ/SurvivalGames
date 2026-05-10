@@ -1,9 +1,9 @@
 package dev.byrt.survivalgames.command
 
-import dev.byrt.survivalgames.game.GameManager
-import dev.byrt.survivalgames.game.GameState
-import dev.byrt.survivalgames.game.GameTimer
-import dev.byrt.survivalgames.game.GameTimerState
+import dev.byrt.survivalgames.game.instance.GameInstanceManager
+import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.game.instance.GameInstanceTimer
+import dev.byrt.survivalgames.game.instance.GameTimerState
 import org.bukkit.command.CommandSender
 import org.incendo.cloud.annotations.Command
 import org.incendo.cloud.annotations.CommandDescription
@@ -17,10 +17,10 @@ class TimerCommands {
     @CommandDescription("Sets the current timer.")
     @Permission("sg.cmd.timer")
     fun timerSet(sender: CommandSender, seconds: Int) {
-        if(GameTimer.getTimerState() != GameTimerState.INACTIVE) {
-            if(GameManager.getGameState() != GameState.IDLE) {
+        if(GameInstanceTimer.getTimerState() != GameTimerState.INACTIVE) {
+            if(GameInstanceManager.getGameState() != GameState.IDLE) {
                 if(seconds > 0) {
-                    GameTimer.setTimer(seconds, sender)
+                    GameInstanceTimer.setTimer(seconds, sender)
                 } else {
                     return
                 }
@@ -36,17 +36,17 @@ class TimerCommands {
     @CommandDescription("Skips the current timer by x seconds or fully.")
     @Permission("sg.cmd.timer")
     fun timerSkip(sender: CommandSender, seconds: Int?) {
-        if(GameTimer.getTimerState() != GameTimerState.INACTIVE) {
+        if(GameInstanceTimer.getTimerState() != GameTimerState.INACTIVE) {
             if(seconds != null) {
                 if(seconds > 0) {
-                    GameTimer.setTimer(GameTimer.getTimer() - seconds, sender)
-                    GameTimer.setTimerState(GameTimerState.ACTIVE, sender)
+                    GameInstanceTimer.setTimer(GameInstanceTimer.getTimer() - seconds, sender)
+                    GameInstanceTimer.setTimerState(GameTimerState.ACTIVE, sender)
                 } else {
                     return
                 }
             } else {
-                GameTimer.setTimer(1, sender)
-                GameTimer.setTimerState(GameTimerState.ACTIVE, sender)
+                GameInstanceTimer.setTimer(1, sender)
+                GameInstanceTimer.setTimerState(GameTimerState.ACTIVE, sender)
             }
         } else {
             return
@@ -57,8 +57,8 @@ class TimerCommands {
     @CommandDescription("Pauses the current timer.")
     @Permission("sg.cmd.timer")
     fun timerPause(sender: CommandSender) {
-        if(GameTimer.getTimerState() == GameTimerState.ACTIVE) {
-            GameTimer.setTimerState(GameTimerState.PAUSED, sender)
+        if(GameInstanceTimer.getTimerState() == GameTimerState.ACTIVE) {
+            GameInstanceTimer.setTimerState(GameTimerState.PAUSED, sender)
         } else {
             return
         }
@@ -68,8 +68,8 @@ class TimerCommands {
     @CommandDescription("Resumes the current timer.")
     @Permission("sg.cmd.timer")
     fun timerResume(sender: CommandSender) {
-        if(GameTimer.getTimerState() == GameTimerState.PAUSED) {
-            GameTimer.setTimerState(GameTimerState.ACTIVE, sender)
+        if(GameInstanceTimer.getTimerState() == GameTimerState.PAUSED) {
+            GameInstanceTimer.setTimerState(GameTimerState.ACTIVE, sender)
         } else {
             return
         }
