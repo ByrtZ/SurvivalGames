@@ -5,8 +5,8 @@ import dev.byrt.survivalgames.plugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bukkit.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -14,29 +14,49 @@ import org.bukkit.event.world.WorldLoadEvent
 import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
 import java.util.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
-object SGWorldCreator: Listener {
+object SGWorld: Listener {
     init {
         Bukkit.getPluginManager().registerEvents(this, plugin)
     }
+    //todo: world destruction on disable
+    suspend fun createNewGameWorld(worldId: UUID): World =
+        suspendCancellableCoroutine { cont ->
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val worldName = "sg-game-$worldId"
+                    val worldFolder = File(Bukkit.getWorldContainer(), worldName)
+                    val regionSource = File(plugin.dataFolder, "worlds/master/region")
+                    val regionTarget = File(worldFolder, "region")
+                    if (worldFolder.exists()) worldFolder.deleteRecursively()
 
-    fun createNewGameWorld(worldId: UUID): World {
-        val job = copyRegionFiles(worldId)
-        var newWorld: World? = null
-        object : BukkitRunnable() {
-            var timeElapsed = 0
-            override fun run() {
-                if(job.isCompleted) {
-                    logger.info("Region files job completed (in ${timeElapsed.times(50)}ms), creating game world ($worldId)")
-                    newWorld = getWorldCreator(worldId).createWorld()!!
-                    logger.info("Created game world ($worldId)")
-                    cancel()
+                    regionTarget.parentFile.mkdirs()
+
+                    regionSource.copyRecursively(
+                        target = regionTarget,
+                        overwrite = true
+                    )
+
+                    object : BukkitRunnable() {
+                        override fun run() {
+                            try {
+                                Bukkit.getWorld(worldName)?.let { Bukkit.unloadWorld(it, false) }
+                                val world = getWorldCreator(worldId).createWorld() ?: error("Failed to create world")
+                                cont.resume(world)
+
+                            } catch (e: Exception) {
+                                cont.resumeWithException(e)
+                            }
+                        }
+                    }.runTask(plugin)
+
+                } catch (e: Exception) {
+                    cont.resumeWithException(e)
                 }
-                timeElapsed++
             }
-        }.runTaskTimer(plugin, 0L, 1)
-        return newWorld!!
-    }
+        }
 
     @EventHandler
     private fun onWorldLoad(e: WorldLoadEvent) {
@@ -59,26 +79,17 @@ object SGWorldCreator: Listener {
                 setGameRule(GameRules<Boolean>.SHOW_ADVANCEMENT_MESSAGES, false)
                 setGameRule(GameRules<Boolean>.SPAWNER_BLOCKS_WORK, false)
                 setGameRule(GameRules<Boolean>.SPREAD_VINES, false)
+                time = 10000
             }
         }
     }
 
     private fun getWorldCreator(worldId: UUID): WorldCreator {
-        return WorldCreator("sg-game-$worldId", NamespacedKey(plugin, "world")).apply {
+        return WorldCreator("sg-game-$worldId", NamespacedKey(plugin, "sg-game-$worldId")).apply {
             generator(SGChunkGenerator)
-            environment(World.Environment.CUSTOM)
+            environment(World.Environment.NORMAL)
             type(WorldType.FLAT)
-            generatorSettings("{\"layers\": [{\"block\": \"air\", \"height\": 1}], \"biome\":\"the_void\"")
-        }
-    }
-
-    private fun copyRegionFiles(worldId: UUID): Job {
-        return CoroutineScope(Dispatchers.IO).launch {
-            File("${plugin.dataFolder}/worlds/master")
-                .copyRecursively(
-                    target = File("${plugin.dataFolder}/worlds/temp/sg-game-$worldId"),
-                    overwrite = true,
-                )
+            generatorSettings("{\"layers\":[{\"block\":\"air\",\"height\":1}],\"biome\":\"plains\"}")
         }
     }
 }

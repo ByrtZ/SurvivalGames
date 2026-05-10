@@ -1,7 +1,8 @@
 package dev.byrt.survivalgames.team
 
-import dev.byrt.survivalgames.game.instance.GameInstanceInfo
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.SGPlayer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
@@ -12,7 +13,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.scoreboard.Team
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import kotlin.enums.EnumEntries
 import kotlin.enums.enumEntries
 import kotlin.reflect.KClass
@@ -32,14 +33,14 @@ class TeamManager<T> @PublishedApi internal constructor(
 
     private val playerTeams = mutableMapOf<UUID, T>()
 
-    private val scoreboardTeams = allTeams.associateWith {
-        GameInstanceInfo.scoreboard.registerNewTeam(it.name).apply {
+    /*private val scoreboardTeams = allTeams.associateWith {
+        it.container!!.instance.info.scoreboard.registerNewTeam(it.name).apply {
             displayName(Component.text(it.name))
             setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER)
             setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER)
             color(NamedTextColor.nearestTo(it.textColour))
         }
-    }
+    }*/
 
     /**
      * Whether a player is participating in the game, i.e. they are on a team.
@@ -49,12 +50,7 @@ class TeamManager<T> @PublishedApi internal constructor(
     /**
      * A set of all participating players.
      */
-    //fun allParticipants(): Set<BurbPlayer> = playerTeams.keys.mapTo(mutableSetOf()) { it.burbPlayer() }
-
-    /**
-     * Gets all the players on a team.
-     */
-    //fun teamMembers(team: T) : Set<BurbPlayer> = playerTeams.filterValues { it == team }.keys.mapTo(mutableSetOf()) { it.burbPlayer() }
+    fun allParticipants(): Set<SGPlayer> = playerTeams.keys.mapTo(mutableSetOf()) { it.sgPlayer() }
 
     /**
      * Gets the team the player is on.
@@ -72,7 +68,7 @@ class TeamManager<T> @PublishedApi internal constructor(
         }
 
         if (previousTeam != null) {
-            scoreboardTeams.getValue(previousTeam).removePlayer(player)
+            //scoreboardTeams.getValue(previousTeam).removePlayer(player)
         }
 
         Bukkit.getPluginManager().callEvent(PlayerTeamChangedEvent(player, team))
@@ -84,7 +80,7 @@ class TeamManager<T> @PublishedApi internal constructor(
             Title.Times.times(Duration.ofMillis(250), Duration.ofSeconds(3), Duration.ofMillis(250)),
         ))
         if (team != null) {
-            scoreboardTeams.getValue(team).addPlayer(player)
+            //scoreboardTeams.getValue(team).addPlayer(player)
         }
         logger.info("Teams: ${player.name} now has value ${team?.name}.")
     }

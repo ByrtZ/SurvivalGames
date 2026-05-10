@@ -8,7 +8,7 @@ import java.util.UUID
 object PlayerManager {
     private val sgPlayers = mutableMapOf<UUID, SGPlayer>()
     fun registerPlayer(player: Player) {
-        logger.info("Player Manager: Registering player ${player.name} as BurbPlayer.")
+        logger.info("Player Manager: Registering player ${player.name} as SGPlayer.")
         val sgPlayer = SGPlayer(player.uniqueId, player.name, PlayerType.UNREGISTERED)
         sgPlayers[player.uniqueId] = sgPlayer
         //ItemManager.clearItems(player)

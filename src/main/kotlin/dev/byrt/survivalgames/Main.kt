@@ -54,7 +54,6 @@ class Main : JavaPlugin() {
         resourcePackApplier = ResourcePackApplier(resourcePackLoader)
         server.pluginManager.registerEvents(resourcePackApplier, this)
 
-        GameManager.setup()
         setupCommands()
         setupEventListeners()
         InterfacesListeners.install(this)
@@ -62,7 +61,8 @@ class Main : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("Stopping Survival Games plugin.")
-        GameManager.cleanup()
+        GameManager.gameContainers.forEach { it.onDestroy() }
+        GameManager.gameContainers.clear()
     }
 
     private fun setupCommands() {
@@ -109,7 +109,6 @@ class Main : JavaPlugin() {
     }
 
     private fun setupEventListeners() {
-        logger.info("Registering events.")
         logger.info("Registering events.")
         val reflections = Reflections("dev.byrt.survivalgames.event")
         val listeners = reflections.getSubTypesOf(Listener::class.java)

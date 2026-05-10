@@ -16,7 +16,7 @@ import org.bukkit.scoreboard.DisplaySlot
 import java.util.*
 
 class GameInstanceInfo(val instance: GameInstance) {
-    public val scoreboard = Bukkit.getScoreboardManager().newScoreboard
+    val scoreboard = Bukkit.getScoreboardManager().newScoreboard
     private var objective = scoreboard.registerNewObjective(
         "${plugin.name.lowercase()}-info-${instance.gameInstanceId}",
         Criteria.DUMMY,

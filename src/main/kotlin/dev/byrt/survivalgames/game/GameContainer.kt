@@ -5,6 +5,7 @@ import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
+import dev.byrt.survivalgames.world.SGWorld
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.World
@@ -25,13 +26,14 @@ data class GameContainer(val containerName: String, val containerId: UUID, val c
     }
 
     fun onDestroy() {
-        instance.info.destroyScoreboard()
         this.players.forEach { player ->
             player.sgPlayer().currentContainer = null
-            player.teleport(Location(Bukkit.getWorlds()[0], 0.0, 0.0, 0.0, 0f, 0f))
+            player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
         }
         this.players.clear()
+        instance.info.destroyScoreboard()
         instance.currentContainer = null
         plugin.server.unloadWorld(containerWorld, false)
+        //todo: destroy world files
     }
 }

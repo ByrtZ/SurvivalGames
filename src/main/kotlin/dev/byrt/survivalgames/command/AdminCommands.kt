@@ -6,15 +6,12 @@ import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.Formatting.SG_FONT
 import dev.byrt.survivalgames.text.TextAlignment
-import dev.byrt.survivalgames.world.SGWorldCreator
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.ShadowColor
 import net.kyori.adventure.text.format.Style
 import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.World
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
@@ -24,8 +21,6 @@ import org.incendo.cloud.annotations.Command
 import org.incendo.cloud.annotations.CommandDescription
 import org.incendo.cloud.annotations.Permission
 import org.incendo.cloud.annotations.processing.CommandContainer
-import org.incendo.cloud.annotations.suggestion.Suggestions
-import java.util.UUID
 
 @Suppress("unused", "unstableApiUsage")
 @CommandContainer
@@ -97,18 +92,5 @@ class AdminCommands {
     @Permission("sg.cmd.debug")
     fun sendTranslation(player: Player, @Argument("translation") translation: String) {
         player.sendMessage(Component.translatable(translation))
-    }
-
-    @Command("debug generate_world")
-    @Permission("sg.cmd.debug")
-    fun debugGenerateWorld(sender: Player) {
-        val worldID = UUID.randomUUID()
-        SGWorldCreator.createNewGameWorld(worldID)
-    }
-
-    @Command("debug join_world <world>")
-    @Permission("sg.cmd.debug")
-    fun debugJoinWorld(sender: Player, @Argument("world") world: World) {
-        sender.teleport(Location(world, 0.0, 0.0, 0.0, 0f, 0f))
     }
 }

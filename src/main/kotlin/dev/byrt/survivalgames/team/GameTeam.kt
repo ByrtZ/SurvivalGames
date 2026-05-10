@@ -1,5 +1,6 @@
 package dev.byrt.survivalgames.team
 
+import dev.byrt.survivalgames.game.GameContainer
 import net.kyori.adventure.text.ComponentLike
 import net.kyori.adventure.text.format.TextColor
 
@@ -9,4 +10,5 @@ import net.kyori.adventure.text.format.TextColor
 interface GameTeam: ComponentLike {
     val teamDisplayName: String
     val textColour: TextColor
+    val container: GameContainer?
 }

@@ -117,3 +117,6 @@ run/
 # Gradle wrapper
 gradle/
 !gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin
+.kotlin/

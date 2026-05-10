@@ -2,27 +2,24 @@ package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.library.Sounds
-import dev.byrt.survivalgames.plugin
-import dev.byrt.survivalgames.team.Team
-import dev.byrt.survivalgames.team.TeamManager
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
-import org.bukkit.Bukkit
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.time.Duration
 
 class GameInstanceManager(val instance: GameInstance) {
-    public val teams = TeamManager<Team>()
+    //public val teams = TeamManager<Team>()
     private var gameState = GameState.IDLE
     private var overtimeActive = false
 
     init {
-        Bukkit.getPluginManager().registerEvents(teams, plugin)
+        //Bukkit.getPluginManager().registerEvents(teams, plugin)
+        //Team.PLAYER.container = instance.currentContainer
     }
 
     fun nextState() {
@@ -113,9 +110,9 @@ class GameInstanceManager(val instance: GameInstance) {
             }
         }
         for(player in instance.currentContainer?.players!!) {
-            if(teams.isParticipating(player.uniqueId)) {
+            /*if(teams.isParticipating(player.uniqueId)) {
                 //TODO: CORNUCOPIA SPAWNS
-            }
+            }*/
             //Jukebox.disconnect(player)
         }
     }

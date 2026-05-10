@@ -20,9 +20,10 @@ class GameCommands {
     @Confirmation
     fun start(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
-            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() == GameState.IDLE) {
-                ChatUtility.broadcastDev("<dark_gray>${sender.name} started a match in container ${sender.sgPlayer().currentContainer?.containerId}.", false)
-                sender.sgPlayer().currentContainer?.instance?.manager?.nextState()
+            val currentContainer = sender.sgPlayer().currentContainer!!
+            if(currentContainer.instance.manager.getGameState() == GameState.IDLE) {
+                ChatUtility.broadcastDev("<dark_gray>${sender.name} started match in container ${currentContainer.containerId}.", false)
+                currentContainer.instance.manager.nextState()
             }
         }
     }
@@ -32,9 +33,10 @@ class GameCommands {
     @Permission("burb.cmd.game")
     fun stop(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
-            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() != GameState.IDLE) {
-                ChatUtility.broadcastDev("<dark_gray>${sender.name} stopped a match in container ${sender.sgPlayer().currentContainer?.containerId}.", false)
-                sender.sgPlayer().currentContainer?.instance?.manager?.setGameState(GameState.GAME_END)
+            val currentContainer = sender.sgPlayer().currentContainer!!
+            if(currentContainer.instance.manager.getGameState() != GameState.IDLE) {
+                ChatUtility.broadcastDev("<dark_gray>${sender.name} stopped match in container ${currentContainer.containerId}.", false)
+                currentContainer.instance.manager.setGameState(GameState.GAME_END)
             }
         }
     }
@@ -45,9 +47,10 @@ class GameCommands {
     @Confirmation
     fun nextPhase(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
-            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() == GameState.IDLE) return
-            ChatUtility.broadcastDev("<dark_gray>${sender.name} pushed match ${sender.sgPlayer().currentContainer?.containerId} to its next state.", false)
-            sender.sgPlayer().currentContainer?.instance?.manager?.nextState()
+            val currentContainer = sender.sgPlayer().currentContainer!!
+            if(currentContainer.instance.manager.getGameState() == GameState.IDLE) return
+            ChatUtility.broadcastDev("<dark_gray>${sender.name} pushed match ${currentContainer.containerId} to its next state.", false)
+            currentContainer.instance.manager.nextState()
         }
     }
 
@@ -55,11 +58,12 @@ class GameCommands {
     @CommandDescription("Forces the game into the specified phase in the executing player's game container.")
     @Permission("burb.cmd.game")
     @Confirmation
-    fun nextPhase(sender: Player, @Argument(value = "state") state: GameState) {
+    fun forceState(sender: Player, @Argument(value = "state") state: GameState) {
         if(sender.sgPlayer().currentContainer != null) {
-            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() == GameState.IDLE) return
-            ChatUtility.broadcastDev("<dark_gray>${sender.name} forced match ${sender.sgPlayer().currentContainer?.containerId} into $state state.", false)
-            sender.sgPlayer().currentContainer?.instance?.manager?.forceState(state)
+            val currentContainer = sender.sgPlayer().currentContainer!!
+            if(currentContainer.instance.manager.getGameState() == GameState.IDLE) return
+            ChatUtility.broadcastDev("<dark_gray>${sender.name} forced match ${currentContainer.containerId} into $state state.", false)
+            currentContainer.instance.manager.forceState(state)
         }
     }
 
@@ -67,13 +71,13 @@ class GameCommands {
     @CommandDescription("Sets the total number of rounds in the executing player's game container.")
     @Permission("burb.cmd.game")
     fun setRounds(sender: Player, @Argument amount: Int) {
-
         if(sender.sgPlayer().currentContainer != null) {
-            if(sender.sgPlayer().currentContainer?.instance?.manager?.getGameState() == GameState.IDLE) {
+            val currentContainer = sender.sgPlayer().currentContainer!!
+            if(currentContainer.instance.manager.getGameState() == GameState.IDLE) {
                 if(amount <= 1) return
-                if(amount == sender.sgPlayer().currentContainer?.instance?.rounds?.getTotalRounds()) return
-                ChatUtility.broadcastDev("<dark_gray>${sender.name} set the total number of rounds in match ${sender.sgPlayer().currentContainer?.containerId} to $amount.", false)
-                sender.sgPlayer().currentContainer?.instance?.rounds?.setTotalRounds(amount)
+                if(amount == currentContainer.instance.rounds.getTotalRounds()) return
+                ChatUtility.broadcastDev("<dark_gray>${sender.name} set the total number of rounds in match ${currentContainer.containerId} to $amount.", false)
+                currentContainer.instance.rounds.setTotalRounds(amount)
             }
         }
     }

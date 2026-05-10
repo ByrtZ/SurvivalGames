@@ -1,8 +1,7 @@
 package dev.byrt.survivalgames.event
 
-import dev.byrt.survivalgames.game.instance.GameInstanceManager
 import dev.byrt.survivalgames.game.instance.GameState
-import org.bukkit.Bukkit
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerMoveEvent
@@ -11,8 +10,10 @@ import org.bukkit.event.player.PlayerMoveEvent
 class PlayerMove: Listener {
     @EventHandler
     private fun onMove(e: PlayerMoveEvent) {
-        if(GameInstanceManager.getGameState() == GameState.STARTING) {
-            for(player in Bukkit.getOnlinePlayers().filter { online -> GameInstanceManager.teams.isParticipating(online.uniqueId) }) {
+        val movedPlayer = e.player
+        if(movedPlayer.sgPlayer().currentContainer != null) {
+            val currentContainer = movedPlayer.sgPlayer().currentContainer!!
+            if(currentContainer.instance.manager.getGameState() == GameState.STARTING) {
                 val to = e.from
                 to.pitch = e.to.pitch
                 to.yaw = e.to.yaw
