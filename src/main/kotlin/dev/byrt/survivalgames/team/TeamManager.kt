@@ -1,5 +1,6 @@
 package dev.byrt.survivalgames.team
 
+import dev.byrt.survivalgames.game.instance.GameInstance
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.SGPlayer
@@ -17,24 +18,25 @@ import java.util.*
 import kotlin.enums.EnumEntries
 import kotlin.enums.enumEntries
 import kotlin.reflect.KClass
-
+//TODO might end up yeeting this system and run by player type (participant, spectator etc) as there will be no teams
 /**
  * Manages the team a player is assigned to.
  */
 class TeamManager<T> @PublishedApi internal constructor(
+    val instance: GameInstance,
     private val teamClazz: KClass<T>,
     private val allTeams: EnumEntries<T>
 ) : Listener where T : GameTeam, T : Enum<T> {
 
     companion object {
-        inline operator fun <reified T> invoke() where T : GameTeam, T : Enum<T> =
-            TeamManager(T::class, enumEntries<T>())
+        inline operator fun <reified T> invoke(instance: GameInstance) where T : GameTeam, T : Enum<T> =
+            TeamManager(instance, T::class, enumEntries<T>())
     }
 
     private val playerTeams = mutableMapOf<UUID, T>()
 
     /*private val scoreboardTeams = allTeams.associateWith {
-        it.container!!.instance.info.scoreboard.registerNewTeam(it.name).apply {
+        it.container!!.instance.info.gameScoreboard.registerNewTeam(it.name).apply {
             displayName(Component.text(it.name))
             setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER)
             setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER)

@@ -8,7 +8,7 @@ import java.util.UUID
 data class GameInstance(val gameInstanceId: UUID) {
     init {
         logger.info("Initialising game instance $gameInstanceId")
-        ChatUtility.broadcastDev("Initialising game instance $gameInstanceId", true)
+        ChatUtility.broadcastDev("<dark_gray>Initialising game instance $gameInstanceId", true)
     }
     val manager = GameInstanceManager(this)
     val task = GameInstanceTask(this)

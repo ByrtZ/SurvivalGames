@@ -1,10 +1,10 @@
 package dev.byrt.survivalgames.world
 
+import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.plugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bukkit.*
@@ -57,6 +57,32 @@ object SGWorld: Listener {
                 }
             }
         }
+
+    fun deleteGameWorld(world: World) {
+        if(world == Bukkit.getWorlds()[0]) return
+        val path = world.worldPath
+        plugin.server.unloadWorld(world, false)
+        object : BukkitRunnable() {
+            override fun run() {
+                // Wait for server to dispatch players to hub and unload world first
+                if(world.players.isNotEmpty()) {
+                    world.players.forEach { player -> GameManager.removePlayerFromContainer(player)}
+                } else {
+                    if(!plugin.server.worlds.contains(world)) {
+                        if (!path.toFile().exists()) {
+                            cancel()
+                            return
+                        }
+                        val deleted = path.toFile().deleteRecursively()
+                        if (deleted) {
+                            logger.info("Game world ${world.name} has been deleted")
+                            cancel()
+                        }
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 20L, 20L)
+    }
 
     @EventHandler
     private fun onWorldLoad(e: WorldLoadEvent) {

@@ -11,7 +11,7 @@ object Sounds {
     }
     object Timer {
         val STARTING_123 = sound(key("block.note_block.harp"), Source.VOICE, 1f, 1f)
-        val STARTING_GO = sound(key("block.note_block.harp"), Source.VOICE, 1.25f, 1f)
+        val STARTING_GO = sound(key("block.end_portal.spawn"), Source.VOICE, 1.25f, 1f)
         val CLOCK_TICK = sound(key("block.note_block.snare"), Source.VOICE, 1f, 1f)
         val CLOCK_TICK_HIGH = sound(key("block.note_block.snare"), Source.VOICE, 1f, 1.25f)
     }

@@ -1,5 +1,6 @@
 package dev.byrt.survivalgames.game
 
+import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.event.PlayerJoinContainerEvent
 import dev.byrt.survivalgames.player.event.PlayerLeaveContainerEvent
@@ -42,7 +43,6 @@ object GameManager {
     fun destroyContainer(gameContainer: GameContainer) {
         gameContainer.onDestroy()
         gameContainers.remove(gameContainer)
-        // move to game end/automatic expiry?
     }
 
     fun getContainerById(id: String): GameContainer? {
@@ -55,15 +55,18 @@ object GameManager {
 
     fun addPlayerToContainer(player: Player, gameContainer: GameContainer) {
         player.sgPlayer().currentContainer = gameContainer
+        gameContainer.players.add(player)
         Bukkit.getPluginManager().callEvent(PlayerJoinContainerEvent(player, gameContainer))
-        player.scoreboard = gameContainer.instance.info.scoreboard
+        player.scoreboard = if(gameContainer.instance.manager.getGameState() == GameState.IDLE) gameContainer.instance.info.preGameScoreboard else gameContainer.instance.info.gameScoreboard
         player.teleport(Location(gameContainer.containerWorld, -1914.5, 78.0, -1680.5, 0f, 0f))
     }
 
     fun removePlayerFromContainer(player: Player) {
         Bukkit.getPluginManager().callEvent(PlayerLeaveContainerEvent(player, player.sgPlayer().currentContainer))
+        player.sgPlayer().currentContainer?.players?.remove(player)
         player.sgPlayer().currentContainer = null
         player.scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        player.activeBossBars().forEach { bossBar -> bossBar.removeViewer(player) }
         player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
     }
 }

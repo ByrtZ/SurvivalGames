@@ -19,11 +19,11 @@ class GameInstanceTask(val instance: GameInstance) {
     fun startGameLoop() {
         val gameRunnable = object : BukkitRunnable() {
             override fun run() {
-                instance.info.updateTimer()
+                instance.info.updateGameTimer()
                 /** STARTING **/
                 if (instance.manager.getGameState() == GameState.STARTING && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
                     if (instance.timer.getTimer() == 80) {
-                        for (player in Bukkit.getOnlinePlayers()) {
+                        for (player in Bukkit.getOnlinePlayers()) { //TODO replace getOnlinePlayers with container players
                             player.showTitle(
                                 Title.title(
                                     Formatting.glyph("\uD000"),
@@ -35,7 +35,7 @@ class GameInstanceTask(val instance: GameInstance) {
                                     )
                                 )
                             )
-                            //player.playSound(Sounds.Music.GAME_INTRO_JINGLE)
+                            player.playSound(Sounds.Misc.TITLE_SCREEN_ENTER)
                         }
                     }
                     if (instance.timer.getTimer() == 75) {
@@ -222,7 +222,6 @@ class GameInstanceTask(val instance: GameInstance) {
                             )
                         }
                         instance.manager.nextState()
-                        stopGameLoop()
                     }
                 }
 
@@ -239,6 +238,5 @@ class GameInstanceTask(val instance: GameInstance) {
 
     fun stopGameLoop() {
         gameRunnables.remove(currentGameTaskId)?.cancel()
-        instance.timer.setTimer(0, null)
     }
 }

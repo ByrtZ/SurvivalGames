@@ -9,156 +9,161 @@ import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.bossbar.BossBar.Color
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
-import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
-import java.util.*
 
 class GameInstanceInfo(val instance: GameInstance) {
-    val scoreboard = Bukkit.getScoreboardManager().newScoreboard
-    private var objective = scoreboard.registerNewObjective(
-        "${plugin.name.lowercase()}-info-${instance.gameInstanceId}",
+    val preGameScoreboard = Bukkit.getScoreboardManager().newScoreboard
+    private var preGameObjective = preGameScoreboard.registerNewObjective(
+        "${plugin.name.lowercase()}-pregame-info-${instance.gameInstanceId}",
         Criteria.DUMMY,
-        Formatting.allTags.deserialize("<gold><bold>${ChatUtility.SG_FONT_TAG}FROOMIN IT<reset>")
+        Formatting.allTags.deserialize("<green><bold>${ChatUtility.SG_FONT_TAG}Awaiting players...<reset>")
     )
+    private var preGamePlayersLine = preGameScoreboard.registerNewTeam("preGamePlayersLine")
+    private val preGamePlayersLineKey = ChatColor.STRIKETHROUGH.toString()
+    private var preGamePlayerCountLine = preGameScoreboard.registerNewTeam("preGamePlayerCountLine")
+    private val preGamePlayerCountLineKey = ChatColor.MAGIC.toString()
+    private var preGameGameLine = preGameScoreboard.registerNewTeam("preGameGameLine")
+    private val preGameGameLineKey = ChatColor.UNDERLINE.toString()
+    private var preGameGameNameLine = preGameScoreboard.registerNewTeam("preGameGameNameLine")
+    private val preGameGameNameLineKey = ChatColor.BOLD.toString()
+    private var preGameMapLine = preGameScoreboard.registerNewTeam("preGameMapLine")
+    private val preGameMapLineKey = ChatColor.GRAY.toString()
+    private var preGameMapNameLine = preGameScoreboard.registerNewTeam("preGameMapNameLine")
+    private val preGameMapNameLineKey = ChatColor.DARK_GRAY.toString()
+    private var preGameInstanceLine = preGameScoreboard.registerNewTeam("preGameInstanceLine")
+    private val preGameInstanceLineKey = ChatColor.LIGHT_PURPLE.toString()
+    private var preGameInstanceNameLine = preGameScoreboard.registerNewTeam("preGameInstanceNameLine")
+    private val preGameInstanceNameLineKey = ChatColor.DARK_PURPLE.toString()
+    private var preGameServerIpLine = preGameScoreboard.registerNewTeam("preGameServerIpLine")
+    private val preGameServerIpLineKey = ChatColor.DARK_GREEN.toString()
 
-    private var currentGameLine = scoreboard.registerNewTeam("currentGameLine")
-    private val currentGameLineKey = ChatColor.STRIKETHROUGH.toString()
-
-    private var currentMapLine = scoreboard.registerNewTeam("currentMapLine")
-    private val currentMapLineKey = ChatColor.BOLD.toString()
-
-    private var currentScoreLine = scoreboard.registerNewTeam("currentScoreLine")
-    private val currentScoreLineKey = ChatColor.DARK_PURPLE.toString()
-
-    private var currentRoundLine = scoreboard.registerNewTeam("currentRoundLine")
-    private val currentRoundLineKey = ChatColor.ITALIC.toString()
-
-    private var gameStatusLine = scoreboard.registerNewTeam("gameStatusLine")
-    private val gameStatusLineKey = ChatColor.MAGIC.toString()
-
-    private var firstPlaceLine = scoreboard.registerNewTeam("firstPlaceLine")
-    private val firstPlaceLineKey = ChatColor.UNDERLINE.toString()
-
-    private var secondPlaceLine = scoreboard.registerNewTeam("secondPlaceLine")
-    private val secondPlaceLineKey = ChatColor.LIGHT_PURPLE.toString()
-
-    private var thirdPlaceLine = scoreboard.registerNewTeam("thirdPlaceLine")
-    private val thirdPlaceLineKey = ChatColor.BLACK.toString()
-
-    fun buildScoreboard() {
-        plugin.logger.info("Building scoreboard...")
-        objective.displaySlot = DisplaySlot.SIDEBAR
-        objective.numberFormat(NumberFormat.blank())
-
-        // Modifiable game text
-        currentGameLine.addEntry(currentGameLineKey)
-        currentGameLine.prefix(Formatting.allTags.deserialize("<aqua>${ChatUtility.SG_FONT_TAG}GAME:<reset> "))
-        currentGameLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}Survival Games"))
-        objective.getScore(currentGameLineKey).score = 10
-
-        // Modifiable map text
-        currentMapLine.addEntry(currentMapLineKey)
-        currentMapLine.prefix(Formatting.allTags.deserialize("<aqua>${ChatUtility.SG_FONT_TAG}MAP:<reset> "))
-        currentMapLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}Auburn Forest"))
-        objective.getScore(currentMapLineKey).score = 9
-
-        // Modifiable round information
-        currentRoundLine.addEntry(currentRoundLineKey)
-        currentRoundLine.prefix(Formatting.allTags.deserialize("<green>${ChatUtility.SG_FONT_TAG}ROUND:<reset> "))
-        currentRoundLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}NONE"))
-        objective.getScore(currentRoundLineKey).score = 8
-
-        // Modifiable game status information
-        gameStatusLine.addEntry(gameStatusLineKey)
-        gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}GAME STATUS:<reset> "))
-        gameStatusLine.suffix(Formatting.allTags.deserialize("<gray>${ChatUtility.SG_FONT_TAG}AWAITING PLAYERS..."))
-        objective.getScore(gameStatusLineKey).score = 7
-
-        // Static blank space
-        objective.getScore("§").score = 6
-
-        // Static score multiplier
-        currentScoreLine.addEntry(currentScoreLineKey)
-        currentScoreLine.prefix(Formatting.allTags.deserialize("<aqua>${ChatUtility.SG_FONT_TAG}GAME STANDINGS:"))
-        currentScoreLine.suffix(Formatting.allTags.deserialize(""))
-        objective.getScore(currentScoreLineKey).score = 5
-
-        // Modifiable first placement score
-        firstPlaceLine.addEntry(firstPlaceLineKey)
-        firstPlaceLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}<dark_gray>-<reset> "))
-        firstPlaceLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}TODO"))
-        objective.getScore(firstPlaceLineKey).score = 4
-
-        // Modifiable second placement score
-        secondPlaceLine.addEntry(secondPlaceLineKey)
-        secondPlaceLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}<dark_gray>-<reset> "))
-        secondPlaceLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}TODO"))
-        objective.getScore(secondPlaceLineKey).score = 3
-
-        // Modifiable third placement score
-        thirdPlaceLine.addEntry(thirdPlaceLineKey)
-        thirdPlaceLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}<dark_gray>-<reset> "))
-        thirdPlaceLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}TODO"))
-        objective.getScore(thirdPlaceLineKey).score = 2
-
-        // Static blank space
-        objective.getScore("§§").score = 0
-
-        plugin.logger.info("Scoreboard constructed with ID ${objective.name}.")
+    fun buildPreGameBoard() {
+        plugin.logger.info("Building pre-game scoreboard...")
+        preGameObjective.displaySlot = DisplaySlot.SIDEBAR
+        preGameObjective.numberFormat(NumberFormat.blank())
+        preGamePlayersLine.addEntry(preGamePlayersLineKey)
+        preGamePlayersLine.prefix(Formatting.allTags.deserialize("<b><yellow>${ChatUtility.SG_FONT_TAG}Players<reset>"))
+        preGameObjective.getScore(preGamePlayersLineKey).score = 12
+        preGamePlayerCountLine.addEntry(preGamePlayerCountLineKey)
+        preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}0/16"))
+        preGameObjective.getScore(preGamePlayerCountLineKey).score = 11
+        preGameObjective.getScore("§").score = 10
+        preGameGameLine.addEntry(preGameGameLineKey)
+        preGameGameLine.prefix(Formatting.allTags.deserialize("<b><gold>${ChatUtility.SG_FONT_TAG}Game<reset>"))
+        preGameObjective.getScore(preGameGameLineKey).score = 9
+        preGameGameNameLine.addEntry(preGameGameNameLineKey)
+        preGameGameNameLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}Survival Games"))
+        preGameObjective.getScore(preGameGameNameLineKey).score = 8
+        preGameObjective.getScore("§§").score = 7
+        preGameMapLine.addEntry(preGameMapLineKey)
+        preGameMapLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Map<reset>"))
+        preGameObjective.getScore(preGameMapLineKey).score = 6
+        preGameMapNameLine.addEntry(preGameMapNameLineKey)
+        preGameMapNameLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}Auburn Forest"))
+        preGameObjective.getScore(preGameMapNameLineKey).score = 5
+        preGameObjective.getScore("§§§").score = 4
+        preGameInstanceLine.addEntry(preGameInstanceLineKey)
+        preGameInstanceLine.prefix(Formatting.allTags.deserialize("<b><aqua>${ChatUtility.SG_FONT_TAG}Instance<reset>"))
+        preGameObjective.getScore(preGameInstanceLineKey).score = 3
+        preGameInstanceNameLine.addEntry(preGameInstanceNameLineKey)
+        preGameInstanceNameLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${instance.gameInstanceId.toString().toCharArray(0, 7).joinToString("")}"))
+        preGameObjective.getScore(preGameInstanceNameLineKey).score = 2
+        preGameObjective.getScore("§§§§").score = 1
+        preGameServerIpLine.addEntry(preGameServerIpLineKey)
+        preGameServerIpLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}<gold>mc.byrt.dev</gold> <dark_gray>(${plugin.server.minecraftVersion})<reset>"))
+        preGameObjective.getScore(preGameServerIpLineKey).score = 0
+        plugin.logger.info("Scoreboard constructed with ID ${preGameObjective.name}.")
     }
 
-    fun updateRound() {
-        if (instance.manager.getGameState() == GameState.IDLE) {
-            currentRoundLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}NONE"))
-        } else {
-            currentRoundLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${instance.rounds}/${instance.rounds.getTotalRounds()}"))
-        }
+    //TODO pre game scoreboard update player count line (link to queue), update map name line
+
+    val gameScoreboard = Bukkit.getScoreboardManager().newScoreboard
+    private var gameObjective = gameScoreboard.registerNewObjective(
+        "${plugin.name.lowercase()}-game-info-${instance.gameInstanceId}",
+        Criteria.DUMMY,
+        Formatting.allTags.deserialize("<gold><bold>${ChatUtility.SG_FONT_TAG}Survival Games<reset>")
+    )
+    private var gameTimeLine = gameScoreboard.registerNewTeam("gameTimeLine")
+    private val gameTimeLineKey = ChatColor.GRAY.toString()
+    private var gameTimeRemainingLine = gameScoreboard.registerNewTeam("gameTimeRemainingLine")
+    private val gameTimeRemainingLineKey = ChatColor.DARK_GRAY.toString()
+    private var gamePlayersLine = gameScoreboard.registerNewTeam("gamePlayersLine")
+    private val gamePlayersLineKey = ChatColor.LIGHT_PURPLE.toString()
+    private var gamePlayerCountLine = gameScoreboard.registerNewTeam("gamePlayerCountLine")
+    private val gamePlayerCountLineKey = ChatColor.DARK_PURPLE.toString()
+    private var gameServerIpLine = gameScoreboard.registerNewTeam("gameServerIpLine")
+    private val gameServerIpLineKey = ChatColor.DARK_GREEN.toString()
+
+    fun buildGameBoard() {
+        plugin.logger.info("Building game scoreboard...")
+        gameObjective.numberFormat(NumberFormat.blank())
+        gameTimeLine.addEntry(gameTimeLineKey)
+        gameTimeLine.prefix(Formatting.allTags.deserialize("<b><dark_gray>${ChatUtility.SG_FONT_TAG}Game status<reset>"))
+        gameObjective.getScore(gameTimeLineKey).score = 6
+        gameTimeRemainingLine.addEntry(gameTimeRemainingLineKey)
+        gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}Inactive"))
+        gameObjective.getScore(gameTimeRemainingLineKey).score = 5
+        gameObjective.getScore("§§§").score = 4
+        gamePlayersLine.addEntry(gamePlayersLineKey)
+        gamePlayersLine.prefix(Formatting.allTags.deserialize("<b><green>${ChatUtility.SG_FONT_TAG}Players remaining<reset>"))
+        gameObjective.getScore(gamePlayersLineKey).score = 3
+        gamePlayerCountLine.addEntry(gamePlayerCountLineKey)
+        gamePlayerCountLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}16/16"))
+        gameObjective.getScore(gamePlayerCountLineKey).score = 2
+        gameObjective.getScore("§§§§").score = 1
+        gameServerIpLine.addEntry(gameServerIpLineKey)
+        gameServerIpLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}<gold>mc.byrt.dev</gold> <dark_gray>(${plugin.server.minecraftVersion})<reset>"))
+        gameObjective.getScore(gameServerIpLineKey).score = 0
+        plugin.logger.info("Scoreboard constructed with ID ${gameObjective.name}.")
     }
 
-    fun updateStatus() {
+    //TODO update players remaining line
+
+    fun updateGameStatus() {
         when (instance.manager.getGameState()) {
             GameState.IDLE -> {
-                gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}GAME STATUS:<reset> "))
-                gameStatusLine.suffix(Formatting.allTags.deserialize("<gray>${ChatUtility.SG_FONT_TAG}AWAITING<reset> ${ChatUtility.SG_FONT_TAG}<gray>PLAYERS..."))
-                objective.displaySlot = null
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<dark_gray>${ChatUtility.SG_FONT_TAG}Game idle<reset> "))
+                gameObjective.displaySlot = null
+                preGameObjective.displaySlot = null
             }
 
             GameState.STARTING -> {
-                objective.displaySlot = DisplaySlot.SIDEBAR
+                preGameObjective.displaySlot = null
+                gameObjective.displaySlot = DisplaySlot.SIDEBAR
                 if (instance.rounds.getRound() == 1) {
-                    gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}GAME BEGINS:<reset> "))
+                    gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Game begins<reset> "))
                 } else {
-                    gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}ROUND BEGINS:<reset> "))
+                    gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Round begins<reset> "))
                 }
             }
 
             GameState.IN_GAME -> {
-                gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}TIME LEFT:<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Time left<reset> "))
             }
 
             GameState.ROUND_END -> {
-                gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}NEXT ROUND:<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Next round<reset> "))
             }
 
             GameState.GAME_END -> {
-                gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}GAME ENDING:<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Game ending<reset> "))
             }
 
             GameState.OVERTIME -> {
-                gameStatusLine.prefix(Formatting.allTags.deserialize("<red>${ChatUtility.SG_FONT_TAG}OVERTIME<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Overtime<reset> "))
             }
         }
     }
 
-    fun updateTimer() {
+    fun updateGameTimer() {
         if (instance.manager.getGameState() == GameState.OVERTIME) {
-            gameStatusLine.suffix(Formatting.allTags.deserialize(""))
+            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Overtime"))
         } else if (instance.manager.getGameState() == GameState.IDLE) {
-            gameStatusLine.suffix(Formatting.allTags.deserialize("<gray>${ChatUtility.SG_FONT_TAG}AWAITING PLAYERS..."))
+            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<dark_gray>${ChatUtility.SG_FONT_TAG}Game Inactive"))
         } else {
-            gameStatusLine.suffix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${instance.timer.getDisplayTimer()}"))
+            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${instance.timer.getDisplayTimer()}"))
         }
     }
 
@@ -169,17 +174,13 @@ class GameInstanceInfo(val instance: GameInstance) {
 
             override fun run() {
                 if (instance.manager.getGameState() != GameState.IDLE) {
-                    for (player in Bukkit.getOnlinePlayers()) {
-                        if (!player.activeBossBars().contains(timerBossBar)) timerBossBar.addViewer(player)
-                    }
+                    instance.currentContainer?.players?.forEach { player -> if(!player.activeBossBars().contains(timerBossBar)) timerBossBar.addViewer(player) }
                 }
                 when(instance.timer.getTimerState()) {
                     GameTimerState.ACTIVE -> {
                         when (instance.manager.getGameState()) {
                             GameState.IDLE -> {
-                                for (player in Bukkit.getOnlinePlayers()) {
-                                    timerBossBar.removeViewer(player)
-                                }
+                                instance.currentContainer?.players?.forEach { player -> timerBossBar.removeViewer(player) }
                                 this.cancel()
                             }
 
@@ -217,14 +218,8 @@ class GameInstanceInfo(val instance: GameInstance) {
         }.runTaskTimer(plugin, 0L, 1L)
     }
 
-    fun destroyScoreboard() {
-        currentGameLine.unregister()
-        currentMapLine.unregister()
-        currentScoreLine.unregister()
-        currentRoundLine.unregister()
-        gameStatusLine.unregister()
-        firstPlaceLine.unregister()
-        secondPlaceLine.unregister()
-        objective.unregister()
+    fun destroyAllScoreboards() {
+        preGameObjective.unregister()
+        gameObjective.unregister()
     }
 }

@@ -2,12 +2,8 @@ package dev.byrt.survivalgames.game
 
 import dev.byrt.survivalgames.game.instance.GameInstance
 import dev.byrt.survivalgames.logger
-import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
-import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.world.SGWorld
-import org.bukkit.Bukkit
-import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Player
 import java.util.*
@@ -15,25 +11,24 @@ import java.util.*
 data class GameContainer(val containerName: String, val containerId: UUID, val containerWorld: World) {
     init {
         logger.info("Initialising game container $containerId")
-        ChatUtility.broadcastDev("Initialising game container $containerId", true)
+        ChatUtility.broadcastDev("<dark_gray>Initialising game container $containerId", true)
     }
     val players: MutableList<Player> = mutableListOf()
     val instance: GameInstance = GameInstance(containerId)
 
     fun onCreate() {
         instance.currentContainer = this
-        instance.info.buildScoreboard()
+        instance.info.buildPreGameBoard()
+        instance.info.buildGameBoard()
+        logger.info("Game container $containerId finished initialisation.")
+        ChatUtility.broadcastDev("<dark_gray>Game container $containerId finished initialisation.", true)
     }
 
     fun onDestroy() {
-        this.players.forEach { player ->
-            player.sgPlayer().currentContainer = null
-            player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
-        }
-        this.players.clear()
-        instance.info.destroyScoreboard()
-        instance.currentContainer = null
-        plugin.server.unloadWorld(containerWorld, false)
-        //todo: destroy world files
+        instance.task.stopGameLoop()
+        instance.info.destroyAllScoreboards()
+        SGWorld.deleteGameWorld(containerWorld)
+        logger.info("Game container $containerId was destroyed.")
+        ChatUtility.broadcastDev("<dark_gray>Game container $containerId was destroyed.", true)
     }
 }

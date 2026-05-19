@@ -1,7 +1,6 @@
 package dev.byrt.survivalgames.team
 
 import dev.byrt.survivalgames.game.GameContainer
-import dev.byrt.survivalgames.text.Formatting
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.ComponentLike
 import net.kyori.adventure.text.format.NamedTextColor
@@ -17,7 +16,7 @@ enum class Team (
 ) : GameTeam, ComponentLike {
     PLAYER(
         teamDisplayName = "Player",
-        playerNamePrefix = Formatting.glyph("\uD012"),
+        playerNamePrefix = Component.empty(),
         teamColour = Color.YELLOW,
         textColour = NamedTextColor.YELLOW,
         container = null

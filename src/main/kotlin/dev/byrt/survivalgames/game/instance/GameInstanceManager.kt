@@ -13,7 +13,7 @@ import org.bukkit.potion.PotionEffectType
 import java.time.Duration
 
 class GameInstanceManager(val instance: GameInstance) {
-    //public val teams = TeamManager<Team>()
+    //public val teams = TeamManager<Team>(instance)
     private var gameState = GameState.IDLE
     private var overtimeActive = false
 
@@ -51,10 +51,9 @@ class GameInstanceManager(val instance: GameInstance) {
         if (newState == gameState) return
         ChatUtility.broadcastDev("<dark_gray>Game State: <red>$gameState<reset> <aqua>-> <green>$newState<dark_gray>.", true)
         this.gameState = newState
-        instance.info.updateStatus()
+        instance.info.updateGameStatus()
         when(this.gameState) {
             GameState.IDLE -> {
-                // automatically destroy container when game is over
                 instance.task.stopGameLoop()
                 GameManager.destroyContainer(instance.currentContainer!!)
             }
@@ -103,17 +102,14 @@ class GameInstanceManager(val instance: GameInstance) {
     }
 
     private fun starting() {
-        if(instance.rounds.getRound() == 1) {
-            for(player in instance.currentContainer?.players!!) {
-                player.showTitle(Title.title(Formatting.glyph("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(2), Duration.ofSeconds(1))))
-                player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, PotionEffect.INFINITE_DURATION, 0, false, false))
-            }
-        }
         for(player in instance.currentContainer?.players!!) {
+            player.showTitle(Title.title(Formatting.glyph("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(2), Duration.ofSeconds(1))))
+            player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, PotionEffect.INFINITE_DURATION, 0, false, false))
+            player.scoreboard = instance.info.gameScoreboard
             /*if(teams.isParticipating(player.uniqueId)) {
-                //TODO: CORNUCOPIA SPAWNS
-            }*/
-            //Jukebox.disconnect(player)
+                TODO: CORNUCOPIA SPAWNS
+            }
+            Jukebox.disconnect(player)*/
         }
     }
 

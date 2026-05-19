@@ -12,7 +12,7 @@ class GameInstanceTimer(val instance: GameInstance) {
         if (newTime == timer) return
         this.timer = newTime
         this.displayTime = String.format("%02d:%02d", (this.timer + 1) / 60, (this.timer + 1) % 60)
-        instance.info.updateTimer()
+        instance.info.updateGameTimer()
         if (sender != null) {
             ChatUtility.broadcastDev("<dark_gray>Timer Updated: <yellow>${newTime}s<green> remaining<dark_gray> [${sender.name}].", true)
         }
