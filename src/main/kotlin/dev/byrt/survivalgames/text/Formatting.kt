@@ -48,7 +48,8 @@ object Formatting {
         WARNING_PREFIX("warning", "⚠"),
         SKULL_PREFIX("skull", "☠"),
         LOCK_PREFIX("locked", "\uD83D\uDD12"),
-        UNLOCKED_PREFIX("unlocked", "\uD83D\uDD13");
+        UNLOCKED_PREFIX("unlocked", "\uD83D\uDD13"),
+        HEART_PREFIX("heart", "❤");
 
         companion object {
             fun ofName(str : String): UnicodePrefix {
@@ -117,3 +118,5 @@ object Formatting {
         sendMessage(Component.translatable(key, *args))
     }
 }
+
+const val SG_FONT_TAG = "<font:sg:font>"

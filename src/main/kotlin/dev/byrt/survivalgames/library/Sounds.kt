@@ -18,10 +18,12 @@ object Sounds {
     object Round {
         val ROUND_END = sound(key("block.respawn_anchor.deplete"), Source.VOICE, 1f, 1f)
         val GAME_OVER = sound(key("ui.toast.challenge_complete"), Source.VOICE, 0.75f, 1f)
+        val OVERTIME_START = sound(key("block.portal.travel"), Source.VOICE, 0.5f, 0.75f)
     }
     object Score {
-        val ELIMINATION = sound(key(""), Source.VOICE, 1f, 1f)
-        val DEATH = sound(key(""), Source.VOICE, 1f, 1f)
+        val ELIMINATION = sound(key("entity.player.level_up"), Source.VOICE, 1f, 1.75f)
+        val WIN_GAME = sound(key("entity.player.level_up"), Source.VOICE, 1f, 0.5f)
+        val DEATH = sound(key("item.trident.thunder"), Source.VOICE, 1f, 0.75f)
         val DEATH_STATS = sound(key(""), Source.VOICE, 0.75f, 1f)
         val RESPAWN = sound(key(""), Source.VOICE, 2f, 0.0f)
     }

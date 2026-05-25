@@ -1,8 +1,10 @@
 package dev.byrt.survivalgames.game.instance
 
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.plugin
-import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
+import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.text.TextAlignment
 import io.papermc.paper.scoreboard.numbers.NumberFormat
 import net.kyori.adventure.bossbar.BossBar
@@ -18,7 +20,7 @@ class GameInstanceInfo(val instance: GameInstance) {
     private var preGameObjective = preGameScoreboard.registerNewObjective(
         "${plugin.name.lowercase()}-pregame-info-${instance.gameInstanceId}",
         Criteria.DUMMY,
-        Formatting.allTags.deserialize("<green><bold>${ChatUtility.SG_FONT_TAG}Awaiting players...<reset>")
+        Formatting.allTags.deserialize("<green><bold>${SG_FONT_TAG}Awaiting players...<reset>")
     )
     private var preGamePlayersLine = preGameScoreboard.registerNewTeam("preGamePlayersLine")
     private val preGamePlayersLineKey = ChatColor.STRIKETHROUGH.toString()
@@ -44,35 +46,35 @@ class GameInstanceInfo(val instance: GameInstance) {
         preGameObjective.displaySlot = DisplaySlot.SIDEBAR
         preGameObjective.numberFormat(NumberFormat.blank())
         preGamePlayersLine.addEntry(preGamePlayersLineKey)
-        preGamePlayersLine.prefix(Formatting.allTags.deserialize("<b><yellow>${ChatUtility.SG_FONT_TAG}Players<reset>"))
+        preGamePlayersLine.prefix(Formatting.allTags.deserialize("<b><yellow>${SG_FONT_TAG}Players<reset>"))
         preGameObjective.getScore(preGamePlayersLineKey).score = 12
         preGamePlayerCountLine.addEntry(preGamePlayerCountLineKey)
-        preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}0/16"))
+        preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}0/0"))
         preGameObjective.getScore(preGamePlayerCountLineKey).score = 11
         preGameObjective.getScore("§").score = 10
         preGameGameLine.addEntry(preGameGameLineKey)
-        preGameGameLine.prefix(Formatting.allTags.deserialize("<b><gold>${ChatUtility.SG_FONT_TAG}Game<reset>"))
+        preGameGameLine.prefix(Formatting.allTags.deserialize("<b><gold>${SG_FONT_TAG}Game<reset>"))
         preGameObjective.getScore(preGameGameLineKey).score = 9
         preGameGameNameLine.addEntry(preGameGameNameLineKey)
-        preGameGameNameLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}Survival Games"))
+        preGameGameNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}Survival Games"))
         preGameObjective.getScore(preGameGameNameLineKey).score = 8
         preGameObjective.getScore("§§").score = 7
         preGameMapLine.addEntry(preGameMapLineKey)
-        preGameMapLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Map<reset>"))
+        preGameMapLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Map<reset>"))
         preGameObjective.getScore(preGameMapLineKey).score = 6
         preGameMapNameLine.addEntry(preGameMapNameLineKey)
-        preGameMapNameLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}Auburn Forest"))
+        preGameMapNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.manager.map.mapName}"))
         preGameObjective.getScore(preGameMapNameLineKey).score = 5
         preGameObjective.getScore("§§§").score = 4
         preGameInstanceLine.addEntry(preGameInstanceLineKey)
-        preGameInstanceLine.prefix(Formatting.allTags.deserialize("<b><aqua>${ChatUtility.SG_FONT_TAG}Instance<reset>"))
+        preGameInstanceLine.prefix(Formatting.allTags.deserialize("<b><aqua>${SG_FONT_TAG}Instance<reset>"))
         preGameObjective.getScore(preGameInstanceLineKey).score = 3
         preGameInstanceNameLine.addEntry(preGameInstanceNameLineKey)
-        preGameInstanceNameLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${instance.gameInstanceId.toString().toCharArray(0, 7).joinToString("")}"))
+        preGameInstanceNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.gameInstanceId.toString().toCharArray(0, 7).joinToString("")}"))
         preGameObjective.getScore(preGameInstanceNameLineKey).score = 2
         preGameObjective.getScore("§§§§").score = 1
         preGameServerIpLine.addEntry(preGameServerIpLineKey)
-        preGameServerIpLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}<gold>mc.byrt.dev</gold> <dark_gray>(${plugin.server.minecraftVersion})<reset>"))
+        preGameServerIpLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}<gold>mc.byrt.dev</gold> <dark_gray>(${plugin.server.minecraftVersion})<reset>"))
         preGameObjective.getScore(preGameServerIpLineKey).score = 0
         plugin.logger.info("Scoreboard constructed with ID ${preGameObjective.name}.")
     }
@@ -83,7 +85,7 @@ class GameInstanceInfo(val instance: GameInstance) {
     private var gameObjective = gameScoreboard.registerNewObjective(
         "${plugin.name.lowercase()}-game-info-${instance.gameInstanceId}",
         Criteria.DUMMY,
-        Formatting.allTags.deserialize("<gold><bold>${ChatUtility.SG_FONT_TAG}Survival Games<reset>")
+        Formatting.allTags.deserialize("<gold><bold>${SG_FONT_TAG}Survival Games<reset>")
     )
     private var gameTimeLine = gameScoreboard.registerNewTeam("gameTimeLine")
     private val gameTimeLineKey = ChatColor.GRAY.toString()
@@ -100,31 +102,41 @@ class GameInstanceInfo(val instance: GameInstance) {
         plugin.logger.info("Building game scoreboard...")
         gameObjective.numberFormat(NumberFormat.blank())
         gameTimeLine.addEntry(gameTimeLineKey)
-        gameTimeLine.prefix(Formatting.allTags.deserialize("<b><dark_gray>${ChatUtility.SG_FONT_TAG}Game status<reset>"))
+        gameTimeLine.prefix(Formatting.allTags.deserialize("<b><dark_gray>${SG_FONT_TAG}Game status<reset>"))
         gameObjective.getScore(gameTimeLineKey).score = 6
         gameTimeRemainingLine.addEntry(gameTimeRemainingLineKey)
-        gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}Inactive"))
+        gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}Inactive"))
         gameObjective.getScore(gameTimeRemainingLineKey).score = 5
         gameObjective.getScore("§§§").score = 4
         gamePlayersLine.addEntry(gamePlayersLineKey)
-        gamePlayersLine.prefix(Formatting.allTags.deserialize("<b><green>${ChatUtility.SG_FONT_TAG}Players remaining<reset>"))
+        gamePlayersLine.prefix(Formatting.allTags.deserialize("<b><green>${SG_FONT_TAG}Players remaining<reset>"))
         gameObjective.getScore(gamePlayersLineKey).score = 3
         gamePlayerCountLine.addEntry(gamePlayerCountLineKey)
-        gamePlayerCountLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}16/16"))
+        gamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}0/0"))
         gameObjective.getScore(gamePlayerCountLineKey).score = 2
         gameObjective.getScore("§§§§").score = 1
         gameServerIpLine.addEntry(gameServerIpLineKey)
-        gameServerIpLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}<gold>mc.byrt.dev</gold> <dark_gray>(${plugin.server.minecraftVersion})<reset>"))
+        gameServerIpLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}<gold>mc.byrt.dev</gold> <dark_gray>(${plugin.server.minecraftVersion})<reset>"))
         gameObjective.getScore(gameServerIpLineKey).score = 0
         plugin.logger.info("Scoreboard constructed with ID ${gameObjective.name}.")
     }
 
-    //TODO update players remaining line
+    fun updatePreGamePlayersRequired() {
+        if(instance.manager.getGameState() == GameState.IDLE) {
+            preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.currentContainer?.players?.filter { player -> player.sgPlayer().playerType == PlayerType.PARTICIPANT && !player.sgPlayer().isDead }?.size}/${GamePlayerCount.MAX_PLAYERS}"))
+        } else return
+    }
+
+    fun updateGamePlayersRemaining() {
+        if(instance.manager.getGameState() in listOf(GameState.STARTING, GameState.IN_GAME, GameState.OVERTIME)) {
+            gamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.currentContainer?.players?.filter { player -> player.sgPlayer().playerType == PlayerType.PARTICIPANT && !player.sgPlayer().isDead }?.size}/${GamePlayerCount.MAX_PLAYERS}"))
+        } else return
+    }
 
     fun updateGameStatus() {
         when (instance.manager.getGameState()) {
             GameState.IDLE -> {
-                gameTimeLine.prefix(Formatting.allTags.deserialize("<dark_gray>${ChatUtility.SG_FONT_TAG}Game idle<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<dark_gray>${SG_FONT_TAG}Game idle<reset> "))
                 gameObjective.displaySlot = null
                 preGameObjective.displaySlot = null
             }
@@ -133,37 +145,37 @@ class GameInstanceInfo(val instance: GameInstance) {
                 preGameObjective.displaySlot = null
                 gameObjective.displaySlot = DisplaySlot.SIDEBAR
                 if (instance.rounds.getRound() == 1) {
-                    gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Game begins<reset> "))
+                    gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Game begins<reset> "))
                 } else {
-                    gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Round begins<reset> "))
+                    gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Round begins<reset> "))
                 }
             }
 
             GameState.IN_GAME -> {
-                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Time left<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Time left<reset> "))
             }
 
             GameState.ROUND_END -> {
-                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Next round<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Next round<reset> "))
             }
 
             GameState.GAME_END -> {
-                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Game ending<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Game ending<reset> "))
             }
 
             GameState.OVERTIME -> {
-                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Overtime<reset> "))
+                gameTimeLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Overtime<reset> "))
             }
         }
     }
 
     fun updateGameTimer() {
         if (instance.manager.getGameState() == GameState.OVERTIME) {
-            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<b><red>${ChatUtility.SG_FONT_TAG}Overtime"))
+            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Overtime"))
         } else if (instance.manager.getGameState() == GameState.IDLE) {
-            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<dark_gray>${ChatUtility.SG_FONT_TAG}Game Inactive"))
+            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<dark_gray>${SG_FONT_TAG}Game Inactive"))
         } else {
-            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${ChatUtility.SG_FONT_TAG}${instance.timer.getDisplayTimer()}"))
+            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.timer.getDisplayTimer()}"))
         }
     }
 
@@ -185,11 +197,11 @@ class GameInstanceInfo(val instance: GameInstance) {
                             }
 
                             GameState.STARTING -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("GAME STARTING IN: ${if (instance.timer.getTimer() <= 9) "<red>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("GAME STARTING IN: ${if (instance.timer.getTimer() <= 9) "<#ff3333>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
                             }
 
                             GameState.IN_GAME -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("TIME LEFT: ${if (instance.timer.getTimer() <= 89) "<red>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("TIME LEFT: ${if (instance.timer.getTimer() <= 89) "<#ff3333>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
                             }
 
                             GameState.ROUND_END -> {
@@ -201,17 +213,17 @@ class GameInstanceInfo(val instance: GameInstance) {
                             }
 
                             GameState.OVERTIME -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("<red>OVERTIME"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("<#ff3333>OVERTIME"))
                             }
                         }
                     }
 
                     GameTimerState.INACTIVE -> {
-                        timerBossBar.name(TextAlignment.centreBossBarText("<red>TIMER UNAVAILABLE"))
+                        timerBossBar.name(TextAlignment.centreBossBarText("<#ff3333>TIMER UNAVAILABLE"))
                     }
 
                     GameTimerState.PAUSED -> {
-                        timerBossBar.name(TextAlignment.centreBossBarText("TIMER PAUSED"))
+                        timerBossBar.name(TextAlignment.centreBossBarText("<yellow>TIMER PAUSED"))
                     }
                 }
             }

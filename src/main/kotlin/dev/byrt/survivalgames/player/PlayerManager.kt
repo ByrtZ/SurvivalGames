@@ -1,6 +1,7 @@
 package dev.byrt.survivalgames.player
 
 import dev.byrt.survivalgames.exception.PlayerManagerException
+import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.logger
 import org.bukkit.entity.Player
 import java.util.UUID
@@ -16,6 +17,7 @@ object PlayerManager {
     }
 
     fun unregisterPlayer(sgPlayer: SGPlayer) {
+        GameManager.removePlayerFromContainer(sgPlayer.bukkitPlayer())
         sgPlayer.setType(PlayerType.UNREGISTERED)
         sgPlayer.isDead = true
         sgPlayer.currentContainer = null

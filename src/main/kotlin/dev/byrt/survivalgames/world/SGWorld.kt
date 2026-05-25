@@ -21,7 +21,7 @@ object SGWorld: Listener {
     init {
         Bukkit.getPluginManager().registerEvents(this, plugin)
     }
-    //todo: world destruction on disable
+
     suspend fun createNewGameWorld(worldId: UUID): World =
         suspendCancellableCoroutine { cont ->
             CoroutineScope(Dispatchers.IO).launch {

@@ -32,8 +32,8 @@ class ResourcePackEvent: Listener {
                 PlayerResourcePackStatusEvent.Status.DISCARDED,
                 PlayerResourcePackStatusEvent.Status.INVALID_URL
             ) -> {
-                ChatUtility.broadcastDev("RP failed for ${e.player.name} due to ${e.status.name} (${e.id}).", false)
-                logger.severe("RP failed for ${e.player.name} due to ${e.status.name} (${e.id}).")
+                ChatUtility.broadcastDev("Pack failed for ${e.player.name} due to ${e.status.name} (${e.id}).", false)
+                logger.severe("Pack failed for ${e.player.name} due to ${e.status.name} (${e.id}).")
             } else -> {}
         }
     }

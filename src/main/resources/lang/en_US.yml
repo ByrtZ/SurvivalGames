@@ -8,3 +8,6 @@ messages:
     uppercase:
       player: <playercolour>PLAYER
       none: <gray>NONE
+
+  death.killed_by: <death_prefix> <arg:0><reset> was eliminated by <arg:1><reset>.
+  death.died: <death_prefix> <arg:0><reset> was eliminated.

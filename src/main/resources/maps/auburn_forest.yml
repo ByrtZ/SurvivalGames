@@ -1,0 +1,39 @@
+pregame_spawn:
+  - x: 0.0
+    y: 0.0
+    z: 0.0
+
+world_center:
+  - x: 0.0
+    y: 0.0
+    z: 0.0
+
+participant_spawn:
+  - x: 0.0
+    y: 0.0
+    z: 0.0
+
+spectator_spawn:
+  - x: 0.0
+    y: 0.0
+    z: 0.0
+
+loot_chest_1:
+  - x: 0.0
+    y: 0.0
+    z: 0.0
+
+loot_chest_2:
+  - x: 0.0
+    y: 0.0
+    z: 0.0
+
+loot_chest_3:
+  - x: 0.0
+    y: 0.0
+    z: 0.0
+
+supply_drop_spawn:
+  - x: 0.0
+    y: 0.0
+    z: 0.0

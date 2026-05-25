@@ -1,5 +1,8 @@
 package dev.byrt.survivalgames.event
 
+import dev.byrt.survivalgames.library.Sounds
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerVisuals
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
@@ -8,14 +11,11 @@ import org.bukkit.event.entity.PlayerDeathEvent
 class DeathEvent : Listener {
     @EventHandler
     private fun onDeath(e: PlayerDeathEvent) {
-        //TODO Custom deaths
-        /*e.player.killer?.let {
-            it.playSound(Sounds.Score.ELIMINATION)
-            Scores.addScore(GameManager.teams.getTeam(it.uniqueId) ?: return, 50)
-            BurbExperienceLevels.appendExperience(it, 50)
+        if(e.player.sgPlayer().currentContainer != null) {
+            e.player.killer?.playSound(Sounds.Score.ELIMINATION)
+            PlayerVisuals.death(e.player, e.player.killer, true)
+            e.isCancelled = true
         }
-
-        PlayerVisuals.death(e.player, e.player.killer, true)
-        e.isCancelled = true*/
+        e.isCancelled = true
     }
 }
