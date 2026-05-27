@@ -2,12 +2,10 @@ package dev.byrt.survivalgames.player
 
 import dev.byrt.survivalgames.game.GameContainer
 import dev.byrt.survivalgames.logger
-
 import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.entity.Player
-import org.bukkit.event.Listener
-
-import java.util.UUID
+import java.util.*
 
 class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerType) {
     init {
@@ -17,6 +15,11 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
     fun setType(newType: PlayerType) {
         if(newType == this.playerType) return
         this.playerType = newType
+        when(newType) {
+            PlayerType.SPECTATOR -> if(currentContainer == null) this.bukkitPlayer().gameMode = GameMode.ADVENTURE else this.bukkitPlayer().gameMode = GameMode.SPECTATOR
+            PlayerType.PARTICIPANT -> this.bukkitPlayer().gameMode = GameMode.ADVENTURE
+            PlayerType.UNREGISTERED -> {}
+        }
         logger.info("Type: ${this.playerName} now has value ${this.playerType}.")
     }
 

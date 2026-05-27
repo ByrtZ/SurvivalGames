@@ -10,7 +10,7 @@ enum class SGMap(val mapName: String,
                  var worldCenter: MutableList<MapDataPoint>,
                  val isQuickMatch: Boolean = false) {
     AUBURN_FOREST("Auburn Forest", "auburn_forest.yml", mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf()),
-    ROUGHWORKS("Roughwords", "roughworks.yml", mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf()),
+    ROUGHWORKS("Roughworks", "roughworks.yml", mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf()),
     MISTWOODS("Mistwoods", "mistwoods.yml", mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), isQuickMatch = true),
     HIGHLANDS("Highlands", "highlands.yml", mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf()),
     AELUMIA_CITADEL("Aelumia Citadel", "aelumia_citadel.yml", mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), mutableListOf(), isQuickMatch = true),

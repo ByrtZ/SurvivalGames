@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerVisuals
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -30,6 +31,8 @@ class DamageEvent: Listener {
                         || e.cause == EntityDamageEvent.DamageCause.SUFFOCATION) {
                         e.isCancelled = true
                         return
+                    } else {
+                        PlayerVisuals.damageIndicator(player, e.damage)
                     }
                 }
             } else {

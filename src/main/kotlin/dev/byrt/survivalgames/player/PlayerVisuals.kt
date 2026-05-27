@@ -10,6 +10,9 @@ import io.papermc.paper.entity.TeleportFlag
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.Bukkit
+import org.bukkit.Color
+import org.bukkit.FireworkEffect
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
@@ -17,6 +20,7 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.*
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.util.Vector
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Duration
@@ -47,10 +51,10 @@ object PlayerVisuals {
      */
     fun death(player: Player, killer: Player?, showDeathMessage: Boolean) {
         player.sgPlayer().isDead = true
-        player.sgPlayer().playerType = PlayerType.SPECTATOR
+        player.sgPlayer().setType(PlayerType.SPECTATOR)
         player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
         //player.addPotionEffect(PotionEffect(PotionEffectType.HUNGER, PotionEffect.INFINITE_DURATION, 0, false, false))
-        //ItemManager.clearItems(player)
+        player.inventory.clear()
         val deathOverlayItem = ItemStack(Material.CARVED_PUMPKIN)
         val deathOverlayItemMeta = deathOverlayItem.itemMeta
         deathOverlayItem.addEnchantment(Enchantment.BINDING_CURSE, 1)
@@ -85,6 +89,17 @@ object PlayerVisuals {
         )
         player.playSound(Sounds.Score.DEATH)
         deathMessage.let(Bukkit::broadcast)
+        player.world.strikeLightningEffect(player.location)
+        for(i in 0..2) {
+            firework(
+                player.location,
+                flicker = false,
+                trail = false,
+                color = Color.RED,
+                fireworkType = FireworkEffect.Type.BALL_LARGE,
+                variedVelocity = true
+            )
+        }
 
         hidePlayer(player)
 
@@ -204,5 +219,50 @@ object PlayerVisuals {
         //SpawnPoints.respawnLocation(player)
         //ItemManager.givePlayerTeamBoots(player)
         showPlayer(player)
+    }
+
+    /**
+     * @param [location] Where to spawn the firework
+     * @param [flicker] Whether the firework has the flicker effect
+     * @param [trail] Whether the firework has the trail effect
+     * @param [color] What colour the firework is
+     * @param [fireworkType] What type the firework is
+     * @param [variedVelocity] Whether the firework should shoot into the sky with a random offset
+     */
+    fun firework(
+        location: Location,
+        flicker: Boolean,
+        trail: Boolean,
+        color: Color,
+        fireworkType: FireworkEffect.Type,
+        variedVelocity: Boolean
+    ) {
+        val f: Firework = location.world.spawn(
+            Location(location.world, location.x, location.y + 1.0, location.z),
+            Firework::class.java
+        )
+        val fm = f.fireworkMeta
+        fm.addEffect(
+            FireworkEffect.builder()
+                .flicker(flicker)
+                .trail(trail)
+                .with(fireworkType)
+                .withColor(color)
+                .build()
+        )
+        if (variedVelocity) {
+            fm.power = 1
+            f.fireworkMeta = fm
+            val direction = Vector(
+                Random.nextDouble(-0.005, 0.005),
+                Random.nextDouble(0.25, 0.35),
+                Random.nextDouble(-0.005, 0.005)
+            ).normalize()
+            f.velocity = direction
+        } else {
+            fm.power = 0
+            f.fireworkMeta = fm
+            f.ticksToDetonate = 0
+        }
     }
 }

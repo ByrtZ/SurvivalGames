@@ -1,6 +1,9 @@
 package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.library.Sounds
+import dev.byrt.survivalgames.library.Translation
+import dev.byrt.survivalgames.music.Jukebox
+import dev.byrt.survivalgames.music.MusicTrack
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.text.Formatting
@@ -21,7 +24,7 @@ class GameInstanceTask(val instance: GameInstance) {
                 instance.info.updateGameTimer()
                 /** STARTING **/
                 if (instance.manager.getGameState() == GameState.STARTING && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (instance.timer.getTimer() == 80) {
+                    if (instance.timer.getTimer() == 30) {
                         for (player in instance.currentContainer?.players!!) {
                             player.showTitle(
                                 Title.title(
@@ -29,7 +32,7 @@ class GameInstanceTask(val instance: GameInstance) {
                                     Component.text(""),
                                     Title.Times.times(
                                         Duration.ofSeconds(0),
-                                        Duration.ofSeconds(3),
+                                        Duration.ofSeconds(1),
                                         Duration.ofSeconds(1)
                                     )
                                 )
@@ -37,7 +40,7 @@ class GameInstanceTask(val instance: GameInstance) {
                             player.playSound(Sounds.Misc.TITLE_SCREEN_ENTER)
                         }
                     }
-                    if (instance.timer.getTimer() == 75) {
+                    if (instance.timer.getTimer() == 28) {
                         for (player in instance.currentContainer?.players!!) {
                             player.showTitle(
                                 Title.title(
@@ -52,46 +55,32 @@ class GameInstanceTask(val instance: GameInstance) {
                             )
                         }
                     }
-                    if (instance.timer.getTimer() == 25) {
+                    if (instance.timer.getTimer() == 26) {
                         for (player in instance.currentContainer?.players!!) {
                             player.playSound(player.location, Sounds.Tutorial.TUTORIAL_POP, 1f, 1f)
                             player.sendMessage(
                                 Component.text("-----------------------------------------------------")
-                                    .color(NamedTextColor.GREEN).decoration(TextDecoration.STRIKETHROUGH, true)
-                                    .append(
-                                        Component.text(" Starting soon:\n\n").color(NamedTextColor.WHITE)
-                                            .decoration(TextDecoration.BOLD, true)
-                                            .decoration(TextDecoration.STRIKETHROUGH, false)
-                                            .append(
-                                                Component.text("      I don't have anything funny to say, this just needs replacing.\n\n")
-                                                    .color(NamedTextColor.RED).decoration(TextDecoration.BOLD, false)
-                                                    .decoration(TextDecoration.ITALIC, true)
-                                                    .append(
-                                                        Component.text("\n\n\n")
-                                                            .append(
-                                                                Component.text("-----------------------------------------------------")
-                                                                    .color(NamedTextColor.GREEN)
-                                                                    .decoration(TextDecoration.STRIKETHROUGH, true)
-                                                                    .decoration(TextDecoration.ITALIC, false)
-                                                            )
-                                                    )
+                                .color(NamedTextColor.GREEN).decoration(TextDecoration.STRIKETHROUGH, true).append(
+                                    Component.text(" Starting soon:\n\n").color(NamedTextColor.WHITE)
+                                    .decoration(TextDecoration.BOLD, true)
+                                    .decoration(TextDecoration.STRIKETHROUGH, false).append(
+                                    Component.text("      I don't have anything funny to say, this just needs replacing.\n\n")
+                                        .color(NamedTextColor.RED).decoration(TextDecoration.BOLD, false)
+                                        .decoration(TextDecoration.ITALIC, true)
+                                        .append(Component.text("\n\n\n").append(
+                                                Component.text("-----------------------------------------------------")
+                                                    .color(NamedTextColor.GREEN)
+                                                    .decoration(TextDecoration.STRIKETHROUGH, true)
+                                                    .decoration(TextDecoration.ITALIC, false)
                                             )
+                                        )
                                     )
+                                )
                             )
-                        }
-                    }
-                    if (instance.timer.getTimer() <= 15) {
-                        for (player in instance.currentContainer?.players!!) {
-                            player.removePotionEffect(PotionEffectType.BLINDNESS)
+                            Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
                         }
                     }
                     if (instance.timer.getTimer() in 4..10) {
-                        if (instance.timer.getTimer() == 10) {
-                            for (player in instance.currentContainer?.players!!) {
-                                player.playSound(Sounds.Alert.ALARM)
-                                //Jukebox.stopMusicLoop(player, Music.LOADING_MELODY)
-                            }
-                        }
                         for (player in instance.currentContainer?.players!!) {
                             player.showTitle(
                                 Title.title(
@@ -165,6 +154,27 @@ class GameInstanceTask(val instance: GameInstance) {
                     if (instance.timer.getTimer() in 11..59 || instance.timer.getTimer() % 60 == 0) {
                         for (player in instance.currentContainer?.players!!) {
                             player.playSound(Sounds.Timer.CLOCK_TICK)
+                        }
+                    }
+                    if (instance.timer.getTimer() % 60 == 0) {
+                        //TODO faster border movements but move a few times
+                        if(instance.timer.getTimer() <= GameTime.IN_GAME_TIME - 60 && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= 750.0) {
+                            instance.currentContainer?.containerWorld?.worldBorder?.changeSize(50.0, instance.timer.getTimer().times(20).toLong())
+                            for (player in instance.currentContainer?.players!!) {
+                                player.playSound(Sounds.Alert.ALARM)
+                                player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}The World Border is now shrinking!"))
+                                player.showTitle(
+                                    Title.title(
+                                        Component.empty(),
+                                        Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}World Border shrinking!"),
+                                        Title.Times.times(
+                                            Duration.ofMillis(250),
+                                            Duration.ofSeconds(1),
+                                            Duration.ofMillis(250)
+                                        )
+                                    )
+                                )
+                            }
                         }
                     }
                     if (instance.timer.getTimer() in 0..10) {

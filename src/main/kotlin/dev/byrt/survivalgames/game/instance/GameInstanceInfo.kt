@@ -70,7 +70,7 @@ class GameInstanceInfo(val instance: GameInstance) {
         preGameInstanceLine.prefix(Formatting.allTags.deserialize("<b><aqua>${SG_FONT_TAG}Instance<reset>"))
         preGameObjective.getScore(preGameInstanceLineKey).score = 3
         preGameInstanceNameLine.addEntry(preGameInstanceNameLineKey)
-        preGameInstanceNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.gameInstanceId.toString().toCharArray(0, 7).joinToString("")}"))
+        preGameInstanceNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.gameInstanceId.toString().toCharArray(0, 8).joinToString("")}"))
         preGameObjective.getScore(preGameInstanceNameLineKey).score = 2
         preGameObjective.getScore("§§§§").score = 1
         preGameServerIpLine.addEntry(preGameServerIpLineKey)

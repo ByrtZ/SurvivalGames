@@ -2,6 +2,9 @@ package dev.byrt.survivalgames.game
 
 import dev.byrt.survivalgames.game.instance.GamePlayerCount
 import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.map.SGMap
+import dev.byrt.survivalgames.music.Jukebox
+import dev.byrt.survivalgames.music.MusicTrack
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.plugin
@@ -9,6 +12,7 @@ import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.world.SGWorld
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
@@ -56,36 +60,61 @@ object GameManager {
 
     fun addPlayerToContainer(player: Player, gameContainer: GameContainer, forceJoinAsSpectator: Boolean = false) {
         player.sgPlayer().currentContainer = gameContainer
+
+        /** Teleport player to the correct place **/
+        val preGameSpawnDataPoint = gameContainer.instance.manager.map.preGameSpawns.first()
+        val preGameSpawn = Location(gameContainer.containerWorld, preGameSpawnDataPoint.x, preGameSpawnDataPoint.y, preGameSpawnDataPoint.z)
+        val spectatorSpawnDataPoint = gameContainer.instance.manager.map.spectatorSpawns.first()
+        val spectatorSpawn = Location(gameContainer.containerWorld, spectatorSpawnDataPoint.x, spectatorSpawnDataPoint.y, spectatorSpawnDataPoint.z)
+
         /** Auto-assign type to participant if joining regularly, if the game is not already running **/
         if(forceJoinAsSpectator) {
             player.sgPlayer().setType(PlayerType.SPECTATOR)
+            player.sendMessage(Formatting.allTags.deserialize("You joined the match as a spectator"))
+            player.teleport(spectatorSpawn)
         } else {
             if(gameContainer.instance.manager.getGameState() == GameState.IDLE && gameContainer.players.filter { p -> p.sgPlayer().playerType == PlayerType.PARTICIPANT }.size < GamePlayerCount.MAX_PLAYERS) {
                 player.sgPlayer().setType(PlayerType.PARTICIPANT)
-                player.sendMessage(Formatting.allTags.deserialize("Joined as participant"))
+                player.sendMessage(Formatting.allTags.deserialize("You joined the match as participant"))
+                player.teleport(preGameSpawn)
             } else {
                 player.sgPlayer().setType(PlayerType.SPECTATOR)
-                player.sendMessage(Formatting.allTags.deserialize("Joined as spectator, game is already running or full"))
+                player.sendMessage(Formatting.allTags.deserialize("You joined the match as a spectator, game is already running or full"))
+                player.teleport(spectatorSpawn)
             }
         }
         gameContainer.players.add(player)
         /** Update player's current scoreboard and pre-game scoreboard if game idle **/
+        /** Set player's current Jukebox track **/
         if(gameContainer.instance.manager.getGameState() == GameState.IDLE) {
             player.scoreboard = gameContainer.instance.info.preGameScoreboard
             gameContainer.instance.info.updatePreGamePlayersRequired()
+            when(gameContainer.instance.manager.map) {
+                SGMap.AUBURN_FOREST -> Jukebox.startMusicLoop(player, MusicTrack.PRE_GAME_AUBURN_FOREST)
+                SGMap.ROUGHWORKS -> Jukebox.startMusicLoop(player, MusicTrack.PRE_GAME_ROUGHWORKS)
+                SGMap.MISTWOODS -> Jukebox.startMusicLoop(player, MusicTrack.PRE_GAME_MISTWOODS)
+                SGMap.HIGHLANDS -> Jukebox.startMusicLoop(player, MusicTrack.PRE_GAME_HIGHLANDS)
+                SGMap.AELUMIA_CITADEL -> Jukebox.startMusicLoop(player, MusicTrack.PRE_GAME_AELUMIA_CITADEL)
+            }
         } else {
             player.scoreboard = gameContainer.instance.info.gameScoreboard
+            if(gameContainer.instance.manager.getGameState() == GameState.STARTING) {
+                if(gameContainer.instance.timer.getTimer() < 26) Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
+            } else {
+                Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
+            }
         }
-        player.teleport(Location(gameContainer.containerWorld, -1914.5, 78.0, -1680.5, 0f, 0f))
     }
 
     fun removePlayerFromContainer(player: Player) {
-        player.sgPlayer().setType(PlayerType.SPECTATOR)
         player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
         player.sgPlayer().currentContainer?.players?.remove(player)
         player.sgPlayer().currentContainer = null
+        player.sgPlayer().setType(PlayerType.SPECTATOR)
         player.scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         player.activeBossBars().forEach { bossBar -> bossBar.removeViewer(player) }
         player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
+        player.gameMode = GameMode.ADVENTURE
+        Jukebox.startMusicLoop(player, MusicTrack.LOBBY)
     }
 }

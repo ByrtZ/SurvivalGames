@@ -4,6 +4,7 @@ import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.map.SGMap
+import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.text.ChatUtility
@@ -108,28 +109,31 @@ class GameInstanceManager(val instance: GameInstance) {
         val participantSpawns = map.participantSpawns.flatMap { listOf(Location(instance.currentContainer?.containerWorld, it.x, it.y, it.z)) }
         var participantSpawnIndex = 0
 
+        instance.info.updateGamePlayersRemaining()
         for(player in instance.currentContainer?.players!!) {
             player.showTitle(Title.title(Formatting.glyph("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(2), Duration.ofSeconds(1))))
-            player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, PotionEffect.INFINITE_DURATION, 0, false, false))
+            player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 0, false, false))
             player.scoreboard = instance.info.gameScoreboard
             when(player.sgPlayer().playerType) {
                 PlayerType.SPECTATOR -> player.teleport(Location(instance.currentContainer?.containerWorld, spectatorSpawn.x, spectatorSpawn.y, spectatorSpawn.z))
                 PlayerType.PARTICIPANT -> {
-                    if(participantSpawnIndex > participantSpawns.size) participantSpawnIndex = 0
+                    if(participantSpawnIndex > participantSpawns.size - 1) participantSpawnIndex = 0
                     player.teleport(participantSpawns[participantSpawnIndex])
                     participantSpawnIndex++
                 }
                 else -> logger.info("Unregistered player in container.")
             }
-            //Jukebox.disconnect(player)
+            Jukebox.disconnect(player)
         }
+        val borderCenter = map.worldCenter.first()
+        instance.currentContainer?.containerWorld?.worldBorder?.setCenter(borderCenter.x, borderCenter.z)
+        instance.currentContainer?.containerWorld?.worldBorder?.size = 750.0
     }
 
     //TODO overtime last stand, decrease max health over time
     private fun startOvertime() {
         for(player in instance.currentContainer?.players!!) {
             player.playSound(Sounds.Round.OVERTIME_START)
-            //Jukebox.disconnect(player)
             player.showTitle(
                 Title.title(
                     Formatting.allTags.deserialize("${SG_FONT_TAG}<#ff3333><b>Overtime"),
@@ -148,7 +152,7 @@ class GameInstanceManager(val instance: GameInstance) {
         for(player in instance.currentContainer?.players!!) {
             player.playSound(Sounds.Round.GAME_OVER)
             player.playSound(Sounds.Round.ROUND_END)
-            //Jukebox.disconnect(player)
+            Jukebox.disconnect(player)
             player.showTitle(
                 Title.title(
                     Formatting.allTags.deserialize("${SG_FONT_TAG}<#ff3333><b>Game Over!"),
@@ -161,11 +165,12 @@ class GameInstanceManager(val instance: GameInstance) {
                 )
             )
         }
+        instance.currentContainer?.containerWorld?.worldBorder?.changeSize(instance.currentContainer?.containerWorld?.worldBorder!!.size, 0)
     }
 
     private fun roundEnd() {
         for(player in instance.currentContainer?.players!!) {
-            //Jukebox.disconnect(player)
+            Jukebox.disconnect(player)
             player.playSound(Sounds.Round.ROUND_END)
             player.showTitle(
                 Title.title(
@@ -205,7 +210,7 @@ class GameInstanceManager(val instance: GameInstance) {
             if(playersAlive.size == 1) {
                 val remainingPlayer = playersAlive[0]
                 for(player in instance.currentContainer?.players!!) {
-                    player.sendMessage(Formatting.allTags.deserialize("${SG_FONT_TAG}<playercolour>${if(player == remainingPlayer) "<b>You</b" else remainingPlayer.name}</playercolour> won the game!").appendNewline())
+                    player.sendMessage(Formatting.allTags.deserialize("${SG_FONT_TAG}<playercolour>${if(player == remainingPlayer) "<b>You</b>" else remainingPlayer.name}</playercolour> won the game!").appendNewline())
                     player.playSound(Sounds.Score.WIN_GAME)
                 }
                 setGameState(GameState.GAME_END)
@@ -218,11 +223,11 @@ class GameInstanceManager(val instance: GameInstance) {
 }
 
 object GameTime {
-    const val GAME_STARTING_TIME = 80
-    const val ROUND_STARTING_TIME = 30
+    const val GAME_STARTING_TIME = 30
+    const val ROUND_STARTING_TIME = 15
     const val IN_GAME_TIME = 900
-    const val ROUND_END_TIME = 15
-    const val GAME_END_TIME = 100
+    const val ROUND_END_TIME = 10
+    const val GAME_END_TIME = 20
     const val OVERTIME_TIME = 600
 }
 

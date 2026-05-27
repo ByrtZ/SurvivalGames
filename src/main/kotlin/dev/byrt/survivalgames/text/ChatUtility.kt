@@ -38,7 +38,7 @@ object GlobalRenderer: ChatRenderer {
             .append(Component.`object`(ObjectContents.playerHead(source.uniqueId)))
             .appendSpace()
             .append(source.displayName().color(if(source.isOp) NamedTextColor.DARK_RED else NamedTextColor.WHITE))
-            .append(Component.text("<white>: </white>"))
+            .append(allTags.deserialize(": "))
             .append(allTags.deserialize(plainMessage))
             .build()
     }

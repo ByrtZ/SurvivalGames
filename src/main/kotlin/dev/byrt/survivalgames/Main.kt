@@ -18,6 +18,7 @@ import org.incendo.cloud.processors.confirmation.annotation.ConfirmationBuilderM
 
 import com.noxcrew.interfaces.InterfacesListeners
 import dev.byrt.survivalgames.game.GameManager
+import dev.byrt.survivalgames.map.MapManager
 import dev.byrt.survivalgames.resource.ResourcePackApplier
 import dev.byrt.survivalgames.resource.ResourcePackLoader
 import dev.byrt.survivalgames.resource.registry.GitHubReleasesRegistry
@@ -56,6 +57,7 @@ class Main : JavaPlugin() {
 
         setupCommands()
         setupEventListeners()
+        setupConfigs()
         InterfacesListeners.install(this)
     }
 
@@ -122,6 +124,11 @@ class Main : JavaPlugin() {
                 }
             }
         )
+    }
+
+    private fun setupConfigs() {
+        logger.info("Registering configs.")
+        MapManager.readAllMapConfigs()
     }
 }
 

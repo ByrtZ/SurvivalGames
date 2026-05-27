@@ -1,15 +1,18 @@
 package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.music.Jukebox
+import dev.byrt.survivalgames.music.MusicTrack
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
+import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
-import dev.byrt.survivalgames.text.Formatting
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerResourcePackStatusEvent
+import org.bukkit.scheduler.BukkitRunnable
 
 @Suppress("unused")
 class ResourcePackEvent: Listener {
@@ -19,12 +22,12 @@ class ResourcePackEvent: Listener {
             PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED -> {
                 e.player.sgPlayer().setType(PlayerType.SPECTATOR)
                 e.player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
-                //TODO: title screen
-                /*object : BukkitRunnable() {
+                object : BukkitRunnable() {
                     override fun run() {
-                        BurbLobby.playerJoinTitleScreen(e.player)
+                        Jukebox.startMusicLoop(e.player, MusicTrack.LOBBY)
                     }
-                }.runTaskLater(plugin, 30L)*/
+                }.runTaskLater(plugin, 30L)
+                //TODO: title screen
             }
             in listOf(
                 PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD,

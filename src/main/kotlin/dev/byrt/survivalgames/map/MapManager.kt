@@ -7,9 +7,6 @@ import java.io.File
 
 object MapManager {
     private val configMap = mutableMapOf<String, List<MapDataPoint>>()
-    init {
-        readAllMapConfigs()
-    }
     fun readAllMapConfigs() {
         logger.info("Loading all map configurations")
         val mapFolderPath = "${plugin.dataFolder.path}/maps"

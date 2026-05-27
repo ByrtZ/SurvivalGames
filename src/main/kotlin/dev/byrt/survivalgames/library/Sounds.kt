@@ -6,6 +6,14 @@ import net.kyori.adventure.sound.Sound.sound
 
 object Sounds {
     object Music {
+        val LOBBY = sound(key("music.lobby"), Source.VOICE, 1f, 1f)
+        val IN_GAME_INTRO = sound(key("music.game_intro"), Source.VOICE, 1f, 1f)
+        val IN_GAME = sound(key("music.game_main"), Source.VOICE, 1f, 1f)
+        val PRE_GAME_AUBURN_FOREST = sound(key("music.pre_game.auburn_forest"), Source.VOICE, 1f, 1f)
+        val PRE_GAME_ROUGHWORKS = sound(key("music.pre_game.roughworks"), Source.VOICE, 1f, 1f)
+        val PRE_GAME_MISTWOODS = sound(key("music.pre_game.mistwoods"), Source.VOICE, 1f, 1f)
+        val PRE_GAME_HIGHLANDS = sound(key("music.pre_game.highlands"), Source.VOICE, 1f, 1f)
+        val PRE_GAME_AELUMIA_CITADEL = sound(key("music.pre_game.aelumia_citadel"), Source.VOICE, 1f, 1f)
         val DOWNTIME_LOOP = sound(key("event.downtime.loop"), Source.VOICE, 1f, 1f)
         val DOWNTIME_SUSPENSE = sound(key("event.downtime.suspense"), Source.VOICE, 1f, 1f)
     }
@@ -23,12 +31,12 @@ object Sounds {
     object Score {
         val ELIMINATION = sound(key("entity.player.level_up"), Source.VOICE, 1f, 1.75f)
         val WIN_GAME = sound(key("entity.player.level_up"), Source.VOICE, 1f, 0.5f)
-        val DEATH = sound(key("item.trident.thunder"), Source.VOICE, 1f, 0.75f)
-        val DEATH_STATS = sound(key(""), Source.VOICE, 0.75f, 1f)
+        val DEATH = sound(key("item.trident.thunder"), Source.VOICE, 1f, 1.2f)
+        val DEATH_STATS = sound(key("item.trident.riptide_3"), Source.VOICE, 1f, 0f)
         val RESPAWN = sound(key(""), Source.VOICE, 2f, 0.0f)
     }
     object Alert {
-        val ALARM = sound(key(""), Source.VOICE, 1.25f, 1f)
+        val ALARM = sound(key("block.trial_spawner.ominous_activate"), Source.VOICE, 1f, 0.75f)
     }
     object Tutorial {
         const val TUTORIAL_POP = "entity.item.pickup"

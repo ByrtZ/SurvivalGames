@@ -22,7 +22,7 @@ class PlayerJoin: Listener {
 
     @EventHandler
     fun onAttemptJoin(e: AsyncPlayerPreLoginEvent) {
-        val player = Bukkit.getPlayer(e.uniqueId) ?: return
+        val player = Bukkit.getOfflinePlayer(e.uniqueId)
         if(!player.isOp && !player.isWhitelisted && plugin.server.isWhitelistEnforced) {
             logger.info("Player ${player.name} (${player.uniqueId}) attempted to join but is not whitelisted.")
         }

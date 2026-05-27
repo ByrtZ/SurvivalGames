@@ -59,35 +59,45 @@ object SGWorld: Listener {
         }
 
     fun deleteGameWorld(world: World) {
-        if(world == Bukkit.getWorlds()[0]) return
+        if (world == Bukkit.getWorlds()[0]) return
         val path = world.worldPath
-        plugin.server.unloadWorld(world, false)
         object : BukkitRunnable() {
+            var unloaded = false
             override fun run() {
-                // Wait for server to dispatch players to hub and unload world first
-                if(world.players.isNotEmpty()) {
-                    world.players.forEach { player -> GameManager.removePlayerFromContainer(player)}
-                } else {
-                    if(!plugin.server.worlds.contains(world)) {
-                        if (!path.toFile().exists()) {
-                            cancel()
-                            return
-                        }
-                        val deleted = path.toFile().deleteRecursively()
-                        if (deleted) {
-                            logger.info("Game world ${world.name} has been deleted")
-                            cancel()
-                        }
+                if(world.players.isNotEmpty()) { // Dispatch players from game world
+                    world.players.toList().forEach { player ->
+                        GameManager.removePlayerFromContainer(player)
                     }
+                    return
+                }
+                if(!unloaded) { // Unload game world when no players are in it
+                    unloaded = Bukkit.unloadWorld(world, false)
+                    if (!unloaded) {
+                        logger.warning("Failed to unload game world '${world.name}'")
+                        return
+                    }
+                    return
+                }
+                if(Bukkit.getWorld(world.name) != null) { // Returns if world still exists
+                    return
+                }
+                if(!path.toFile().exists()) { // Cancel if path/file doesn't exist
+                    cancel()
+                    return
+                }
+                val deleted = path.toFile().deleteRecursively()
+                if(deleted) {
+                    logger.info("Game world '${world.name}' has been deleted")
+                    cancel()
                 }
             }
-        }.runTaskTimer(plugin, 20L, 20L)
+        }.runTaskTimer(plugin, 0L, 20L)
     }
 
     @EventHandler
     private fun onWorldLoad(e: WorldLoadEvent) {
         if(e.world.generator == SGChunkGenerator) {
-            logger.info("Game world (${e.world.name}) loaded, applying game rules")
+            logger.info("Game world '${e.world.name}' loaded, applying game rules")
             e.world.apply {
                 isAutoSave = false
                 isVoidDamageEnabled = false
@@ -105,6 +115,7 @@ object SGWorld: Listener {
                 setGameRule(GameRules<Boolean>.SHOW_ADVANCEMENT_MESSAGES, false)
                 setGameRule(GameRules<Boolean>.SPAWNER_BLOCKS_WORK, false)
                 setGameRule(GameRules<Boolean>.SPREAD_VINES, false)
+                setGameRule(GameRules<Boolean>.LOCATOR_BAR, false)
                 time = 10000
             }
         }
