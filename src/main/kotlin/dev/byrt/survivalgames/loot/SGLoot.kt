@@ -10,7 +10,6 @@ import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes.itemStack
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
 import org.bukkit.Location
@@ -53,7 +52,7 @@ object SGLoot {
             val randomLootMaterial = randomLoot.first
             val randomLootAmount = randomLoot.second.random()
             val itemStack = ItemStack(randomLootMaterial, randomLootAmount).apply {
-                this.itemMeta.apply {
+                itemMeta = itemMeta.apply {
                     isUnbreakable = true
                     addItemFlags(ItemFlag.HIDE_UNBREAKABLE)
                 }
@@ -85,13 +84,13 @@ object SGLoot {
             override fun run() {
                 if(container?.instance?.manager?.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                     if(height <= supplyDropLocation.clone().y.toInt()) {
-                        world?.let { spawnLootChest(it, supplyDropLocation.x.toInt(), supplyDropLocation.y.toInt(), supplyDropLocation.z.toInt()) }
+                        world?.let { spawnLootChest(it, supplyDropLocation.x.toInt(), supplyDropLocation.y.toInt(), supplyDropLocation.z.toInt(), 4) }
                         PlayerVisuals.firework(
                             Location(world, supplyDropLocation.clone().x + 0.5, supplyDropLocation.y, supplyDropLocation.clone().z + 0.5),
                             flicker = false,
                             trail = false,
                             color = Color.YELLOW,
-                            fireworkType = FireworkEffect.Type.BALL,
+                            fireworkType = FireworkEffect.Type.BALL_LARGE,
                             variedVelocity = false
                         )
                         world?.getBlockAt(supplyDropLocation.clone().subtract(0.0, 1.0, 0.0))?.type = Material.OBSIDIAN
