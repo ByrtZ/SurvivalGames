@@ -3,9 +3,7 @@ package dev.byrt.survivalgames.command
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.text.ChatUtility
-import dev.byrt.survivalgames.world.SGWorld
 import org.bukkit.Bukkit
-import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.incendo.cloud.annotations.Argument
 import org.incendo.cloud.annotations.Command
@@ -17,7 +15,6 @@ import org.incendo.cloud.context.CommandContext
 import org.incendo.cloud.paper.util.sender.PlayerSource
 import org.incendo.cloud.processors.confirmation.annotation.Confirmation
 import org.incendo.cloud.suggestion.Suggestion
-import java.util.*
 
 @Suppress("unused", "unstableApiUsage")
 @CommandContainer
@@ -62,19 +59,19 @@ class ContainerCommands {
         }
     }
 
-    @Command("debug generate_world")
-    @Permission("sg.cmd.debug")
-    suspend fun debugGenerateWorld(sender: Player) {
-        val worldID = UUID.randomUUID()
-        SGWorld.createNewGameWorld(worldID)
-    }
-
-    @Command("debug join_world <id>")
-    @Permission("sg.cmd.debug")
-    fun debugJoinWorld(sender: Player, @Argument("id", suggestions = "containers") id: String) {
-        val world = Bukkit.getWorld("sg-game-$id")
-        if(world != null) {
-            sender.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
+    @Command("move <container>")
+    @CommandDescription("Moves all players not in a container to the specified container.")
+    @Permission("burb.cmd.container")
+    fun moveToContainer(sender: Player, @Argument(value = "container",  suggestions = "containers") container: String) {
+        if(sender.sgPlayer().currentContainer?.containerId?.toString() != container) {
+            if(GameManager.getContainerById(container) != null) {
+                for(player in Bukkit.getOnlinePlayers()) {
+                    if(player.sgPlayer().currentContainer == null) {
+                        GameManager.addPlayerToContainer(sender, GameManager.getContainerById(container)!!)
+                    }
+                }
+                ChatUtility.broadcastDev("<dark_gray>${sender.name} moved all applicable to container (${container})", false)
+            }
         }
     }
 
