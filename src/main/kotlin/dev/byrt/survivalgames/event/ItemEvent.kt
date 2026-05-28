@@ -28,7 +28,6 @@ class ItemEvent: Listener {
         } else {
             e.isCancelled = e.player.gameMode != GameMode.CREATIVE
         }
-        e.isCancelled = true
     }
 
     @EventHandler
@@ -43,6 +42,5 @@ class ItemEvent: Listener {
         } else {
             e.isCancelled = e.player.gameMode != GameMode.CREATIVE
         }
-        e.isCancelled = true
     }
 }

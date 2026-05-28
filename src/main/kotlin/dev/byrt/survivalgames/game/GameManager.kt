@@ -111,10 +111,11 @@ object GameManager {
         player.sgPlayer().currentContainer?.players?.remove(player)
         player.sgPlayer().currentContainer = null
         player.sgPlayer().setType(PlayerType.SPECTATOR)
-        player.scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         player.activeBossBars().forEach { bossBar -> bossBar.removeViewer(player) }
-        player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
+        player.inventory.clear()
+        player.scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         player.gameMode = GameMode.ADVENTURE
+        player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
         Jukebox.startMusicLoop(player, MusicTrack.LOBBY)
     }
 }
