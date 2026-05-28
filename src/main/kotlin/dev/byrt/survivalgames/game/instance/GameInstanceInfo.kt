@@ -170,9 +170,7 @@ class GameInstanceInfo(val instance: GameInstance) {
     }
 
     fun updateGameTimer() {
-        if (instance.manager.getGameState() == GameState.OVERTIME) {
-            gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<b><red>${SG_FONT_TAG}Overtime"))
-        } else if (instance.manager.getGameState() == GameState.IDLE) {
+        if (instance.manager.getGameState() == GameState.IDLE) {
             gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<dark_gray>${SG_FONT_TAG}Game Inactive"))
         } else {
             gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.timer.getDisplayTimer()}"))

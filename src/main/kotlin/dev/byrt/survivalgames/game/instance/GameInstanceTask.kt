@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
+import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.MusicTrack
 import dev.byrt.survivalgames.plugin
@@ -57,27 +58,31 @@ class GameInstanceTask(val instance: GameInstance) {
                     }
                     if (instance.timer.getTimer() == 26) {
                         for (player in instance.currentContainer?.players!!) {
+                            Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
+                        }
+                    }
+                    if (instance.timer.getTimer() == 20) {
+                        for (player in instance.currentContainer?.players!!) {
                             player.playSound(player.location, Sounds.Tutorial.TUTORIAL_POP, 1f, 1f)
                             player.sendMessage(
                                 Component.text("-----------------------------------------------------")
-                                .color(NamedTextColor.GREEN).decoration(TextDecoration.STRIKETHROUGH, true).append(
-                                    Component.text(" Starting soon:\n\n").color(NamedTextColor.WHITE)
-                                    .decoration(TextDecoration.BOLD, true)
-                                    .decoration(TextDecoration.STRIKETHROUGH, false).append(
-                                    Component.text("      I don't have anything funny to say, this just needs replacing.\n\n")
-                                        .color(NamedTextColor.RED).decoration(TextDecoration.BOLD, false)
-                                        .decoration(TextDecoration.ITALIC, true)
-                                        .append(Component.text("\n\n\n").append(
-                                                Component.text("-----------------------------------------------------")
-                                                    .color(NamedTextColor.GREEN)
-                                                    .decoration(TextDecoration.STRIKETHROUGH, true)
-                                                    .decoration(TextDecoration.ITALIC, false)
+                                    .color(NamedTextColor.GREEN).decoration(TextDecoration.STRIKETHROUGH, true).append(
+                                        Component.text(" Starting soon:\n\n").color(NamedTextColor.WHITE)
+                                            .decoration(TextDecoration.BOLD, true)
+                                            .decoration(TextDecoration.STRIKETHROUGH, false).append(
+                                                Component.text("      I don't have anything funny to say, this just needs replacing.\n\n")
+                                                    .color(NamedTextColor.RED).decoration(TextDecoration.BOLD, false)
+                                                    .decoration(TextDecoration.ITALIC, true)
+                                                    .append(Component.text("\n\n\n").append(
+                                                        Component.text("-----------------------------------------------------")
+                                                            .color(NamedTextColor.GREEN)
+                                                            .decoration(TextDecoration.STRIKETHROUGH, true)
+                                                            .decoration(TextDecoration.ITALIC, false)
                                             )
                                         )
                                     )
                                 )
                             )
-                            Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
                         }
                     }
                     if (instance.timer.getTimer() in 4..10) {
@@ -176,6 +181,10 @@ class GameInstanceTask(val instance: GameInstance) {
                                 )
                             }
                         }
+                    }
+                    // Supply drop spawning
+                    if (instance.timer.getTimer() < GameTime.IN_GAME_TIME && instance.timer.getTimer() % 180 == 0) {
+                        SGLoot.spawnSupplyDrop(instance.currentContainer, instance.manager.map)
                     }
                     if (instance.timer.getTimer() in 0..10) {
                         for (player in instance.currentContainer?.players!!) {

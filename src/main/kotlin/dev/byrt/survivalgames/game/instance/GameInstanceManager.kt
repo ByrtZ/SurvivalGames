@@ -3,6 +3,7 @@ package dev.byrt.survivalgames.game.instance
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
@@ -103,7 +104,8 @@ class GameInstanceManager(val instance: GameInstance) {
     }
 
     private fun starting() {
-        //TODO: populate loot chests
+        /** Populate map loot **/
+        instance.currentContainer?.containerWorld?.let { SGLoot.populateMapLoot(it, map) }
         /** Spawn allocation, only use first available spectator spawn and cast participant spawns to list and iterate for each participant **/
         val spectatorSpawn = map.spectatorSpawns.first()
         val participantSpawns = map.participantSpawns.flatMap { listOf(Location(instance.currentContainer?.containerWorld, it.x, it.y, it.z)) }
@@ -112,7 +114,7 @@ class GameInstanceManager(val instance: GameInstance) {
         instance.info.updateGamePlayersRemaining()
         for(player in instance.currentContainer?.players!!) {
             player.showTitle(Title.title(Formatting.glyph("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(2), Duration.ofSeconds(1))))
-            player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 0, false, false))
+            player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 8 * 20, 0, false, false))
             player.scoreboard = instance.info.gameScoreboard
             when(player.sgPlayer().playerType) {
                 PlayerType.SPECTATOR -> player.teleport(Location(instance.currentContainer?.containerWorld, spectatorSpawn.x, spectatorSpawn.y, spectatorSpawn.z))
