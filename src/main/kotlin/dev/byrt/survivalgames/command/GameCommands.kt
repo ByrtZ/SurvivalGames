@@ -74,7 +74,7 @@ class GameCommands {
         if(sender.sgPlayer().currentContainer != null) {
             val currentContainer = sender.sgPlayer().currentContainer!!
             if(currentContainer.instance.manager.getGameState() == GameState.IDLE) {
-                if(amount <= 1) return
+                if(amount < 1) return
                 if(amount == currentContainer.instance.rounds.getTotalRounds()) return
                 ChatUtility.broadcastDev("<dark_gray>${sender.name} set the total number of rounds in match ${currentContainer.containerId} to $amount.", false)
                 currentContainer.instance.rounds.setTotalRounds(amount)

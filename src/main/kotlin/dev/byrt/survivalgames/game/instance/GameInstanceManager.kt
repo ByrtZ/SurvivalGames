@@ -19,12 +19,18 @@ import org.bukkit.potion.PotionEffectType
 import java.time.Duration
 
 class GameInstanceManager(val instance: GameInstance) {
-    //TODO randomised map selection when config system is finished
-    val map = SGMap.AUBURN_FOREST
+    /** Not to be set outside of initialisation under any circumstance **/
+    var map = SGMap.AUBURN_FOREST //TODO randomised map selection
+        set(value) {
+            if(field == value) return
+            field = value
+            instance.info.updatePreGameMap()
+        }
     private var gameState = GameState.IDLE
     private var overtimeActive = true
 
     fun nextState() {
+        if(instance.currentContainer?.isEditMode == true) return
         when(this.gameState) {
             GameState.IDLE -> { setGameState(GameState.STARTING) }
             GameState.STARTING -> { setGameState(GameState.IN_GAME) }
@@ -50,6 +56,7 @@ class GameInstanceManager(val instance: GameInstance) {
     }
 
     fun setGameState(newState: GameState) {
+        if(instance.currentContainer?.isEditMode == true) return
         if (newState == gameState) return
         ChatUtility.broadcastDev("<dark_gray>Game State: <red>$gameState<reset> <aqua>-> <green>$newState<dark_gray>.", true)
         this.gameState = newState
@@ -74,7 +81,7 @@ class GameInstanceManager(val instance: GameInstance) {
             }
             GameState.IN_GAME -> {
                 instance.timer.setTimerState(GameTimerState.ACTIVE, null)
-                instance.timer.setTimer(GameTime.IN_GAME_TIME, null)
+                instance.timer.setTimer(if(map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME, null)
                 startRound()
             }
             GameState.ROUND_END -> {
@@ -129,7 +136,7 @@ class GameInstanceManager(val instance: GameInstance) {
         }
         val borderCenter = map.worldCenter.first()
         instance.currentContainer?.containerWorld?.worldBorder?.setCenter(borderCenter.x, borderCenter.z)
-        instance.currentContainer?.containerWorld?.worldBorder?.size = 750.0
+        instance.currentContainer?.containerWorld?.worldBorder?.size = if(map.isQuickMatch) 425.0 else 750.0
     }
 
     //TODO overtime last stand, decrease max health over time
@@ -228,6 +235,7 @@ object GameTime {
     const val GAME_STARTING_TIME = 30
     const val ROUND_STARTING_TIME = 15
     const val IN_GAME_TIME = 900
+    const val IN_GAME_TIME_QUICK_MATCH = 400
     const val ROUND_END_TIME = 10
     const val GAME_END_TIME = 20
     const val OVERTIME_TIME = 600

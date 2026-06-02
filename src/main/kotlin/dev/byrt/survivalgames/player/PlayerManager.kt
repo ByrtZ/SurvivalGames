@@ -17,10 +17,10 @@ object PlayerManager {
     }
 
     fun unregisterPlayer(sgPlayer: SGPlayer) {
-        GameManager.removePlayerFromContainer(sgPlayer.bukkitPlayer())
-        sgPlayer.setType(PlayerType.UNREGISTERED)
         sgPlayer.isDead = true
+        GameManager.removePlayerFromContainer(sgPlayer.bukkitPlayer())
         sgPlayer.currentContainer = null
+        sgPlayer.setType(PlayerType.UNREGISTERED)
         sgPlayers.remove(sgPlayer.uuid)
     }
 

@@ -22,7 +22,7 @@ import kotlin.coroutines.resumeWithException
 
 object GameManager {
     val gameContainers = mutableListOf<GameContainer>()
-    suspend fun createContainer(): GameContainer {
+    suspend fun createContainer(isEditMode: Boolean = false, forcedMap: SGMap? = null): GameContainer {
         val newContainerId = UUID.randomUUID()
         val newContainerWorld = SGWorld.createNewGameWorld(newContainerId)
         return suspendCancellableCoroutine { cont ->
@@ -34,7 +34,11 @@ object GameManager {
                             containerId = newContainerId,
                             containerWorld = newContainerWorld
                         )
+                        /** Creation flags **/
+                        if(isEditMode) newContainer.isEditMode = true
+                        if(forcedMap != null) newContainer.forcedMap = forcedMap
                         newContainer.onCreate()
+
                         gameContainers.add(newContainer)
                         cont.resume(newContainer)
                     } catch (e: Exception) {
@@ -59,13 +63,17 @@ object GameManager {
     }
 
     fun addPlayerToContainer(player: Player, gameContainer: GameContainer, forceJoinAsSpectator: Boolean = false) {
+        if(gameContainer.isEditMode && !player.isOp) {
+            player.sendMessage(Formatting.allTags.deserialize("<red>You do not have permission to join this instance."))
+            return
+        }
         player.sgPlayer().currentContainer = gameContainer
 
         /** Teleport player to the correct place **/
-        val preGameSpawnDataPoint = gameContainer.instance.manager.map.preGameSpawns.first()
-        val preGameSpawn = Location(gameContainer.containerWorld, preGameSpawnDataPoint.x, preGameSpawnDataPoint.y, preGameSpawnDataPoint.z)
-        val spectatorSpawnDataPoint = gameContainer.instance.manager.map.spectatorSpawns.first()
-        val spectatorSpawn = Location(gameContainer.containerWorld, spectatorSpawnDataPoint.x, spectatorSpawnDataPoint.y, spectatorSpawnDataPoint.z)
+        val preGameSpawnDataPoint = gameContainer.instance.manager.map.preGameSpawns.firstOrNull()
+        val preGameSpawn = Location(gameContainer.containerWorld, preGameSpawnDataPoint?.x ?: 0.0, preGameSpawnDataPoint?.y ?: 0.0, preGameSpawnDataPoint?.z ?: 0.0)
+        val spectatorSpawnDataPoint = gameContainer.instance.manager.map.spectatorSpawns.firstOrNull()
+        val spectatorSpawn = Location(gameContainer.containerWorld, spectatorSpawnDataPoint?.x ?: 0.0, spectatorSpawnDataPoint?.y ?: 0.0, spectatorSpawnDataPoint?.z ?: 0.0)
 
         /** Auto-assign type to participant if joining regularly, if the game is not already running **/
         if(forceJoinAsSpectator) {

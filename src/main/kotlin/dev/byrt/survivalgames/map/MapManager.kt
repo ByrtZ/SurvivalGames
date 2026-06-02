@@ -49,7 +49,8 @@ object MapManager {
                     }
                 }
             SGMap.entries.forEach { map ->
-                if(map.mapConfig == mapFile.name) {
+                if(map.mapConfigFile == mapFile.name) {
+                    map.yamlConfigFile = config
                     allPoints.forEach { point ->
                         when(point.mapDataPointType) {
                             MapDataPointType.PREGAME_SPAWN -> map.preGameSpawns.add(point)

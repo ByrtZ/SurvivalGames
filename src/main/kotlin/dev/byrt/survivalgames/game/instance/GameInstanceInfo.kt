@@ -121,6 +121,12 @@ class GameInstanceInfo(val instance: GameInstance) {
         plugin.logger.info("Scoreboard constructed with ID ${gameObjective.name}.")
     }
 
+    fun updatePreGameMap() {
+        if(instance.manager.getGameState() == GameState.IDLE) {
+            preGameMapNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.manager.map.mapName}"))
+        } else return
+    }
+
     fun updatePreGamePlayersRequired() {
         if(instance.manager.getGameState() == GameState.IDLE) {
             preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.currentContainer?.players?.filter { player -> player.sgPlayer().playerType == PlayerType.PARTICIPANT && !player.sgPlayer().isDead }?.size}/${GamePlayerCount.MAX_PLAYERS}"))

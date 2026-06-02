@@ -1,6 +1,8 @@
 package dev.byrt.survivalgames.command
 
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.map.MapDataPointType
+import dev.byrt.survivalgames.map.MapTools
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
@@ -92,5 +94,12 @@ class AdminCommands {
     @Permission("sg.cmd.debug")
     fun sendTranslation(player: Player, @Argument("translation") translation: String) {
         player.sendMessage(Component.translatable(translation))
+    }
+
+    @Command("data_point_tool <data_point>")
+    @Permission("sg.cmd.debug")
+    fun giveEditItem(player: Player, @Argument("data_point") dataPoint: MapDataPointType) {
+        player.inventory.addItem(MapTools.getDataPointItem(dataPoint))
+        player.sendMessage(Formatting.allTags.deserialize("Gave self data point tool with type ${dataPoint.typeName}"))
     }
 }

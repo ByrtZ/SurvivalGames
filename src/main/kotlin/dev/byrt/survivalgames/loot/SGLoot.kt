@@ -28,7 +28,14 @@ object SGLoot {
             logger.info("No possible loot locations in map '${map.mapName}'")
         } else {
             map.lootChests.forEach { point ->
-                spawnLootChest(world, point.x.toInt(), point.y.toInt(), point.z.toInt(), if(point.mapDataPointType == MapDataPointType.LOOT_CHEST_1) 1 else if(point.mapDataPointType == MapDataPointType.LOOT_CHEST_2) 2 else if(point.mapDataPointType == MapDataPointType.LOOT_CHEST_3) 3 else 1)
+                spawnLootChest(world, point.x.toInt(), point.y.toInt(), point.z.toInt(),
+                    when (point.mapDataPointType) {
+                        MapDataPointType.LOOT_CHEST_1 -> 1
+                        MapDataPointType.LOOT_CHEST_2 -> 2
+                        MapDataPointType.LOOT_CHEST_3 -> 3
+                        else -> 1
+                    }
+                )
             }
             logger.info("Finished populating loot for map '${map.mapName}'")
         }
@@ -67,49 +74,55 @@ object SGLoot {
 
     fun spawnSupplyDrop(container: GameContainer?, map: SGMap) {
         val world = container?.containerWorld
-        val supplyDropLocation = map.supplyDropSpawns.flatMap { point -> listOf(Location(world, point.x, point.y, point.z)) }.random()
-        container?.players?.forEach { player -> player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<b><playercolour>${SG_FONT_TAG}Supply Drop spawning</playercolour> (<white>${supplyDropLocation.x}, ${supplyDropLocation.y}, ${supplyDropLocation.z}</white><playercolour>).")) }
-        // Spawn beacon location
-        for(x in -1..1) {
-            for(y in -2..-1) {
-                for(z in -1..1) {
-                    world?.getBlockAt(supplyDropLocation.clone().add(x.toDouble(), y.toDouble(), z.toDouble()))?.type = Material.IRON_BLOCK
-                }
-            }
-        }
-        world?.getBlockAt(supplyDropLocation.clone().subtract(0.0, 1.0, 0.0))?.type = Material.BEACON
-        // Runnable for fireworks
-        object : BukkitRunnable() {
-            var height = supplyDropLocation.clone().y + 180
-            override fun run() {
-                if(container?.instance?.manager?.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
-                    if(height <= supplyDropLocation.clone().y.toInt()) {
-                        world?.let { spawnLootChest(it, supplyDropLocation.x.toInt(), supplyDropLocation.y.toInt(), supplyDropLocation.z.toInt(), 4) }
-                        PlayerVisuals.firework(
-                            Location(world, supplyDropLocation.clone().x + 0.5, supplyDropLocation.y, supplyDropLocation.clone().z + 0.5),
-                            flicker = false,
-                            trail = false,
-                            color = Color.YELLOW,
-                            fireworkType = FireworkEffect.Type.BALL_LARGE,
-                            variedVelocity = false
-                        )
-                        world?.getBlockAt(supplyDropLocation.clone().subtract(0.0, 1.0, 0.0))?.type = Material.OBSIDIAN
-                        cancel()
-                    } else {
-                        PlayerVisuals.firework(
-                            Location(world, supplyDropLocation.clone().x + 0.5, height, supplyDropLocation.clone().z + 0.5),
-                            flicker = false,
-                            trail = false,
-                            color = Color.YELLOW,
-                            fireworkType = FireworkEffect.Type.BURST,
-                            variedVelocity = false
-                        )
-                        height -= 2
+        val supplyDropLocation = map.supplyDropSpawns
+            .flatMap { point -> listOf(Location(world, point.x, point.y, point.z)) }
+            .filter { dropLocation -> container?.containerWorld?.worldBorder?.isInside(dropLocation) == true }
+            .randomOrNull()
+
+        if(supplyDropLocation != null) {
+            container?.players?.forEach { player -> player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<b><playercolour>${SG_FONT_TAG}Supply Drop spawning</playercolour> (<white>${supplyDropLocation.x}, ${supplyDropLocation.y}, ${supplyDropLocation.z}</white><playercolour>).")) }
+            // Spawn beacon location
+            for(x in -1..1) {
+                for(y in -2..-1) {
+                    for(z in -1..1) {
+                        world?.getBlockAt(supplyDropLocation.clone().add(x.toDouble(), y.toDouble(), z.toDouble()))?.type = Material.IRON_BLOCK
                     }
-                } else {
-                    cancel()
                 }
             }
-        }.runTaskTimer(plugin, 20L * 15L, 4L)
+            world?.getBlockAt(supplyDropLocation.clone().subtract(0.0, 1.0, 0.0))?.type = Material.BEACON
+            // Runnable for fireworks
+            object : BukkitRunnable() {
+                var height = supplyDropLocation.clone().y + 180
+                override fun run() {
+                    if(container?.instance?.manager?.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
+                        if(height <= supplyDropLocation.clone().y.toInt()) {
+                            world?.let { spawnLootChest(it, supplyDropLocation.x.toInt(), supplyDropLocation.y.toInt(), supplyDropLocation.z.toInt(), 4) }
+                            PlayerVisuals.firework(
+                                Location(world, supplyDropLocation.clone().x + 0.5, supplyDropLocation.y, supplyDropLocation.clone().z + 0.5),
+                                flicker = false,
+                                trail = false,
+                                color = Color.YELLOW,
+                                fireworkType = FireworkEffect.Type.BALL_LARGE,
+                                variedVelocity = false
+                            )
+                            world?.getBlockAt(supplyDropLocation.clone().subtract(0.0, 1.0, 0.0))?.type = Material.OBSIDIAN
+                            cancel()
+                        } else {
+                            PlayerVisuals.firework(
+                                Location(world, supplyDropLocation.clone().x + 0.5, height, supplyDropLocation.clone().z + 0.5),
+                                flicker = false,
+                                trail = false,
+                                color = Color.YELLOW,
+                                fireworkType = FireworkEffect.Type.BURST,
+                                variedVelocity = false
+                            )
+                            height -= 2
+                        }
+                    } else {
+                        cancel()
+                    }
+                }
+            }.runTaskTimer(plugin, 20L * 15L, 4L)
+        } else return
     }
 }

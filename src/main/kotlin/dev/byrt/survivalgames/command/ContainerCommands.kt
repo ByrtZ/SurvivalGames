@@ -1,14 +1,12 @@
 package dev.byrt.survivalgames.command
 
 import dev.byrt.survivalgames.game.GameManager
+import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.text.ChatUtility
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.incendo.cloud.annotations.Argument
-import org.incendo.cloud.annotations.Command
-import org.incendo.cloud.annotations.CommandDescription
-import org.incendo.cloud.annotations.Permission
+import org.incendo.cloud.annotations.*
 import org.incendo.cloud.annotations.processing.CommandContainer
 import org.incendo.cloud.annotations.suggestion.Suggestions
 import org.incendo.cloud.context.CommandContext
@@ -23,10 +21,10 @@ class ContainerCommands {
     @CommandDescription("Creates a new game container.")
     @Permission("burb.cmd.container")
     @Confirmation
-    suspend fun createContainer(sender: Player) {
+    suspend fun createContainer(sender: Player, @Flag("map") forcedMap: SGMap? = null, @Flag("edit") isEditMode: Boolean = false) {
         if(sender.sgPlayer().currentContainer == null) {
-            val container = GameManager.createContainer()
-            ChatUtility.broadcastDev("<dark_gray>${sender.name} created a container (${container.containerId})", false)
+            val container = GameManager.createContainer(isEditMode, forcedMap)
+            ChatUtility.broadcastDev("<dark_gray>${sender.name} created a container (${container.containerId})${if(isEditMode) " (Edit Mode)" else ""}${if (forcedMap != null) " (${forcedMap.mapName})" else ""}", false)
         }
     }
 
@@ -67,7 +65,7 @@ class ContainerCommands {
             if(GameManager.getContainerById(container) != null) {
                 for(player in Bukkit.getOnlinePlayers()) {
                     if(player.sgPlayer().currentContainer == null) {
-                        GameManager.addPlayerToContainer(sender, GameManager.getContainerById(container)!!)
+                        GameManager.addPlayerToContainer(player, GameManager.getContainerById(container)!!)
                     }
                 }
                 ChatUtility.broadcastDev("<dark_gray>${sender.name} moved all applicable to container (${container})", false)
