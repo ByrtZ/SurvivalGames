@@ -14,6 +14,7 @@ import dev.byrt.survivalgames.text.SG_FONT_TAG
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.Location
+import org.bukkit.attribute.Attribute
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.time.Duration
@@ -122,6 +123,10 @@ class GameInstanceManager(val instance: GameInstance) {
         for(player in instance.currentContainer?.players!!) {
             player.showTitle(Title.title(Formatting.glyph("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(2), Duration.ofSeconds(1))))
             player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 8 * 20, 0, false, false))
+            player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
+            player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
+            player.foodLevel = 20
+            player.saturation = 0f
             player.scoreboard = instance.info.gameScoreboard
             when(player.sgPlayer().playerType) {
                 PlayerType.SPECTATOR -> player.teleport(Location(instance.currentContainer?.containerWorld, spectatorSpawn.x, spectatorSpawn.y, spectatorSpawn.z))
@@ -139,14 +144,13 @@ class GameInstanceManager(val instance: GameInstance) {
         instance.currentContainer?.containerWorld?.worldBorder?.size = if(map.isQuickMatch) 425.0 else 750.0
     }
 
-    //TODO overtime last stand, decrease max health over time
     private fun startOvertime() {
         for(player in instance.currentContainer?.players!!) {
             player.playSound(Sounds.Round.OVERTIME_START)
             player.showTitle(
                 Title.title(
                     Formatting.allTags.deserialize("${SG_FONT_TAG}<#ff3333><b>Overtime"),
-                    Formatting.allTags.deserialize("${SG_FONT_TAG}Fight to the death"),
+                    Formatting.allTags.deserialize("${SG_FONT_TAG}Maximum health decreasing!"),
                     Title.Times.times(
                         Duration.ofSeconds(0),
                         Duration.ofSeconds(2),

@@ -3,6 +3,7 @@ package dev.byrt.survivalgames.player
 import dev.byrt.survivalgames.exception.PlayerManagerException
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.logger
+import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import java.util.UUID
 
@@ -13,6 +14,10 @@ object PlayerManager {
         val sgPlayer = SGPlayer(player.uniqueId, player.name, PlayerType.UNREGISTERED)
         sgPlayers[player.uniqueId] = sgPlayer
         player.inventory.clear()
+        player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
+        player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
+        player.foodLevel = 20
+        player.saturation = 0f
         //PlayerVisuals.showPlayer(player)
     }
 

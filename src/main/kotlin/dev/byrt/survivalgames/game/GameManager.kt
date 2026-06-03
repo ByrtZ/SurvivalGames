@@ -14,6 +14,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
+import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
@@ -112,6 +113,11 @@ object GameManager {
                 Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
             }
         }
+
+        player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
+        player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
+        player.foodLevel = 20
+        player.saturation = 0f
     }
 
     fun removePlayerFromContainer(player: Player) {
@@ -125,5 +131,9 @@ object GameManager {
         player.gameMode = GameMode.ADVENTURE
         player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
         Jukebox.startMusicLoop(player, MusicTrack.LOBBY)
+        player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
+        player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
+        player.foodLevel = 20
+        player.saturation = 0f
     }
 }

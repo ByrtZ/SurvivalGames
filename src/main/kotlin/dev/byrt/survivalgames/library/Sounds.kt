@@ -26,7 +26,7 @@ object Sounds {
     object Round {
         val ROUND_END = sound(key("block.respawn_anchor.deplete"), Source.VOICE, 1f, 1f)
         val GAME_OVER = sound(key("ui.toast.challenge_complete"), Source.VOICE, 0.75f, 1f)
-        val OVERTIME_START = sound(key("block.portal.travel"), Source.VOICE, 0.5f, 0.75f)
+        val OVERTIME_START = sound(key("block.portal.travel"), Source.VOICE, 0.25f, 0.75f)
     }
     object Score {
         val ELIMINATION = sound(key("entity.player.level_up"), Source.VOICE, 1f, 1.75f)
@@ -36,7 +36,7 @@ object Sounds {
         val RESPAWN = sound(key(""), Source.VOICE, 2f, 0.0f)
     }
     object Alert {
-        val ALARM = sound(key("block.trial_spawner.ominous_activate"), Source.VOICE, 1f, 0.75f)
+        val ALARM = sound(key("block.trial_spawner.ominous_activate"), Source.VOICE, 2f, 0.75f)
     }
     object Tutorial {
         const val TUTORIAL_POP = "entity.item.pickup"
