@@ -4,17 +4,12 @@ import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.plugin
-import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.text.Formatting
+import dev.byrt.survivalgames.text.SG_FONT_TAG
 import io.papermc.paper.entity.TeleportFlag
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
-import org.bukkit.Bukkit
-import org.bukkit.Color
-import org.bukkit.FireworkEffect
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.NamespacedKey
+import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.*
@@ -53,7 +48,16 @@ object PlayerVisuals {
         player.sgPlayer().isDead = true
         player.sgPlayer().setType(PlayerType.SPECTATOR)
         player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
-        //player.addPotionEffect(PotionEffect(PotionEffectType.HUNGER, PotionEffect.INFINITE_DURATION, 0, false, false))
+        player.inventory.storageContents.forEach { item ->
+            player.world.spawn(player.location, Item::class.java).apply {
+                if (item != null && item.type != Material.AIR) {
+                    itemStack = item
+                    velocity = Vector(Random.nextDouble(0.05, 0.25), Random.nextDouble(0.05, 0.25), Random.nextDouble(0.05, 0.25))
+                } else {
+                    remove()
+                }
+            }
+        }
         player.inventory.clear()
         val deathOverlayItem = ItemStack(Material.CARVED_PUMPKIN)
         val deathOverlayItemMeta = deathOverlayItem.itemMeta

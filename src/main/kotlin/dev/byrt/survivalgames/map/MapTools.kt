@@ -19,7 +19,9 @@ import java.io.File
 
 object MapTools {
     fun createDataPoint(player: Player, clickedBlock: Block, dataPointType: MapDataPointType, map: SGMap) {
-        ChatUtility.broadcastDev("<yellow>${player.name} added data point $dataPointType at ${clickedBlock.location.x + 0.5}, ${clickedBlock.location.y + 1}, ${clickedBlock.location.z + 0.5} on ${map}.", false)
+        val pointsToBeCentered = listOf(MapDataPointType.PREGAME_SPAWN, MapDataPointType.PARTICIPANT_SPAWN, MapDataPointType.SPECTATOR_SPAWN)
+        ChatUtility.broadcastDev("<yellow>${player.name} added data point $dataPointType at ${clickedBlock.location.x + if(pointsToBeCentered.contains(dataPointType)) 0.5 else 0.0}, ${clickedBlock.location.y + 1}, ${clickedBlock.location.z + if(pointsToBeCentered.contains(dataPointType)) 0.5 else 0.0} on ${map}.", false)
+
         clickedBlock.getRelative(BlockFace.UP).type = Material.OCHRE_FROGLIGHT
         clickedBlock.location.world.spawn(clickedBlock.location.add(0.5, 2.5, 0.5), TextDisplay::class.java).apply {
             isShadowed = true
@@ -31,9 +33,9 @@ object MapTools {
         val points = config.getMapList(path).toMutableList()
         points.add(
             mapOf(
-                "x" to clickedBlock.location.x + 0.5,
+                "x" to clickedBlock.location.x + if(pointsToBeCentered.contains(dataPointType)) 0.5 else 0.0,
                 "y" to clickedBlock.location.y + 1,
-                "z" to clickedBlock.location.z + 0.5
+                "z" to clickedBlock.location.z + if(pointsToBeCentered.contains(dataPointType)) 0.5 else 0.0
             )
         )
         config.set(path, points)
@@ -45,7 +47,7 @@ object MapTools {
         dataPoints.forEach { point ->
             val location = Location(container.containerWorld, point.x, point.y, point.z)
             location.block.type = Material.OCHRE_FROGLIGHT
-            location.world.spawn(location.add(0.0, 1.5, 0.0), TextDisplay::class.java).apply {
+            location.world.spawn(location.add(if(location.x == 0.0) 0.5 else 0.0, 1.5, if(location.z == 0.0) 0.5 else 0.0), TextDisplay::class.java).apply {
                 isShadowed = true
                 billboard = Display.Billboard.VERTICAL
                 text(Formatting.allTags.deserialize("<yellow><b>${SG_FONT_TAG}DATA POINT</b></yellow><newline>Type: <yellow>${point.mapDataPointType.typeName}</yellow><newline>Location: <yellow>(${point.x}, ${point.y}, ${point.z})</yellow><newline>Map: <yellow>${map.mapName}</yellow>"))

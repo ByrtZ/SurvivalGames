@@ -13,7 +13,6 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
 import org.bukkit.attribute.Attribute
-import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitRunnable
 import java.time.Duration
 
@@ -199,7 +198,7 @@ class GameInstanceTask(val instance: GameInstance) {
 
                 /** OVERTIME **/
                 if (instance.manager.getGameState() == GameState.OVERTIME && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (instance.timer.getTimer() % 15 == 0) {
+                    if (instance.timer.getTimer() % 10 == 0) {
                         for (player in instance.currentContainer?.players!!) {
                             if (player.getAttribute(Attribute.MAX_HEALTH)?.value != null) {
                                 val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
