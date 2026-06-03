@@ -18,7 +18,7 @@ class InteractEvent: Listener {
     @EventHandler
     private fun onInteract(e: PlayerInteractEvent) {
         if(e.player.vehicle != null) {
-            if(e.player.isDead) {
+            if(e.player.sgPlayer().isDead) {
                 e.isCancelled = true
             }
         } else {
@@ -34,16 +34,18 @@ class InteractEvent: Listener {
                     }
                 }
                 /** Generic interactions checks **/
-                if(container.instance.manager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
+                if(container.instance.manager.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                     if(e.clickedBlock != null) {
-                        if(e.clickedBlock!!.type == Material.CHEST && e.action.isRightClick) {
-                            e.isCancelled = false
-                        } else {
-                            e.isCancelled = genericInteractionsCheck(e)
+                        when (e.clickedBlock!!.type) {
+                            Material.CHEST if e.action.isRightClick -> e.isCancelled = false
+                            Material.CRAFTING_TABLE if e.action.isRightClick -> e.isCancelled = false
+                            else -> e.isCancelled = genericInteractionsCheck(e)
                         }
                     } else {
                         e.isCancelled = genericInteractionsCheck(e)
                     }
+                } else {
+                    e.isCancelled = genericInteractionsCheck(e)
                 }
             } else {
                 e.isCancelled = genericInteractionsCheck(e)
