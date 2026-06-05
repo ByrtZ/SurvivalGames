@@ -1,10 +1,10 @@
 package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.library.Sounds
-import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.MusicTrack
+import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.text.Formatting
@@ -61,7 +61,7 @@ class GameInstanceTask(val instance: GameInstance) {
                             Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
                         }
                     }
-                    if (instance.timer.getTimer() == 20) {
+                    if (instance.timer.getTimer() == 15) {
                         for (player in instance.currentContainer?.players!!) {
                             player.playSound(player.location, Sounds.Tutorial.TUTORIAL_POP, 1f, 1f)
                             player.sendMessage(
@@ -70,7 +70,7 @@ class GameInstanceTask(val instance: GameInstance) {
                                         Component.text(" Starting soon:\n\n").color(NamedTextColor.WHITE)
                                             .decoration(TextDecoration.BOLD, true)
                                             .decoration(TextDecoration.STRIKETHROUGH, false).append(
-                                                Component.text("      I don't have anything funny to say, this just needs replacing.\n\n")
+                                                Component.text("      When she survival on my game.\n\n")
                                                     .color(NamedTextColor.RED).decoration(TextDecoration.BOLD, false)
                                                     .decoration(TextDecoration.ITALIC, true)
                                                     .append(Component.text("\n\n\n").append(
@@ -98,13 +98,12 @@ class GameInstanceTask(val instance: GameInstance) {
                                     )
                                 )
                             )
-                            player.playSound(Sounds.Timer.CLOCK_TICK)
+                            player.playSound(Sounds.Timer.STARTING_TICK)
                         }
                     }
                     if (instance.timer.getTimer() in 1..3) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.playSound(Sounds.Timer.CLOCK_TICK)
-                            player.playSound(Sounds.Timer.STARTING_123)
+                            player.playSound(Sounds.Timer.STARTING_TICK)
                             if (instance.timer.getTimer() == 3) {
                                 player.showTitle(
                                     Title.title(
@@ -156,34 +155,23 @@ class GameInstanceTask(val instance: GameInstance) {
 
                 /** IN GAME **/
                 if (instance.manager.getGameState() == GameState.IN_GAME && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
+                    if(instance.timer.getTimer() ==
+                        if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - GameTime.GRACE_PERIOD
+                        else GameTime.IN_GAME_TIME - GameTime.GRACE_PERIOD) {
+                        PlayerVisuals.gracePeriodEnd(instance.currentContainer)
+                    }
                     if (instance.timer.getTimer() in 11..59 || instance.timer.getTimer() % 60 == 0) {
                         for (player in instance.currentContainer?.players!!) {
                             player.playSound(Sounds.Timer.CLOCK_TICK)
                         }
                     }
                     if (instance.timer.getTimer() % 60 == 0) {
-                        //TODO faster border movements but move a few times
-                        if(instance.timer.getTimer() <= GameTime.IN_GAME_TIME - 60 && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= 750.0) {
-                            instance.currentContainer?.containerWorld?.worldBorder?.changeSize(50.0, instance.timer.getTimer().times(20).toLong())
-                            for (player in instance.currentContainer?.players!!) {
-                                player.playSound(Sounds.Alert.ALARM)
-                                player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}The World Border is now shrinking!"))
-                                player.showTitle(
-                                    Title.title(
-                                        Component.empty(),
-                                        Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}World Border shrinking!"),
-                                        Title.Times.times(
-                                            Duration.ofMillis(250),
-                                            Duration.ofSeconds(1),
-                                            Duration.ofMillis(250)
-                                        )
-                                    )
-                                )
-                            }
+                        if(instance.timer.getTimer() == (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - 60 else GameTime.IN_GAME_TIME - 60) && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= if(instance.manager.map.isQuickMatch) 450.0 else 750.0) {
+                            PlayerVisuals.shrinkBorder(instance.currentContainer)
                         }
                     }
                     // Supply drop spawning
-                    if (instance.timer.getTimer() < GameTime.IN_GAME_TIME && instance.timer.getTimer() % 180 == 0) {
+                    if (instance.timer.getTimer() < (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME) && instance.timer.getTimer() % 90 == 0) {
                         SGLoot.spawnSupplyDrop(instance.currentContainer, instance.manager.map)
                     }
                     if (instance.timer.getTimer() in 0..10) {
@@ -204,6 +192,7 @@ class GameInstanceTask(val instance: GameInstance) {
                                 val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
                                 if(maxHealth > 1.0) {
                                     player.getAttribute(Attribute.MAX_HEALTH)?.baseValue -= 1.0
+                                    player.playSound(Sounds.Alert.HEALTH_DECREASE)
                                 }
                             }
                         }

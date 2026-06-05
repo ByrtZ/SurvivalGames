@@ -2,7 +2,6 @@ package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
-import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -26,7 +25,5 @@ class HungerEvent: Listener {
                 e.entity.foodLevel = 20
             }
         }
-        e.isCancelled = true
-        e.entity.foodLevel = 20
     }
 }

@@ -52,7 +52,7 @@ object SGLoot {
             4 -> SGLootTable.SUPPLY_DROP
             else -> SGLootTable.LOOT_CHEST_1
         }
-        val amountLootPicks = Random.nextInt(2, 5)
+        val amountLootPicks = Random.nextInt(3, 6)
         for(i in 1..amountLootPicks) {
             val randomSlotIndex = Random.nextInt(0, inventory.size - 1)
             val randomLoot = lootTable.possibleLoot.toList().random()
@@ -80,7 +80,7 @@ object SGLoot {
             .randomOrNull()
 
         if(supplyDropLocation != null) {
-            container?.players?.forEach { player -> player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<b><playercolour>${SG_FONT_TAG}Supply Drop spawning</playercolour> (<white>${supplyDropLocation.x}, ${supplyDropLocation.y}, ${supplyDropLocation.z}</white><playercolour>).")) }
+            container?.players?.forEach { player -> player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<b><playercolour>${SG_FONT_TAG}Supply Drop spawning (<white>${supplyDropLocation.x}, ${supplyDropLocation.y}, ${supplyDropLocation.z}</white><playercolour>).")) }
             // Spawn beacon location
             for(x in -1..1) {
                 for(y in -2..-1) {
@@ -90,6 +90,8 @@ object SGLoot {
                 }
             }
             world?.getBlockAt(supplyDropLocation.clone().subtract(0.0, 1.0, 0.0))?.type = Material.BEACON
+            // Pause border until drop completes descent
+            container?.containerWorld?.worldBorder?.size = container.containerWorld.worldBorder.size
             // Runnable for fireworks
             object : BukkitRunnable() {
                 var height = supplyDropLocation.clone().y + 180
@@ -106,6 +108,7 @@ object SGLoot {
                                 variedVelocity = false
                             )
                             world?.getBlockAt(supplyDropLocation.clone().subtract(0.0, 1.0, 0.0))?.type = Material.OBSIDIAN
+                            PlayerVisuals.shrinkBorder(container)
                             cancel()
                         } else {
                             PlayerVisuals.firework(

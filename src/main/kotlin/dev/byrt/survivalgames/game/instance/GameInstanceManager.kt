@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.library.Sounds
+import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.map.SGMap
@@ -11,6 +12,7 @@ import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
+import io.papermc.paper.entity.LookAnchor
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.Location
@@ -108,12 +110,21 @@ class GameInstanceManager(val instance: GameInstance) {
             player.playSound(Sounds.Timer.STARTING_GO)
             player.playSound(Sounds.Timer.CLOCK_TICK_HIGH)
             player.resetTitle()
+            player.addPotionEffects(listOf(
+                    PotionEffect(PotionEffectType.SPEED, 20 * GameTime.GRACE_PERIOD, 1, true, true),
+                    PotionEffect(PotionEffectType.ABSORPTION, 20 * GameTime.GRACE_PERIOD, 1, true, true)
+                )
+            )
         }
     }
 
     private fun starting() {
         /** Populate map loot **/
         instance.currentContainer?.containerWorld?.let { SGLoot.populateMapLoot(it, map) }
+        /** Set world border center and size **/
+        val borderCenter = map.worldCenter.first()
+        instance.currentContainer?.containerWorld?.worldBorder?.setCenter(borderCenter.x, borderCenter.z)
+        instance.currentContainer?.containerWorld?.worldBorder?.size = if(map.isQuickMatch) 450.0 else 750.0
         /** Spawn allocation, only use first available spectator spawn and cast participant spawns to list and iterate for each participant **/
         val spectatorSpawn = map.spectatorSpawns.first()
         val participantSpawns = map.participantSpawns.flatMap { listOf(Location(instance.currentContainer?.containerWorld, it.x, it.y, it.z)) }
@@ -137,20 +148,19 @@ class GameInstanceManager(val instance: GameInstance) {
                 }
                 else -> logger.info("Unregistered player in container.")
             }
+            player.lookAt(borderCenter.x, borderCenter.y, borderCenter.z, LookAnchor.EYES)
             Jukebox.disconnect(player)
         }
-        val borderCenter = map.worldCenter.first()
-        instance.currentContainer?.containerWorld?.worldBorder?.setCenter(borderCenter.x, borderCenter.z)
-        instance.currentContainer?.containerWorld?.worldBorder?.size = if(map.isQuickMatch) 425.0 else 750.0
     }
 
     private fun startOvertime() {
         for(player in instance.currentContainer?.players!!) {
             player.playSound(Sounds.Round.OVERTIME_START)
+            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}OVERTIME: </b>Fight until one player remains, maximum health is now decreasing!"))
             player.showTitle(
                 Title.title(
                     Formatting.allTags.deserialize("${SG_FONT_TAG}<#ff3333><b>Overtime"),
-                    Formatting.allTags.deserialize("${SG_FONT_TAG}Maximum health decreasing!"),
+                    Formatting.allTags.deserialize("${SG_FONT_TAG}Fight to the death!"),
                     Title.Times.times(
                         Duration.ofSeconds(0),
                         Duration.ofSeconds(2),
@@ -159,6 +169,7 @@ class GameInstanceManager(val instance: GameInstance) {
                 )
             )
         }
+        instance.currentContainer?.containerWorld?.worldBorder?.size = 50.0
     }
 
     private fun gameEnd() {
@@ -238,11 +249,12 @@ class GameInstanceManager(val instance: GameInstance) {
 object GameTime {
     const val GAME_STARTING_TIME = 30
     const val ROUND_STARTING_TIME = 15
-    const val IN_GAME_TIME = 900
-    const val IN_GAME_TIME_QUICK_MATCH = 400
+    const val IN_GAME_TIME = 480
+    const val IN_GAME_TIME_QUICK_MATCH = 240
     const val ROUND_END_TIME = 10
     const val GAME_END_TIME = 20
     const val OVERTIME_TIME = 600
+    const val GRACE_PERIOD = 30
 }
 
 object GamePlayerCount {

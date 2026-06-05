@@ -180,7 +180,7 @@ class GameInstanceInfo(val instance: GameInstance) {
             gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<dark_gray>${SG_FONT_TAG}Game Inactive"))
         } else {
             if(instance.manager.getGameState() == GameState.OVERTIME) {
-                gameTimeRemainingLine.prefix(Formatting.allTags.deserialize(""))
+                gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("One must remain."))
             } else {
                 gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.timer.getDisplayTimer()}"))
             }

@@ -1,7 +1,9 @@
 package dev.byrt.survivalgames.player
 
+import dev.byrt.survivalgames.game.GameContainer
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.library.Sounds
+import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
@@ -93,7 +95,6 @@ object PlayerVisuals {
         )
         player.playSound(Sounds.Score.DEATH)
         deathMessage.let(Bukkit::broadcast)
-        player.world.strikeLightningEffect(player.location)
         for(i in 0..2) {
             firework(
                 player.location,
@@ -139,26 +140,7 @@ object PlayerVisuals {
             var ticks = 0
             override fun run() {
                 if(player.vehicle == deathVehicle) {
-                    if(timer < RESPAWN_TIME - 6) {
-                        if(player.sgPlayer().currentContainer?.instance?.manager?.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
-                            if(ticks == 1) {
-                                player.showTitle(
-                                    Title.title(
-                                        Formatting.allTags.deserialize("<yellow>Respawning in"),
-                                        Formatting.allTags.deserialize("<b>►${timer}◄"),
-                                        Title.Times.times(
-                                            Duration.ofMillis(0),
-                                            Duration.ofSeconds(2),
-                                            Duration.ofMillis(750)
-                                        )
-                                    )
-                                )
-                                player.playSound(Sounds.Timer.CLOCK_TICK)
-                            }
-                        } else {
-                            timer = 0
-                        }
-                    }
+                    if(player.sgPlayer().currentContainer?.instance?.manager?.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) timer = 0
                     if(timer <= 0) {
                         object : BukkitRunnable() {
                             override fun run() {
@@ -223,6 +205,43 @@ object PlayerVisuals {
         //SpawnPoints.respawnLocation(player)
         //ItemManager.givePlayerTeamBoots(player)
         showPlayer(player)
+    }
+
+    fun shrinkBorder(container: GameContainer?) {
+        container?.containerWorld?.worldBorder?.changeSize(50.0, container.instance.timer.getTimer().times(20).toLong())
+        for (player in container?.instance?.currentContainer?.players!!) {
+            player.playSound(Sounds.Alert.ALARM)
+            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}The World Border is shrinking!"))
+            player.showTitle(
+                Title.title(
+                    Component.empty(),
+                    Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}World Border shrinking!"),
+                    Title.Times.times(
+                        Duration.ofMillis(250),
+                        Duration.ofSeconds(1),
+                        Duration.ofMillis(250)
+                    )
+                )
+            )
+        }
+    }
+
+    fun gracePeriodEnd(container: GameContainer?) {
+        for (player in container?.instance?.currentContainer?.players!!) {
+            player.playSound(Sounds.Alert.ALARM)
+            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}Grace Period has ended."))
+            player.showTitle(
+                Title.title(
+                    Component.empty(),
+                    Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}Grace Period ended."),
+                    Title.Times.times(
+                        Duration.ofMillis(250),
+                        Duration.ofSeconds(1),
+                        Duration.ofMillis(250)
+                    )
+                )
+            )
+        }
     }
 
     /**

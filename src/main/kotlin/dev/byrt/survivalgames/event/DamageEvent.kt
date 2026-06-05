@@ -1,6 +1,7 @@
 package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.game.instance.GameTime
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerVisuals
 import org.bukkit.entity.Firework
@@ -13,13 +14,12 @@ import org.bukkit.event.entity.EntityDamageEvent
 @Suppress("unused", "unstableApiUsage")
 class DamageEvent: Listener {
     @EventHandler
-    //TODO: player.sgPlayer().currentContainer.instance.manager.getGameState()
     private fun onDamage(e: EntityDamageEvent) {
-        // Cancel ALL damage when not in the following game states
         if (e.entity is Player) {
             val player = e.entity as Player
             if (player.sgPlayer().currentContainer != null) {
                 val currentContainer = player.sgPlayer().currentContainer!!
+                // Cancel ALL damage when not in the following game states
                 if (currentContainer.instance.manager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                     e.isCancelled = true
                     return
@@ -33,7 +33,14 @@ class DamageEvent: Listener {
                         e.isCancelled = true
                         return
                     } else {
-                        PlayerVisuals.damageIndicator(player, e.damage)
+                        if(currentContainer.instance.timer.getTimer() <
+                            if(currentContainer.instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - GameTime.GRACE_PERIOD
+                            else GameTime.IN_GAME_TIME - GameTime.GRACE_PERIOD) {
+                            PlayerVisuals.damageIndicator(player, e.damage)
+                        } else {
+                            e.isCancelled = true
+                            return
+                        }
                     }
                 }
             } else {
@@ -57,8 +64,15 @@ class DamageEvent: Listener {
                     e.isCancelled = true
                     return
                 } else {
-                    e.isCancelled = false
-                    return
+                    if(currentContainer.instance.timer.getTimer() <
+                        if(currentContainer.instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - GameTime.GRACE_PERIOD
+                        else GameTime.IN_GAME_TIME - GameTime.GRACE_PERIOD) {
+                        e.isCancelled = false
+                        return
+                    } else {
+                        e.isCancelled = true
+                        return
+                    }
                 }
             } else {
                 e.isCancelled = true
