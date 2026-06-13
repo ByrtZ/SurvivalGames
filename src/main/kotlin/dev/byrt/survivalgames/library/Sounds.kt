@@ -18,10 +18,11 @@ object Sounds {
         val DOWNTIME_SUSPENSE = sound(key("event.downtime.suspense"), Source.VOICE, 1f, 1f)
     }
     object Timer {
-        val STARTING_TICK = sound(key("block.note_block.pling"), Source.MASTER, 1f, 1f)
+        val STARTING_TICK = sound(key("block.note_block.hat"), Source.MASTER, 1f, 1f)
+        val STARTING_123 = sound(key("block.note_block.harp"), Source.MASTER, 1f, 1f)
         val STARTING_GO = sound(key("block.end_portal.spawn"), Source.MASTER, 1f, 1f)
-        val CLOCK_TICK = sound(key("block.note_block.snare"), Source.MASTER, 1f, 1f)
-        val CLOCK_TICK_HIGH = sound(key("block.note_block.snare"), Source.MASTER, 1f, 1.25f)
+        val CLOCK_TICK = sound(key("block.note_block.hat"), Source.MASTER, 1f, 1f)
+        val CLOCK_TICK_HIGH = sound(key("block.note_block.hat"), Source.MASTER, 1f, 1.25f)
     }
     object Round {
         val ROUND_END = sound(key("block.respawn_anchor.deplete"), Source.MASTER, 1f, 1f)
@@ -38,6 +39,9 @@ object Sounds {
     object Alert {
         val ALARM = sound(key("block.trial_spawner.ominous_activate"), Source.MASTER, 3f, 0.75f)
         val HEALTH_DECREASE = sound(key("block.trial_spawner.ambient_ominous"), Source.MASTER, 1f, 1.25f)
+        val GRACE_PERIOD_BEGIN = sound(key("entity.ender_eye.death"), Source.MASTER, 1f, 1f)
+        val GRACE_PERIOD_END = sound(key("block.respawn_anchor.deplete"), Source.MASTER, 0.75f, 0.75f)
+        val SUPPLY_DROP_SPAWN = sound(key("block.note_block.bit"), Source.MASTER, 0.75f, 1.25f)
     }
     object Tutorial {
         const val TUTORIAL_POP = "entity.item.pickup"

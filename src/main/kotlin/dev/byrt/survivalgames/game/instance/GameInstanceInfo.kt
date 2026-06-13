@@ -180,7 +180,7 @@ class GameInstanceInfo(val instance: GameInstance) {
             gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("<dark_gray>${SG_FONT_TAG}Game Inactive"))
         } else {
             if(instance.manager.getGameState() == GameState.OVERTIME) {
-                gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("One must remain."))
+                gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}One must remain."))
             } else {
                 gameTimeRemainingLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.timer.getDisplayTimer()}"))
             }
@@ -209,7 +209,11 @@ class GameInstanceInfo(val instance: GameInstance) {
                             }
 
                             GameState.IN_GAME -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("TIME LEFT: ${if (instance.timer.getTimer() <= 89) "<#ff3333>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
+                                if(instance.manager.isGracePeriod == true) {
+                                    timerBossBar.name(TextAlignment.centreBossBarText("GRACE PERIOD: ${if (instance.timer.getRemainingGrace() <= 9) "<#ff3333>" else "<#ffff00>"}${instance.timer.getRemainingGraceDisplay()}"))
+                                } else {
+                                    timerBossBar.name(TextAlignment.centreBossBarText("TIME LEFT: ${if (instance.timer.getTimer() <= 59) "<#ff3333>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
+                                }
                             }
 
                             GameState.ROUND_END -> {

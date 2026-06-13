@@ -14,7 +14,6 @@ class PlayerQuit: Listener {
     fun onQuit(e: PlayerQuitEvent) {
         PlayerManager.unregisterPlayer(e.player.sgPlayer())
         Jukebox.disconnect(e.player)
-        //PlayerVisuals.disconnectInterrupt(e.player)
         e.quitMessage(Formatting.allTags.deserialize("${if(e.player.isOp) "<dark_red>" else "<speccolour>"}${e.player.name}<reset> left the game."))
     }
 }

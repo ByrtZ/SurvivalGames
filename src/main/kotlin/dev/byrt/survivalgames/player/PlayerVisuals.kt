@@ -1,6 +1,7 @@
 package dev.byrt.survivalgames.player
 
 import dev.byrt.survivalgames.game.GameContainer
+import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
@@ -25,6 +26,7 @@ import kotlin.random.Random
 
 object PlayerVisuals {
     fun damageIndicator(entity: LivingEntity, damage: Double) {
+        if(damage > 1000) return
         val damageTaken = BigDecimal(damage).setScale(2, RoundingMode.HALF_EVEN)
         val damageIndicatorEntity = entity.location.world.spawn(entity.location.clone().add(Random.nextDouble(-0.25, 0.35), Random.nextDouble(0.5, 2.5), Random.nextDouble(-0.25, 0.35)), TextDisplay::class.java).apply {
             alignment = TextDisplay.TextAlignment.CENTER
@@ -50,7 +52,8 @@ object PlayerVisuals {
         player.sgPlayer().isDead = true
         player.sgPlayer().setType(PlayerType.SPECTATOR)
         player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
-        player.inventory.storageContents.forEach { item ->
+        val inventoryContents = player.inventory.storageContents + player.inventory.armorContents
+        inventoryContents.forEach { item ->
             player.world.spawn(player.location, Item::class.java).apply {
                 if (item != null && item.type != Material.AIR) {
                     itemStack = item
@@ -132,40 +135,40 @@ object PlayerVisuals {
             }.runTaskLater(plugin, 50L)
         }
 
-        /** Respawn, includes ability to return to hub, continue spectating, and Post Respawn **/
-        //TODO: rework to allow continuous spectating and returning to hub
+        /** Respawn (delayed slightly to prevent accidental free-cam or hub returns), includes ability to return to hub, continue spectating, and Post Respawn **/
         object : BukkitRunnable() {
-            val RESPAWN_TIME = 15
-            var timer = RESPAWN_TIME
-            var ticks = 0
             override fun run() {
                 if(player.vehicle == deathVehicle) {
-                    if(player.sgPlayer().currentContainer?.instance?.manager?.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) timer = 0
-                    if(timer <= 0) {
-                        object : BukkitRunnable() {
-                            override fun run() {
-                                respawn(player)
-                                object : BukkitRunnable() {
-                                    override fun run() {
-                                        postRespawn(player, deathVehicle)
-                                    }
-                                }.runTaskLater(plugin, 20L)
-                            }
-                        }.runTask(plugin)
+                    if(player.sgPlayer().currentContainer?.instance?.manager?.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
+                        fullRespawn(player, deathVehicle)
                         cancel()
-                    } else {
-                        if(ticks >= 20) {
-                            ticks = 0
-                            timer--
-                        }
-                        ticks++
+                    }
+                    player.sendActionBar(Formatting.allTags.deserialize("${SG_FONT_TAG}Press <playercolour><key:key.sneak></playercolour> to continue <dark_gray>(Will be replaced with interface)"))
+                    if(player.isSneaking) {
+                        fullRespawn(player, deathVehicle)
+                        cancel()
                     }
                 } else {
                     deathVehicle.remove()
                     cancel()
                 }
             }
-        }.runTaskTimer(plugin, 0L, 1L)
+        }.runTaskTimer(plugin, 20L * 5L, 1L)
+    }
+
+    fun fullRespawn(player: Player, deathVehicle: ItemDisplay, shouldLeaveContainer: Boolean = false) {
+        player.sendActionBar(Component.empty())
+        object : BukkitRunnable() {
+            override fun run() {
+                respawn(player)
+                object : BukkitRunnable() {
+                    override fun run() {
+                        postRespawn(player, deathVehicle)
+                        if(shouldLeaveContainer) GameManager.removePlayerFromContainer(player)
+                    }
+                }.runTaskLater(plugin, 20L)
+            }
+        }.runTask(plugin)
     }
 
     fun showPlayer(player: Player) {
@@ -202,8 +205,6 @@ object PlayerVisuals {
         player.health = player.getAttribute(Attribute.MAX_HEALTH)!!.value
         player.foodLevel = 20
         player.inventory.helmet = null
-        //SpawnPoints.respawnLocation(player)
-        //ItemManager.givePlayerTeamBoots(player)
         showPlayer(player)
     }
 
@@ -226,14 +227,14 @@ object PlayerVisuals {
         }
     }
 
-    fun gracePeriodEnd(container: GameContainer?) {
+    fun gracePeriodStart(container: GameContainer?) {
         for (player in container?.instance?.currentContainer?.players!!) {
-            player.playSound(Sounds.Alert.ALARM)
-            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}Grace Period has ended."))
+            player.playSound(Sounds.Alert.GRACE_PERIOD_BEGIN)
+            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#20d600><b>${SG_FONT_TAG}Grace Period has begun."))
             player.showTitle(
                 Title.title(
                     Component.empty(),
-                    Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}Grace Period ended."),
+                    Formatting.allTags.deserialize("<#20d600><b>${SG_FONT_TAG}Grace Period active!"),
                     Title.Times.times(
                         Duration.ofMillis(250),
                         Duration.ofSeconds(1),
@@ -242,6 +243,41 @@ object PlayerVisuals {
                 )
             )
         }
+    }
+
+    fun gracePeriodEnd(container: GameContainer?) {
+        for (player in container?.instance?.currentContainer?.players!!) {
+            player.playSound(Sounds.Alert.GRACE_PERIOD_END)
+            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}Grace Period has ended."))
+            player.showTitle(
+                Title.title(
+                    Component.empty(),
+                    Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}Grace Period ended!"),
+                    Title.Times.times(
+                        Duration.ofMillis(250),
+                        Duration.ofSeconds(1),
+                        Duration.ofMillis(250)
+                    )
+                )
+            )
+        }
+    }
+
+    /** Resets player gamemode, health, food and saturation by default.
+     * Parameters available for the following:
+     * Reset active bossbars [shouldClearBossBar],
+     * Clear inventory [shouldClearInventory],
+     * Reset scoreboard [shouldResetScoreboard]
+     * **/
+    fun resetPlayerState(player: Player, shouldClearBossBar: Boolean = false, shouldClearInventory: Boolean = false, shouldResetScoreboard: Boolean = false) {
+        if(shouldClearBossBar) player.activeBossBars().forEach { bossBar -> bossBar.removeViewer(player) }
+        if(shouldClearInventory) player.inventory.clear()
+        if(shouldResetScoreboard) player.scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        if(player.sgPlayer().playerType == PlayerType.SPECTATOR) player.gameMode = GameMode.SPECTATOR else player.gameMode = GameMode.ADVENTURE
+        player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
+        player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
+        player.foodLevel = 20
+        player.saturation = 0f
     }
 
     /**

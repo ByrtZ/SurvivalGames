@@ -14,6 +14,7 @@ class DeathEvent : Listener {
         if(e.player.sgPlayer().currentContainer != null) {
             e.player.killer?.playSound(Sounds.Score.ELIMINATION)
             PlayerVisuals.death(e.player, e.player.killer, true)
+            e.setShouldDropExperience(false)
             e.isCancelled = true
         }
         e.isCancelled = true

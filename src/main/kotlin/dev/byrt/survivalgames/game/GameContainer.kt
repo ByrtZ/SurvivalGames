@@ -13,9 +13,10 @@ data class GameContainer(val containerName: String, val containerId: UUID, val c
     init {
         logger.info("Initialising game container $containerId")
     }
-    /* Forced container flags */
+    /* Container flags */
     var isEditMode: Boolean = false
     var forcedMap: SGMap? = null
+    var disableGameEndCheck = false
 
     val players: MutableList<Player> = mutableListOf()
     val instance: GameInstance = GameInstance(containerId)

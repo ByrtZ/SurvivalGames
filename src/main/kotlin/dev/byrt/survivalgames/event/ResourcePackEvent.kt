@@ -20,7 +20,7 @@ class ResourcePackEvent: Listener {
     private fun onResourcePackStatusUpdate(e: PlayerResourcePackStatusEvent) {
         when (e.status) {
             PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED -> {
-                e.player.sgPlayer().setType(PlayerType.SPECTATOR)
+                e.player.sgPlayer().setType(PlayerType.IDLE)
                 e.player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
                 object : BukkitRunnable() {
                     override fun run() {

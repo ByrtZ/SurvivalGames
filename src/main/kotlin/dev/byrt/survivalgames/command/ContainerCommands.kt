@@ -21,10 +21,10 @@ class ContainerCommands {
     @CommandDescription("Creates a new game container.")
     @Permission("burb.cmd.container")
     @Confirmation
-    suspend fun createContainer(sender: Player, @Flag("map") forcedMap: SGMap? = null, @Flag("edit") isEditMode: Boolean = false) {
+    suspend fun createContainer(sender: Player, @Flag("map") forcedMap: SGMap? = null, @Flag("editMode") isEditMode: Boolean = false, @Flag("disableGameEndCheck") disableGameEndCheck: Boolean = false) {
         if(sender.sgPlayer().currentContainer == null) {
-            val container = GameManager.createContainer(isEditMode, forcedMap)
-            ChatUtility.broadcastDev("<dark_gray>${sender.name} created a container (${container.containerId})${if(isEditMode) " (Edit Mode)" else ""}${if (forcedMap != null) " (${forcedMap.mapName})" else ""}", false)
+            val container = GameManager.createContainer(isEditMode, forcedMap, disableGameEndCheck)
+            ChatUtility.broadcastDev("<dark_gray>${sender.name} created a container (${container.containerId})${if(isEditMode) " (Edit Mode)" else ""}${if (forcedMap != null) " (${forcedMap.mapName})" else ""}${if (disableGameEndCheck) " (Game End check disabled)" else ""}", false)
         }
     }
 

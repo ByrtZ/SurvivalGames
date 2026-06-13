@@ -4,6 +4,8 @@ import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.MusicTrack
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.SG_FONT_TAG
@@ -30,7 +32,7 @@ class GameInstanceTask(val instance: GameInstance) {
                             player.showTitle(
                                 Title.title(
                                     Formatting.glyph("\uD000"),
-                                    Component.text(""),
+                                    Component.empty(),
                                     Title.Times.times(
                                         Duration.ofSeconds(0),
                                         Duration.ofSeconds(1),
@@ -46,7 +48,7 @@ class GameInstanceTask(val instance: GameInstance) {
                             player.showTitle(
                                 Title.title(
                                     Formatting.allTags.deserialize("<playercolour>${SG_FONT_TAG}Survival Games"),
-                                    Component.text(""),
+                                    Component.empty(),
                                     Title.Times.times(
                                         Duration.ofSeconds(1),
                                         Duration.ofSeconds(4),
@@ -85,12 +87,12 @@ class GameInstanceTask(val instance: GameInstance) {
                             )
                         }
                     }
-                    if (instance.timer.getTimer() in 4..10) {
+                    if (instance.timer.getTimer() in 1..10) {
                         for (player in instance.currentContainer?.players!!) {
                             player.showTitle(
                                 Title.title(
-                                    Component.text("Starting in").color(NamedTextColor.AQUA),
-                                    Component.text("►${instance.timer.getTimer()}◄").decoration(TextDecoration.BOLD, true),
+                                    Formatting.allTags.deserialize("<aqua>Starting in</aqua>"),
+                                    Formatting.allTags.deserialize("<b>${if(instance.timer.getTimer() == 3) "<green>" else if(instance.timer.getTimer() == 2) "<yellow>" else if(instance.timer.getTimer() == 1) "<red>" else ""}►${instance.timer.getTimer()}◄"),
                                     Title.Times.times(
                                         Duration.ofSeconds(0),
                                         Duration.ofSeconds(5),
@@ -98,54 +100,8 @@ class GameInstanceTask(val instance: GameInstance) {
                                     )
                                 )
                             )
+                            if(instance.timer.getTimer() in 1..3) player.playSound(Sounds.Timer.STARTING_123)
                             player.playSound(Sounds.Timer.STARTING_TICK)
-                        }
-                    }
-                    if (instance.timer.getTimer() in 1..3) {
-                        for (player in instance.currentContainer?.players!!) {
-                            player.playSound(Sounds.Timer.STARTING_TICK)
-                            if (instance.timer.getTimer() == 3) {
-                                player.showTitle(
-                                    Title.title(
-                                        Component.text("Starting in").color(NamedTextColor.AQUA),
-                                        Component.text("►${instance.timer.getTimer()}◄").color(NamedTextColor.GREEN)
-                                            .decoration(TextDecoration.BOLD, true),
-                                        Title.Times.times(
-                                            Duration.ofSeconds(0),
-                                            Duration.ofSeconds(5),
-                                            Duration.ofSeconds(0)
-                                        )
-                                    )
-                                )
-                            }
-                            if (instance.timer.getTimer() == 2) {
-                                player.showTitle(
-                                    Title.title(
-                                        Component.text("Starting in").color(NamedTextColor.AQUA),
-                                        Component.text("►${instance.timer.getTimer()}◄").color(NamedTextColor.YELLOW)
-                                            .decoration(TextDecoration.BOLD, true),
-                                        Title.Times.times(
-                                            Duration.ofSeconds(0),
-                                            Duration.ofSeconds(5),
-                                            Duration.ofSeconds(0)
-                                        )
-                                    )
-                                )
-                            }
-                            if (instance.timer.getTimer() == 1) {
-                                player.showTitle(
-                                    Title.title(
-                                        Component.text("Starting in").color(NamedTextColor.AQUA),
-                                        Component.text("►${instance.timer.getTimer()}◄").color(NamedTextColor.RED)
-                                            .decoration(TextDecoration.BOLD, true),
-                                        Title.Times.times(
-                                            Duration.ofSeconds(0),
-                                            Duration.ofSeconds(5),
-                                            Duration.ofSeconds(0)
-                                        )
-                                    )
-                                )
-                            }
                         }
                     }
                     if (instance.timer.getTimer() <= 0) {
@@ -155,10 +111,12 @@ class GameInstanceTask(val instance: GameInstance) {
 
                 /** IN GAME **/
                 if (instance.manager.getGameState() == GameState.IN_GAME && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
-                    if(instance.timer.getTimer() ==
-                        if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - GameTime.GRACE_PERIOD
-                        else GameTime.IN_GAME_TIME - GameTime.GRACE_PERIOD) {
-                        PlayerVisuals.gracePeriodEnd(instance.currentContainer)
+                    if(instance.manager.isGracePeriod == true) {
+                        if(instance.timer.getTimer() <=
+                            if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - GameTime.GRACE_PERIOD
+                            else GameTime.IN_GAME_TIME - GameTime.GRACE_PERIOD) {
+                            instance.manager.isGracePeriod = false
+                        }
                     }
                     if (instance.timer.getTimer() in 11..59 || instance.timer.getTimer() % 60 == 0) {
                         for (player in instance.currentContainer?.players!!) {
@@ -186,25 +144,15 @@ class GameInstanceTask(val instance: GameInstance) {
 
                 /** OVERTIME **/
                 if (instance.manager.getGameState() == GameState.OVERTIME && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (instance.timer.getTimer() % 10 == 0) {
-                        for (player in instance.currentContainer?.players!!) {
+                    if (instance.timer.getTimer() % 12 == 0) {
+                        for (player in instance.currentContainer?.players!!.filter { sgPlayer -> sgPlayer.sgPlayer().playerType == PlayerType.PARTICIPANT }) {
                             if (player.getAttribute(Attribute.MAX_HEALTH)?.value != null) {
                                 val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
-                                if(maxHealth > 1.0) {
-                                    player.getAttribute(Attribute.MAX_HEALTH)?.baseValue -= 1.0
+                                if(maxHealth > 2.0) {
+                                    player.getAttribute(Attribute.MAX_HEALTH)?.baseValue -= 2.0
                                     player.playSound(Sounds.Alert.HEALTH_DECREASE)
                                 }
                             }
-                        }
-                    }
-                    if (instance.timer.getTimer() in 11..30 || instance.timer.getTimer() % 60 == 0) {
-                        for (player in instance.currentContainer?.players!!) {
-                            player.playSound(Sounds.Timer.CLOCK_TICK)
-                        }
-                    }
-                    if (instance.timer.getTimer() in 0..10) {
-                        for (player in instance.currentContainer?.players!!) {
-                            player.playSound(Sounds.Timer.CLOCK_TICK_HIGH)
                         }
                     }
                     if (instance.timer.getTimer() <= 0) {
@@ -224,7 +172,7 @@ class GameInstanceTask(val instance: GameInstance) {
                             player.showTitle(
                                 Title.title(
                                     Formatting.glyph("\uD000"),
-                                    Formatting.allTags.deserialize(""),
+                                    Component.empty(),
                                     Title.Times.times(
                                         Duration.ofMillis(250),
                                         Duration.ofSeconds(1),

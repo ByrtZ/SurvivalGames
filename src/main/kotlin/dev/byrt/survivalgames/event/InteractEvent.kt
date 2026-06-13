@@ -36,10 +36,18 @@ class InteractEvent: Listener {
                 /** Generic interactions checks **/
                 if(container.instance.manager.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                     if(e.clickedBlock != null) {
-                        when (e.clickedBlock!!.type) {
-                            Material.CHEST if e.action.isRightClick -> e.isCancelled = false
-                            Material.CRAFTING_TABLE if e.action.isRightClick -> e.isCancelled = false
-                            else -> e.isCancelled = genericInteractionsCheck(e)
+                        val block = e.clickedBlock
+                        if (block != null) {
+                            val type = block.type
+                            e.isCancelled = when {
+                                type == Material.CHEST && e.action.isRightClick -> false
+                                type == Material.CRAFTING_TABLE && e.action.isRightClick -> false
+                                type.name.endsWith("_DOOR") && e.action.isRightClick -> false
+                                type.name.endsWith("_TRAPDOOR") && e.action.isRightClick -> false
+                                else -> genericInteractionsCheck(e)
+                            }
+                        } else {
+                            e.isCancelled = genericInteractionsCheck(e)
                         }
                     } else {
                         e.isCancelled = genericInteractionsCheck(e)
@@ -62,6 +70,7 @@ class InteractEvent: Listener {
             || e.clickedBlock?.blockData is Powerable
             || e.clickedBlock?.type == Material.FLOWER_POT
             || e.clickedBlock?.type == Material.BEACON
+            || e.clickedBlock?.type == Material.BREWING_STAND
             || e.clickedBlock?.type?.name?.startsWith("POTTED_") == true
             || e.clickedBlock?.type?.name?.endsWith("_TABLE") == true)
     }

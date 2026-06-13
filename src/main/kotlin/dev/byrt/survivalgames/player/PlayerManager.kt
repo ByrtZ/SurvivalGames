@@ -13,18 +13,17 @@ object PlayerManager {
         logger.info("Player Manager: Registering player ${player.name} as SGPlayer.")
         val sgPlayer = SGPlayer(player.uniqueId, player.name, PlayerType.UNREGISTERED)
         sgPlayers[player.uniqueId] = sgPlayer
-        player.inventory.clear()
-        player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
-        player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
-        player.foodLevel = 20
-        player.saturation = 0f
-        //PlayerVisuals.showPlayer(player)
+        PlayerVisuals.resetPlayerState(player,
+            shouldClearBossBar = true,
+            shouldClearInventory = true,
+            shouldResetScoreboard = true
+        )
+        PlayerVisuals.showPlayer(player)
     }
 
     fun unregisterPlayer(sgPlayer: SGPlayer) {
         sgPlayer.isDead = true
         GameManager.removePlayerFromContainer(sgPlayer.bukkitPlayer())
-        sgPlayer.currentContainer = null
         sgPlayer.setType(PlayerType.UNREGISTERED)
         sgPlayers.remove(sgPlayer.uuid)
     }

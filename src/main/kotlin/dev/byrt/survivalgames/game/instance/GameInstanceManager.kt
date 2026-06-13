@@ -9,6 +9,7 @@ import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
+import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
@@ -31,6 +32,13 @@ class GameInstanceManager(val instance: GameInstance) {
         }
     private var gameState = GameState.IDLE
     private var overtimeActive = true
+    var isGracePeriod: Boolean? = null
+        set(value) {
+            if(field == value) return
+            field = value
+            if(field == true) PlayerVisuals.gracePeriodStart(instance.currentContainer)
+            if(field == false) PlayerVisuals.gracePeriodEnd(instance.currentContainer)
+        }
 
     fun nextState() {
         if(instance.currentContainer?.isEditMode == true) return
@@ -116,6 +124,7 @@ class GameInstanceManager(val instance: GameInstance) {
                 )
             )
         }
+        isGracePeriod = true
     }
 
     private fun starting() {
@@ -134,10 +143,7 @@ class GameInstanceManager(val instance: GameInstance) {
         for(player in instance.currentContainer?.players!!) {
             player.showTitle(Title.title(Formatting.glyph("\uD000"), Component.text(""), Title.Times.times(Duration.ofSeconds(0), Duration.ofSeconds(2), Duration.ofSeconds(1))))
             player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 8 * 20, 0, false, false))
-            player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
-            player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
-            player.foodLevel = 20
-            player.saturation = 0f
+            PlayerVisuals.resetPlayerState(player, shouldClearInventory = true)
             player.scoreboard = instance.info.gameScoreboard
             when(player.sgPlayer().playerType) {
                 PlayerType.SPECTATOR -> player.teleport(Location(instance.currentContainer?.containerWorld, spectatorSpawn.x, spectatorSpawn.y, spectatorSpawn.z))
@@ -156,7 +162,7 @@ class GameInstanceManager(val instance: GameInstance) {
     private fun startOvertime() {
         for(player in instance.currentContainer?.players!!) {
             player.playSound(Sounds.Round.OVERTIME_START)
-            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}OVERTIME: </b>Fight until one player remains, maximum health is now decreasing!"))
+            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}OVERTIME: </b></#ff3333>${SG_FONT_TAG}Fight until one player remains, maximum health is now decreasing!"))
             player.showTitle(
                 Title.title(
                     Formatting.allTags.deserialize("${SG_FONT_TAG}<#ff3333><b>Overtime"),
@@ -227,8 +233,9 @@ class GameInstanceManager(val instance: GameInstance) {
     }
 
     fun gameEndCheck() {
-        if(gameState !in listOf(GameState.IN_GAME, GameState.OVERTIME)) return
         instance.info.updateGamePlayersRemaining()
+        if(gameState !in listOf(GameState.IN_GAME, GameState.OVERTIME)) return
+        if(instance.currentContainer?.disableGameEndCheck == true) return
         val playersAlive = instance.currentContainer?.players?.filter { player -> player.sgPlayer().playerType == PlayerType.PARTICIPANT }
         if(playersAlive?.isNotEmpty() == true) {
             if(playersAlive.size == 1) {

@@ -7,14 +7,13 @@ import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.MusicTrack
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
+import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.world.SGWorld
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bukkit.Bukkit
-import org.bukkit.GameMode
 import org.bukkit.Location
-import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
@@ -23,7 +22,7 @@ import kotlin.coroutines.resumeWithException
 
 object GameManager {
     val gameContainers = mutableListOf<GameContainer>()
-    suspend fun createContainer(isEditMode: Boolean = false, forcedMap: SGMap? = null): GameContainer {
+    suspend fun createContainer(isEditMode: Boolean = false, forcedMap: SGMap? = null, disableGameEndCheck: Boolean = false): GameContainer {
         val newContainerId = UUID.randomUUID()
         val newContainerWorld = SGWorld.createNewGameWorld(newContainerId)
         return suspendCancellableCoroutine { cont ->
@@ -38,6 +37,7 @@ object GameManager {
                         /** Creation flags **/
                         if(isEditMode) newContainer.isEditMode = true
                         if(forcedMap != null) newContainer.forcedMap = forcedMap
+                        if(disableGameEndCheck) newContainer.disableGameEndCheck = true
                         newContainer.onCreate()
 
                         gameContainers.add(newContainer)
@@ -84,11 +84,11 @@ object GameManager {
         } else {
             if(gameContainer.instance.manager.getGameState() == GameState.IDLE && gameContainer.players.filter { p -> p.sgPlayer().playerType == PlayerType.PARTICIPANT }.size < GamePlayerCount.MAX_PLAYERS) {
                 player.sgPlayer().setType(PlayerType.PARTICIPANT)
-                player.sendMessage(Formatting.allTags.deserialize("You joined the match as participant"))
+                player.sendMessage(Formatting.allTags.deserialize("You joined the match as a participant"))
                 player.teleport(preGameSpawn)
             } else {
                 player.sgPlayer().setType(PlayerType.SPECTATOR)
-                player.sendMessage(Formatting.allTags.deserialize("You joined the match as a spectator, game is already running or full"))
+                player.sendMessage(Formatting.allTags.deserialize("You joined the match as a spectator, it is already running or full"))
                 player.teleport(spectatorSpawn)
             }
         }
@@ -113,27 +113,16 @@ object GameManager {
                 Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
             }
         }
-
-        player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
-        player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
-        player.foodLevel = 20
-        player.saturation = 0f
+        PlayerVisuals.resetPlayerState(player)
     }
 
     fun removePlayerFromContainer(player: Player) {
-        player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
         player.sgPlayer().currentContainer?.players?.remove(player)
         player.sgPlayer().currentContainer = null
-        player.sgPlayer().setType(PlayerType.SPECTATOR)
-        player.activeBossBars().forEach { bossBar -> bossBar.removeViewer(player) }
-        player.inventory.clear()
-        player.scoreboard = Bukkit.getScoreboardManager().mainScoreboard
-        player.gameMode = GameMode.ADVENTURE
+        player.sgPlayer().setType(PlayerType.IDLE)
+        PlayerVisuals.resetPlayerState(player, shouldClearBossBar = true, shouldClearInventory = true, shouldResetScoreboard = true)
+        player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
         player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
         Jukebox.startMusicLoop(player, MusicTrack.LOBBY)
-        player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
-        player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
-        player.foodLevel = 20
-        player.saturation = 0f
     }
 }

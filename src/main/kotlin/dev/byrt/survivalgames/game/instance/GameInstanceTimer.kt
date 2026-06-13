@@ -30,6 +30,17 @@ class GameInstanceTimer(val instance: GameInstance) {
         return this.displayTime
     }
 
+    fun getRemainingGrace(): Int {
+        val remainingGrace = GameTime.GRACE_PERIOD - (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - this.timer else GameTime.IN_GAME_TIME - this.timer)
+        return if(remainingGrace >= 0) remainingGrace else 0
+    }
+
+    fun getRemainingGraceDisplay(): String {
+        val remainingGrace = getRemainingGrace()
+        val remainingGraceDisplay = String.format("%02d:%02d", (remainingGrace + 1) / 60, (remainingGrace + 1) % 60)
+        return remainingGraceDisplay
+    }
+
     fun setTimerState(newState : GameTimerState, sender: CommandSender?) {
         if (newState == gameTimerState) return
         ChatUtility.broadcastDev("<dark_gray>Timer State: <red>$gameTimerState<reset> <aqua>-> <green>$newState<dark_gray>${if (sender != null) " [${sender.name}]." else "."}", true)

@@ -33,12 +33,12 @@ class DamageEvent: Listener {
                         e.isCancelled = true
                         return
                     } else {
-                        if(currentContainer.instance.timer.getTimer() <
-                            if(currentContainer.instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - GameTime.GRACE_PERIOD
-                            else GameTime.IN_GAME_TIME - GameTime.GRACE_PERIOD) {
-                            PlayerVisuals.damageIndicator(player, e.damage)
-                        } else {
+                        if(currentContainer.instance.manager.isGracePeriod == true) {
                             e.isCancelled = true
+                            return
+                        } else {
+                            e.isCancelled = false
+                            PlayerVisuals.damageIndicator(player, e.damage)
                             return
                         }
                     }
@@ -64,13 +64,11 @@ class DamageEvent: Listener {
                     e.isCancelled = true
                     return
                 } else {
-                    if(currentContainer.instance.timer.getTimer() <
-                        if(currentContainer.instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - GameTime.GRACE_PERIOD
-                        else GameTime.IN_GAME_TIME - GameTime.GRACE_PERIOD) {
-                        e.isCancelled = false
+                    if(currentContainer.instance.manager.isGracePeriod == true) {
+                        e.isCancelled = true
                         return
                     } else {
-                        e.isCancelled = true
+                        e.isCancelled = false
                         return
                     }
                 }

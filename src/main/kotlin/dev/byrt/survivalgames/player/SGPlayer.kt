@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.player
 
 import dev.byrt.survivalgames.game.GameContainer
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.text.Formatting
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -16,9 +17,21 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
         if(newType == this.playerType) return
         this.playerType = newType
         when(newType) {
-            PlayerType.SPECTATOR -> if(currentContainer == null) this.bukkitPlayer().gameMode = GameMode.ADVENTURE else this.bukkitPlayer().gameMode = GameMode.SPECTATOR
-            PlayerType.PARTICIPANT -> this.bukkitPlayer().gameMode = GameMode.ADVENTURE
-            PlayerType.UNREGISTERED -> {}
+            PlayerType.IDLE -> {
+                this.bukkitPlayer().gameMode = GameMode.ADVENTURE
+                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("${if(this.bukkitPlayer().isOp) "<prefix:admin>" else ""} ${this.bukkitPlayer().name}"))
+            }
+            PlayerType.SPECTATOR -> {
+                if (currentContainer == null) this.bukkitPlayer().gameMode = GameMode.ADVENTURE else this.bukkitPlayer().gameMode = GameMode.SPECTATOR
+                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("${if(this.bukkitPlayer().isOp) "<prefix:admin>" else ""} <gray>${this.bukkitPlayer().name}"))
+            }
+            PlayerType.PARTICIPANT -> {
+                this.bukkitPlayer().gameMode = GameMode.ADVENTURE
+                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("${if(this.bukkitPlayer().isOp) "<prefix:admin>" else ""} <playercolour>${this.bukkitPlayer().name}"))
+            }
+            PlayerType.UNREGISTERED -> {
+                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("${if(this.bukkitPlayer().isOp) "<prefix:admin>" else ""} <#0>${this.bukkitPlayer().name}"))
+            }
         }
         logger.info("Type: ${this.playerName} now has value ${this.playerType}.")
     }
@@ -43,6 +56,7 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
 }
 
 enum class PlayerType {
+    IDLE,
     SPECTATOR,
     PARTICIPANT,
     UNREGISTERED
