@@ -17,6 +17,7 @@ import org.bukkit.block.Chest
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
+import java.util.UUID
 import kotlin.random.Random
 
 @Suppress("unstableApiUsage")
@@ -54,13 +55,13 @@ object SGLoot {
             val slotIndex = Random.nextInt(0, inventory.size - 1)
             val item = ItemStack(lootItem.material, Random.nextInt(lootItem.amountMin, lootItem.amountMax.inc())).apply {
                 editMeta {
-                    it.displayName(Formatting.allTags.deserialize("<reset><!i><${lootItem.rarity.rarityColour}>${SG_FONT_TAG}${lootItem.material.name()}</reset>"))
+                    it.displayName(Formatting.allTags.deserialize("<reset><!i><${lootItem.rarity.rarityColour}>${SG_FONT_TAG}${lootItem.nameOverride.ifBlank { lootItem.material.name() }}</reset>"))
                     it.lore(listOf(Formatting.allTags.deserialize("<reset><!i><white>${lootItem.rarity.asMiniMessage()}${lootItem.type.asMiniMessage()}")))
                     it.isUnbreakable = true
-                    it.addItemFlags(ItemFlag.HIDE_UNBREAKABLE)
+                    it.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS)
                     if(lootItem.enchantments.enchantments().isNotEmpty()) {
                         lootItem.enchantments.enchantments().forEach { (enchantment, level) ->
-                            addEnchantment(enchantment, level)
+                            it.addEnchant(enchantment, level, true)
                         }
                     }
                 }
@@ -77,13 +78,17 @@ object SGLoot {
         val world = container?.containerWorld
         val supplyDropLocation = map.supplyDropSpawns
             .flatMap { point -> listOf(Location(world, point.x, point.y, point.z)) }
-            .filter { dropLocation -> container?.containerWorld?.worldBorder?.isInside(dropLocation) == true }
+            .filter { dropLocation -> container?.containerWorld?.worldBorder?.isInside(dropLocation) == true && dropLocation.block.type != Material.CHEST}
             .randomOrNull()
 
         if(supplyDropLocation != null) {
+            // Track active location
+            val supplyDropID = UUID.randomUUID()
+            container?.instance?.manager?.activeSupplyDrops[supplyDropID] = supplyDropLocation
             container?.players?.forEach { player ->
                 player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<b><playercolour>${SG_FONT_TAG}Supply Drop spawning (<white>${supplyDropLocation.x.toInt()}, ${supplyDropLocation.y.toInt()}, ${supplyDropLocation.z.toInt()}</white><playercolour>)."))
                 player.playSound(Sounds.Alert.SUPPLY_DROP_SPAWN)
+                player.compassTarget = supplyDropLocation
             }
             // Spawn beacon location
             for(x in -1..1) {
@@ -98,7 +103,7 @@ object SGLoot {
             container?.containerWorld?.worldBorder?.size = container.containerWorld.worldBorder.size
             // Runnable for fireworks
             object : BukkitRunnable() {
-                var height = supplyDropLocation.clone().y + 180
+                var height = supplyDropLocation.clone().y + 200
                 override fun run() {
                     if(container?.instance?.manager?.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                         if(height <= supplyDropLocation.clone().y.toInt()) {
@@ -112,7 +117,15 @@ object SGLoot {
                                 variedVelocity = false
                             )
                             world?.getBlockAt(supplyDropLocation.clone().subtract(0.0, 1.0, 0.0))?.type = Material.OBSIDIAN
-                            PlayerVisuals.shrinkBorder(container)
+                            // Short delay on shrinking again
+                            object : BukkitRunnable() {
+                                override fun run() {
+                                    if(container?.instance?.manager?.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
+                                        container?.instance?.manager?.activeSupplyDrops?.remove(supplyDropID)
+                                        PlayerVisuals.shrinkBorder(container)
+                                    }
+                                }
+                            }.runTaskLater(plugin, 20L * 8L)
                             cancel()
                         } else {
                             PlayerVisuals.firework(
@@ -129,7 +142,7 @@ object SGLoot {
                         cancel()
                     }
                 }
-            }.runTaskTimer(plugin, 20L * 15L, 4L)
+            }.runTaskTimer(plugin, 20L * 14L, 4L)
         } else return
     }
 }

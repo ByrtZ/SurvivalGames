@@ -17,10 +17,10 @@ import io.papermc.paper.entity.LookAnchor
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.Location
-import org.bukkit.attribute.Attribute
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.time.Duration
+import java.util.UUID
 
 class GameInstanceManager(val instance: GameInstance) {
     /** Not to be set outside of initialisation under any circumstance **/
@@ -39,6 +39,7 @@ class GameInstanceManager(val instance: GameInstance) {
             if(field == true) PlayerVisuals.gracePeriodStart(instance.currentContainer)
             if(field == false) PlayerVisuals.gracePeriodEnd(instance.currentContainer)
         }
+    val activeSupplyDrops = mutableMapOf<UUID, Location>()
 
     fun nextState() {
         if(instance.currentContainer?.isEditMode == true) return
@@ -132,7 +133,7 @@ class GameInstanceManager(val instance: GameInstance) {
         instance.currentContainer?.containerWorld?.let { SGLoot.populateMapLoot(it, map) }
         /** Set world border center and size **/
         val borderCenter = map.worldCenter.first()
-        instance.currentContainer?.containerWorld?.worldBorder?.setCenter(borderCenter.x, borderCenter.z)
+        instance.currentContainer?.containerWorld?.worldBorder?.setCenter(borderCenter.x + 0.5, borderCenter.z + 0.5)
         instance.currentContainer?.containerWorld?.worldBorder?.size = if(map.isQuickMatch) 450.0 else 750.0
         /** Spawn allocation, only use first available spectator spawn and cast participant spawns to list and iterate for each participant **/
         val spectatorSpawn = map.spectatorSpawns.first()
@@ -154,7 +155,7 @@ class GameInstanceManager(val instance: GameInstance) {
                 }
                 else -> logger.info("Unregistered player in container.")
             }
-            player.lookAt(borderCenter.x, borderCenter.y, borderCenter.z, LookAnchor.EYES)
+            player.lookAt(borderCenter.x + 0.5, borderCenter.y, borderCenter.z + 0.5, LookAnchor.EYES)
             Jukebox.disconnect(player)
         }
     }
@@ -265,8 +266,8 @@ object GameTime {
 }
 
 object GamePlayerCount {
-    const val MAX_PLAYERS = 16
-    const val MIN_PLAYERS = 2
+    const val MAX_PLAYERS = 32
+    const val MIN_PLAYERS = 32
 }
 
 enum class GameState {

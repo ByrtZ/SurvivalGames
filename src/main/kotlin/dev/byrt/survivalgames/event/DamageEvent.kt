@@ -4,6 +4,8 @@ import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.game.instance.GameTime
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerVisuals
+import org.bukkit.damage.DamageSource
+import org.bukkit.damage.DamageType
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -15,6 +17,10 @@ import org.bukkit.event.entity.EntityDamageEvent
 class DamageEvent: Listener {
     @EventHandler
     private fun onDamage(e: EntityDamageEvent) {
+        if(e.damageSource == DamageSource.builder(DamageType.FIREWORKS).build()) {
+            e.isCancelled = true
+            return
+        }
         if (e.entity is Player) {
             val player = e.entity as Player
             if (player.sgPlayer().currentContainer != null) {

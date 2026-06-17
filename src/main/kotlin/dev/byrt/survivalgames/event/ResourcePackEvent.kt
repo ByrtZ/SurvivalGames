@@ -2,7 +2,7 @@ package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.music.Jukebox
-import dev.byrt.survivalgames.music.MusicTrack
+import dev.byrt.survivalgames.music.JukeboxTrack
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.plugin
@@ -24,7 +24,7 @@ class ResourcePackEvent: Listener {
                 e.player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
                 object : BukkitRunnable() {
                     override fun run() {
-                        Jukebox.startMusicLoop(e.player, MusicTrack.LOBBY)
+                        Jukebox.startMusicLoop(e.player, JukeboxTrack.LOBBY)
                     }
                 }.runTaskLater(plugin, 30L)
                 //TODO: title screen

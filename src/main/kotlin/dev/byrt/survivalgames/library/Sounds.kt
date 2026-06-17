@@ -30,8 +30,8 @@ object Sounds {
         val OVERTIME_START = sound(key("block.portal.travel"), Source.MASTER, 0.15f, 0.75f)
     }
     object Score {
-        val ELIMINATION = sound(key("entity.player.level_up"), Source.MASTER, 1f, 1f)
-        val WIN_GAME = sound(key("entity.player.level_up"), Source.MASTER, 1f, 0.5f)
+        val ELIMINATION = sound(key("entity.player.levelup"), Source.MASTER, 0.5f, 1f)
+        val WIN_GAME = sound(key("entity.player.levelup"), Source.MASTER, 1f, 0.5f)
         val DEATH = sound(key("item.trident.thunder"), Source.MASTER, 5f, 1.2f)
         val DEATH_STATS = sound(key("item.trident.riptide_3"), Source.MASTER, 1f, 0f)
         val RESPAWN = sound(key("block.bubble_column.upwards_inside"), Source.MASTER, 2f, 0f)
@@ -48,10 +48,12 @@ object Sounds {
     }
     object Misc {
         val ADMIN_MESSAGE = sound(key("ui.button.click"), Source.MASTER, 0.5f, 2f)
-        val INTERFACE_INTERACT = sound(key("block.vault.insert_item"), Source.MASTER, 1f, 1f)
+        val INTERFACE_INTERACT = sound(key("block.vault.eject_item"), Source.MASTER, 1f, 1f)
         val INTERFACE_ENTER_SUB_MENU = sound(key("block.vault.activate"), Source.MASTER, 1f, 1f)
         val INTERFACE_BACK = sound(key("block.vault.deactivate"), Source.MASTER, 1f, 1f)
         val INTERFACE_ERROR = sound(key("block.vault.reject_rewarded_player"), Source.MASTER, 1f, 1f)
         val TITLE_SCREEN_ENTER = sound(key("entity.breeze.shoot"), Source.MASTER, 1f, 0.75f)
+        val NPC_INTERACT = sound(key("entity.villager.trade"), Source.VOICE, 1f, 1f)
+        val NPC_INTERACT_HIT = sound(key("entity.villager.hurt"), Source.VOICE, 1f, 1.25f)
     }
 }

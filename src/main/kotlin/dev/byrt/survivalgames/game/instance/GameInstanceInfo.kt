@@ -6,6 +6,7 @@ import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.text.TextAlignment
+import dev.byrt.survivalgames.util.extension.trimmed
 import io.papermc.paper.scoreboard.numbers.NumberFormat
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.bossbar.BossBar.Color
@@ -70,7 +71,7 @@ class GameInstanceInfo(val instance: GameInstance) {
         preGameInstanceLine.prefix(Formatting.allTags.deserialize("<b><aqua>${SG_FONT_TAG}Instance<reset>"))
         preGameObjective.getScore(preGameInstanceLineKey).score = 3
         preGameInstanceNameLine.addEntry(preGameInstanceNameLineKey)
-        preGameInstanceNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.gameInstanceId.toString().toCharArray(0, 8).joinToString("")}"))
+        preGameInstanceNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.gameInstanceId.trimmed()}"))
         preGameObjective.getScore(preGameInstanceNameLineKey).score = 2
         preGameObjective.getScore("§§§§").score = 1
         preGameServerIpLine.addEntry(preGameServerIpLineKey)

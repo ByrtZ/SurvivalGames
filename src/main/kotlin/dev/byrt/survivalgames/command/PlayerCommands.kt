@@ -1,9 +1,11 @@
 package dev.byrt.survivalgames.command
 
 import dev.byrt.survivalgames.game.GameManager
+import dev.byrt.survivalgames.interfaces.SGInterfaces
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
+import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.entity.Player
@@ -30,14 +32,22 @@ class PlayerCommands {
     fun hub(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
             sender.showTitle(Title.title(
-                Formatting.glyph("\uD001"),
-                Component.empty(), Title.Times.times(Duration.ofMillis(250), Duration.ofSeconds(3), Duration.ofMillis(250))
+                Formatting.glyph("\uD000"),
+                Component.empty(), Title.Times.times(Duration.ofMillis(50), Duration.ofSeconds(1), Duration.ofMillis(250))
             ))
             object : BukkitRunnable() {
                 override fun run() {
                     GameManager.removePlayerFromContainer(sender)
                 }
             }.runTaskLater(plugin, 10L)
+        }
+    }
+
+    @Command("matchmaking")
+    @CommandDescription("Opens the matchmaker.")
+    fun matchmaking(sender: Player) {
+        if(sender.sgPlayer().currentContainer == null) {
+            runBlocking { SGInterfaces.createMatchmakingInterface(sender) }
         }
     }
 }

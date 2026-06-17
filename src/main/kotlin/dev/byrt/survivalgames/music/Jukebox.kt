@@ -9,14 +9,14 @@ import java.util.UUID
 
 object Jukebox {
     private val jukeboxMap = mutableMapOf<UUID, BukkitRunnable>()
-    fun startMusicLoop(player: Player, music: MusicTrack) {
+    fun startMusicLoop(player: Player, music: JukeboxTrack) {
         if (jukeboxMap.containsKey(player.uniqueId)) {
-            for (tracks in MusicTrack.entries) {
+            for (tracks in JukeboxTrack.entries) {
                 stopMusicLoop(player, tracks)
             }
         }
         when (music) {
-            MusicTrack.IN_GAME -> {
+            JukeboxTrack.IN_GAME -> {
                 player.playSound(Sounds.Music.IN_GAME_INTRO)
                 runMusicTask(player, music, 26L * 20L)
             }
@@ -24,7 +24,7 @@ object Jukebox {
         }
     }
 
-    private fun runMusicTask(player: Player, music: MusicTrack, delay: Long = 0L) {
+    private fun runMusicTask(player: Player, music: JukeboxTrack, delay: Long = 0L) {
         val bukkitRunnable = object : BukkitRunnable() {
             var musicTimer = 0
             override fun run() {
@@ -41,13 +41,13 @@ object Jukebox {
         jukeboxMap[player.uniqueId] = bukkitRunnable
     }
 
-    fun stopMusicLoop(player: Player, music: MusicTrack) {
+    fun stopMusicLoop(player: Player, music: JukeboxTrack) {
         player.stopSound(music.sound)
         jukeboxMap.remove(player.uniqueId)?.cancel()
     }
 
     fun disconnect(player: Player) {
-        for (music in MusicTrack.entries) {
+        for (music in JukeboxTrack.entries) {
             stopMusicLoop(player, music)
         }
     }

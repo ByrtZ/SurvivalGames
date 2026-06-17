@@ -1,6 +1,5 @@
 package dev.byrt.survivalgames.text
 
-import dev.byrt.survivalgames.team.Team
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
@@ -62,7 +61,7 @@ object Formatting {
     }
 
     private val SG_COLOUR = TagResolver.resolver("sgcolour", Tag.styling(TextColor.color(34, 224, 97)))
-    private val PLAYER_COLOUR = TagResolver.resolver("playercolour", Tag.styling(Team.PLAYER.textColour))
+    private val PLAYER_COLOUR = TagResolver.resolver("playercolour", Tag.styling(TextColor.color(255, 230, 0)))
     private val SPECTATOR_COLOUR = TagResolver.resolver("speccolour", Tag.styling(TextColor.color(170, 170, 170)))
     private val NOTIFICATION_COLOUR = TagResolver.resolver("notifcolour", Tag.styling(TextColor.color(219, 0, 96)))
 

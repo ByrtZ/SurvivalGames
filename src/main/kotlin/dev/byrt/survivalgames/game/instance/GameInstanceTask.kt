@@ -3,7 +3,7 @@ package dev.byrt.survivalgames.game.instance
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.music.Jukebox
-import dev.byrt.survivalgames.music.MusicTrack
+import dev.byrt.survivalgames.music.JukeboxTrack
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.PlayerVisuals
@@ -60,7 +60,7 @@ class GameInstanceTask(val instance: GameInstance) {
                     }
                     if (instance.timer.getTimer() == 26) {
                         for (player in instance.currentContainer?.players!!) {
-                            Jukebox.startMusicLoop(player, MusicTrack.IN_GAME)
+                            Jukebox.startMusicLoop(player, JukeboxTrack.IN_GAME)
                         }
                     }
                     if (instance.timer.getTimer() == 15) {
@@ -91,7 +91,7 @@ class GameInstanceTask(val instance: GameInstance) {
                         for (player in instance.currentContainer?.players!!) {
                             player.showTitle(
                                 Title.title(
-                                    Formatting.allTags.deserialize("<aqua>Starting in</aqua>"),
+                                    Formatting.allTags.deserialize("<playercolour>Starting in"),
                                     Formatting.allTags.deserialize("<b>${if(instance.timer.getTimer() == 3) "<green>" else if(instance.timer.getTimer() == 2) "<yellow>" else if(instance.timer.getTimer() == 1) "<red>" else ""}►${instance.timer.getTimer()}◄"),
                                     Title.Times.times(
                                         Duration.ofSeconds(0),
@@ -144,7 +144,7 @@ class GameInstanceTask(val instance: GameInstance) {
 
                 /** OVERTIME **/
                 if (instance.manager.getGameState() == GameState.OVERTIME && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (instance.timer.getTimer() % 12 == 0) {
+                    if (instance.timer.getTimer() % 15 == 0) {
                         for (player in instance.currentContainer?.players!!.filter { sgPlayer -> sgPlayer.sgPlayer().playerType == PlayerType.PARTICIPANT }) {
                             if (player.getAttribute(Attribute.MAX_HEALTH)?.value != null) {
                                 val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
@@ -154,6 +154,12 @@ class GameInstanceTask(val instance: GameInstance) {
                                 }
                             }
                         }
+                    }
+                    if (instance.timer.getTimer() <= (GameTime.OVERTIME_TIME - 60) && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= 50.0) {
+                        PlayerVisuals.shrinkBorder(instance.currentContainer, newSize = 20.0, overrideTicks = 20L * 12L)
+                    }
+                    if (instance.timer.getTimer() <= (GameTime.OVERTIME_TIME - 80) && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= 20.0) {
+                        PlayerVisuals.shrinkBorder(instance.currentContainer, newSize = 10.0, overrideTicks = 20L * 8L)
                     }
                     if (instance.timer.getTimer() <= 0) {
                         instance.manager.nextState()
@@ -167,7 +173,7 @@ class GameInstanceTask(val instance: GameInstance) {
 
                 /** GAME END **/
                 if (instance.manager.getGameState() == GameState.GAME_END && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
-                    if (instance.timer.getTimer() == 1) {
+                    if (instance.timer.getTimer() == 0) {
                         for (player in instance.currentContainer?.players!!) {
                             player.showTitle(
                                 Title.title(

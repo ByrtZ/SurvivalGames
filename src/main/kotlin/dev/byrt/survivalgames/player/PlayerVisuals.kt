@@ -3,6 +3,7 @@ package dev.byrt.survivalgames.player
 import dev.byrt.survivalgames.game.GameContainer
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
@@ -55,9 +56,9 @@ object PlayerVisuals {
         val inventoryContents = player.inventory.storageContents + player.inventory.armorContents
         inventoryContents.forEach { item ->
             player.world.spawn(player.location, Item::class.java).apply {
-                if (item != null && item.type != Material.AIR) {
+                if (item != null && item.type !in listOf(Material.AIR, Material.COMPASS)) {
                     itemStack = item
-                    velocity = Vector(Random.nextDouble(0.05, 0.25), Random.nextDouble(0.05, 0.25), Random.nextDouble(0.05, 0.25))
+                    velocity = Vector(Random.nextDouble(-0.25, 0.25), Random.nextDouble(-0.25, 0.25), Random.nextDouble(-0.25, 0.25))
                 } else {
                     remove()
                 }
@@ -208,8 +209,11 @@ object PlayerVisuals {
         showPlayer(player)
     }
 
-    fun shrinkBorder(container: GameContainer?) {
-        container?.containerWorld?.worldBorder?.changeSize(50.0, container.instance.timer.getTimer().times(20).toLong())
+    fun shrinkBorder(container: GameContainer?, newSize: Double = 50.0, overrideTicks: Long = 0) {
+        if(newSize == container?.containerWorld?.worldBorder?.size) return
+        // Prevent shrink if supply drops active
+        if(container?.instance?.manager?.activeSupplyDrops?.isNotEmpty() == true) return
+        container?.containerWorld?.worldBorder?.changeSize(newSize, if(overrideTicks > 0) overrideTicks else container.instance.timer.getTimer().times(20).toLong())
         for (player in container?.instance?.currentContainer?.players!!) {
             player.playSound(Sounds.Alert.ALARM)
             player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}The World Border is shrinking!"))
@@ -260,6 +264,7 @@ object PlayerVisuals {
                     )
                 )
             )
+            player.inventory.addItem(SGItem.getSupplyDropCompass())
         }
     }
 

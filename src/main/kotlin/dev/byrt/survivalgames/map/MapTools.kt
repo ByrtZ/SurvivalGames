@@ -54,22 +54,4 @@ object MapTools {
             }
         }
     }
-
-    fun getDataPointItem(dataPointType: MapDataPointType): ItemStack {
-        val dataPointItem = ItemStack(Material.STICK, 1)
-        val dataPointItemMeta = dataPointItem.itemMeta
-        dataPointItemMeta.displayName(Formatting.allTags.deserialize("<!i><playercolour>Data Point Tool</playercolour>"))
-        val loreList = mutableListOf(
-            Formatting.allTags.deserialize("<!i>"),
-            Formatting.allTags.deserialize("<!i><#ffff00>Create data points when in an"),
-            Formatting.allTags.deserialize("<!i><#ffff00>edit mode enabled container."),
-            Formatting.allTags.deserialize("<!i>"),
-            Formatting.allTags.deserialize("<!i><red>Active data point type: '${dataPointType.typeName}'."),
-            Formatting.allTags.deserialize("<!i>")
-        )
-        dataPointItemMeta.lore(loreList)
-        dataPointItemMeta.persistentDataContainer.set(Keys.DATA_POINT_EDIT, PersistentDataType.STRING, dataPointType.name)
-        dataPointItem.itemMeta = dataPointItemMeta
-        return dataPointItem
-    }
 }

@@ -19,18 +19,18 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
         when(newType) {
             PlayerType.IDLE -> {
                 this.bukkitPlayer().gameMode = GameMode.ADVENTURE
-                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("${if(this.bukkitPlayer().isOp) "<prefix:admin>" else ""} ${this.bukkitPlayer().name}"))
+                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(this.bukkitPlayer().isOp) "<prefix:admin> " else ""}${this.bukkitPlayer().name}"))
             }
             PlayerType.SPECTATOR -> {
                 if (currentContainer == null) this.bukkitPlayer().gameMode = GameMode.ADVENTURE else this.bukkitPlayer().gameMode = GameMode.SPECTATOR
-                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("${if(this.bukkitPlayer().isOp) "<prefix:admin>" else ""} <gray>${this.bukkitPlayer().name}"))
+                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(this.bukkitPlayer().isOp) "<prefix:admin> " else ""}<gray>${this.bukkitPlayer().name}"))
             }
             PlayerType.PARTICIPANT -> {
                 this.bukkitPlayer().gameMode = GameMode.ADVENTURE
-                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("${if(this.bukkitPlayer().isOp) "<prefix:admin>" else ""} <playercolour>${this.bukkitPlayer().name}"))
+                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(this.bukkitPlayer().isOp) "<prefix:admin> " else ""}<playercolour>${this.bukkitPlayer().name}"))
             }
             PlayerType.UNREGISTERED -> {
-                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("${if(this.bukkitPlayer().isOp) "<prefix:admin>" else ""} <#0>${this.bukkitPlayer().name}"))
+                this.bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(this.bukkitPlayer().isOp) "<prefix:admin> " else ""}<#0>${this.bukkitPlayer().name}"))
             }
         }
         logger.info("Type: ${this.playerName} now has value ${this.playerType}.")

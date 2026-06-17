@@ -15,4 +15,26 @@ object Cooldowns {
             false
         }
     }
+
+    private var tntCooldowns = HashMap<UUID, Long>()
+    private const val TNT_COOLDOWN_TIME = 500
+    fun attemptUseTnt(player: Player): Boolean {
+        return if(!tntCooldowns.containsKey(player.uniqueId) || System.currentTimeMillis() - tntCooldowns[player.uniqueId]!! > TNT_COOLDOWN_TIME) {
+            tntCooldowns[player.uniqueId] = System.currentTimeMillis()
+            true
+        } else {
+            false
+        }
+    }
+
+    private var npcInteractionCooldowns = HashMap<UUID, Long>()
+    private const val NPC_INTERACTION_COOLDOWN_TIME = 1250
+    fun attemptNpcInteraction(player: Player): Boolean {
+        return if(!npcInteractionCooldowns.containsKey(player.uniqueId) || System.currentTimeMillis() - npcInteractionCooldowns[player.uniqueId]!! > NPC_INTERACTION_COOLDOWN_TIME) {
+            npcInteractionCooldowns[player.uniqueId] = System.currentTimeMillis()
+            true
+        } else {
+            false
+        }
+    }
 }

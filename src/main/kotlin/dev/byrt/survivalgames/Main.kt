@@ -18,6 +18,8 @@ import org.incendo.cloud.processors.confirmation.annotation.ConfirmationBuilderM
 
 import com.noxcrew.interfaces.InterfacesListeners
 import dev.byrt.survivalgames.game.GameManager
+import dev.byrt.survivalgames.lobby.npc.SGNPC
+import dev.byrt.survivalgames.lobby.npc.SGNPCs
 import dev.byrt.survivalgames.map.MapManager
 import dev.byrt.survivalgames.resource.ResourcePackApplier
 import dev.byrt.survivalgames.resource.ResourcePackLoader
@@ -59,12 +61,14 @@ class Main : JavaPlugin() {
         setupEventListeners()
         setupConfigs()
         InterfacesListeners.install(this)
+        SGNPCs.spawnAllNPCs()
     }
 
     override fun onDisable() {
         logger.info("Stopping Survival Games plugin.")
         GameManager.gameContainers.forEach { it.onDestroy() }
         GameManager.gameContainers.clear()
+        SGNPCs.clearNPCs()
     }
 
     private fun setupCommands() {
