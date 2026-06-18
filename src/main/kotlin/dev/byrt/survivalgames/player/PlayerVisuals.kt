@@ -148,12 +148,13 @@ object PlayerVisuals {
                     if(player.sgPlayer().currentContainer?.instance?.manager?.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                         fullRespawn(player, deathVehicle)
                         cancel()
-                    }
-                    player.sendActionBar(Formatting.allTags.deserialize("${SG_FONT_TAG}Press <playercolour><key:key.sneak></playercolour> to continue"))
-                    if(player.isSneaking) {
-                        player.gameMode = GameMode.ADVENTURE
-                        defaultCoroutineScope.launch { SGDeathInterface.create(player) }
-                        cancel()
+                    } else {
+                        player.sendActionBar(Formatting.allTags.deserialize("${SG_FONT_TAG}Press <playercolour><key:key.sneak></playercolour> to continue"))
+                        if(player.isSneaking && player.sgPlayer().currentContainer?.instance?.manager?.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
+                            player.gameMode = GameMode.ADVENTURE
+                            defaultCoroutineScope.launch { SGDeathInterface.create(player) }
+                            cancel()
+                        }
                     }
                 } else {
                     deathVehicle.remove()

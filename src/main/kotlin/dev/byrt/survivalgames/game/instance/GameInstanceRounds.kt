@@ -1,6 +1,6 @@
 package dev.byrt.survivalgames.game.instance
 
-import dev.byrt.survivalgames.text.ChatUtility
+import dev.byrt.survivalgames.logger
 
 class GameInstanceRounds(val instance: GameInstance) {
     private var round = 1
@@ -13,10 +13,7 @@ class GameInstanceRounds(val instance: GameInstance) {
 
     fun setRound(newRound : Int) {
         if (newRound == round) return
-        ChatUtility.broadcastDev(
-            "<dark_gray>Round Updated: <red>$round<reset> <aqua>-> <green>$newRound<dark_gray>.",
-            true
-        )
+        logger.info("Round Updated: $round -> $newRound.")
         this.round = newRound
     }
 

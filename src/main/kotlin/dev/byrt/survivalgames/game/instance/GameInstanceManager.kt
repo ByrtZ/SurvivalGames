@@ -10,7 +10,6 @@ import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.PlayerVisuals
-import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import io.papermc.paper.entity.LookAnchor
@@ -20,7 +19,7 @@ import org.bukkit.Location
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 
 class GameInstanceManager(val instance: GameInstance) {
     /** Not to be set outside of initialisation under any circumstance **/
@@ -70,7 +69,7 @@ class GameInstanceManager(val instance: GameInstance) {
     fun setGameState(newState: GameState) {
         if(instance.currentContainer?.isEditMode == true) return
         if (newState == gameState) return
-        ChatUtility.broadcastDev("<dark_gray>Game State: <red>$gameState<reset> <aqua>-> <green>$newState<dark_gray>.", true)
+        logger.info("Game State: $gameState -> $newState.")
         this.gameState = newState
         instance.info.updateGameStatus()
         when(this.gameState) {

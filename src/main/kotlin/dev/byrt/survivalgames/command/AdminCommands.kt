@@ -28,7 +28,7 @@ import org.incendo.cloud.annotations.processing.CommandContainer
 @CommandContainer
 class AdminCommands {
     @Command("ac <text>")
-    @CommandDescription("Changes the value of the specified setting.")
+    @CommandDescription("Sends a message to admin chat.")
     @Permission("sg.cmd.admin_chat")
     fun adminChat(sender: Player, @Argument("text") text: Array<String>) {
         ChatUtility.broadcastAdmin(
@@ -38,7 +38,7 @@ class AdminCommands {
     }
 
     @Command("dc <text>")
-    @CommandDescription("Changes the value of the specified setting.")
+    @CommandDescription("Sends a message to dev chat.")
     @Permission("sg.cmd.dev_chat")
     fun devChat(sender: Player, @Argument("text") text: Array<String>) {
         ChatUtility.broadcastDev(

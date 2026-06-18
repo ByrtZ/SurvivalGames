@@ -82,10 +82,10 @@ object SGMatchmakingInterface {
                 pane[0, 0] = StaticElement(drawable(createContainerItem)) {
                     player.closeInventory(InventoryCloseEvent.Reason.PLUGIN)
                     player.playSound(Sounds.Misc.INTERFACE_ENTER_SUB_MENU)
-                    ChatUtility.broadcastDev("<dark_gray>[Matchmaking] ${player.name} is generating a default container.", true)
+                    ChatUtility.broadcastDev("<gray>[Matchmaking] ${player.name} is generating a default container.", true)
                     CoroutineScope(Dispatchers.Default).launch {
-                        GameManager.createContainer()
-                    }.invokeOnCompletion { _ -> ChatUtility.broadcastDev("<dark_gray>[Matchmaking] ${player.name}'s default container is ready.", true)
+                            GameManager.createContainer()
+                        }.invokeOnCompletion { _ -> ChatUtility.broadcastDev("<gray>[Matchmaking] ${player.name}'s default container is ready.", true)
                     }
                 }
             }
