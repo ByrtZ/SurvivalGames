@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerType
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerMoveEvent
@@ -11,7 +12,7 @@ class PlayerMove: Listener {
     @EventHandler
     private fun onMove(e: PlayerMoveEvent) {
         val movedPlayer = e.player
-        if(movedPlayer.sgPlayer().currentContainer != null) {
+        if(movedPlayer.sgPlayer().currentContainer != null && e.player.sgPlayer().playerType == PlayerType.PARTICIPANT) {
             val currentContainer = movedPlayer.sgPlayer().currentContainer!!
             if(currentContainer.instance.manager.getGameState() == GameState.STARTING) {
                 val to = e.from

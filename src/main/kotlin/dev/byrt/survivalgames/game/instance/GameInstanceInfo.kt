@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
 
+@Suppress("DEPRECATION")
 class GameInstanceInfo(val instance: GameInstance) {
     val preGameScoreboard = Bukkit.getScoreboardManager().newScoreboard
     private var preGameObjective = preGameScoreboard.registerNewObjective(
@@ -43,7 +44,7 @@ class GameInstanceInfo(val instance: GameInstance) {
     private val preGameServerIpLineKey = ChatColor.DARK_GREEN.toString()
 
     fun buildPreGameBoard() {
-        plugin.logger.info("Building pre-game scoreboard...")
+        plugin.logger.info("Building pre-game scoreboard")
         preGameObjective.displaySlot = DisplaySlot.SIDEBAR
         preGameObjective.numberFormat(NumberFormat.blank())
         preGamePlayersLine.addEntry(preGamePlayersLineKey)
@@ -77,10 +78,8 @@ class GameInstanceInfo(val instance: GameInstance) {
         preGameServerIpLine.addEntry(preGameServerIpLineKey)
         preGameServerIpLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}<gold>mc.byrt.dev</gold> <dark_gray>(${plugin.server.minecraftVersion})<reset>"))
         preGameObjective.getScore(preGameServerIpLineKey).score = 0
-        plugin.logger.info("Scoreboard constructed with ID ${preGameObjective.name}.")
+        plugin.logger.info("Scoreboard constructed with ID ${preGameObjective.name}")
     }
-
-    //TODO pre game scoreboard update player count line (link to queue), update map name line
 
     val gameScoreboard = Bukkit.getScoreboardManager().newScoreboard
     private var gameObjective = gameScoreboard.registerNewObjective(
@@ -100,7 +99,7 @@ class GameInstanceInfo(val instance: GameInstance) {
     private val gameServerIpLineKey = ChatColor.DARK_GREEN.toString()
 
     fun buildGameBoard() {
-        plugin.logger.info("Building game scoreboard...")
+        plugin.logger.info("Building game scoreboard")
         gameObjective.numberFormat(NumberFormat.blank())
         gameTimeLine.addEntry(gameTimeLineKey)
         gameTimeLine.prefix(Formatting.allTags.deserialize("<b><dark_gray>${SG_FONT_TAG}Game status<reset>"))
@@ -119,7 +118,7 @@ class GameInstanceInfo(val instance: GameInstance) {
         gameServerIpLine.addEntry(gameServerIpLineKey)
         gameServerIpLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}<gold>mc.byrt.dev</gold> <dark_gray>(${plugin.server.minecraftVersion})<reset>"))
         gameObjective.getScore(gameServerIpLineKey).score = 0
-        plugin.logger.info("Scoreboard constructed with ID ${gameObjective.name}.")
+        plugin.logger.info("Scoreboard constructed with ID ${gameObjective.name}")
     }
 
     fun updatePreGameMap() {

@@ -1,13 +1,14 @@
 package dev.byrt.survivalgames.resource
 
-import dev.byrt.survivalgames.resource.registry.ResourcePackRegistry
+import dev.byrt.survivalgames.defaultCoroutineScope
 import dev.byrt.survivalgames.plugin
+import dev.byrt.survivalgames.resource.registry.ResourcePackRegistry
 import dev.byrt.survivalgames.util.SGHttpClient
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 import io.ktor.utils.io.jvm.javaio.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.bukkit.Bukkit
@@ -46,7 +47,7 @@ class ResourcePackLoader(
     private val reloadMutex = Mutex()
 
     init {
-        runBlocking {
+        defaultCoroutineScope.launch {
             loadPack(tag)
         }
     }

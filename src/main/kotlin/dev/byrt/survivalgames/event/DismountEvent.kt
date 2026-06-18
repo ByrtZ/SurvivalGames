@@ -10,7 +10,6 @@ import org.bukkit.event.entity.EntityDismountEvent
 class DismountEvent: Listener {
     @EventHandler
     private fun onDismount(e: EntityDismountEvent) {
-        //TODO: title screen
         if(e.entity is Player && e.dismounted is ItemDisplay) {
             e.isCancelled = true
         }

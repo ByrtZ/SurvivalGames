@@ -18,7 +18,7 @@ import org.incendo.cloud.processors.confirmation.annotation.ConfirmationBuilderM
 
 import com.noxcrew.interfaces.InterfacesListeners
 import dev.byrt.survivalgames.game.GameManager
-import dev.byrt.survivalgames.lobby.npc.SGNPC
+import dev.byrt.survivalgames.lobby.info.LobbyInfo
 import dev.byrt.survivalgames.lobby.npc.SGNPCs
 import dev.byrt.survivalgames.map.MapManager
 import dev.byrt.survivalgames.resource.ResourcePackApplier
@@ -27,6 +27,8 @@ import dev.byrt.survivalgames.resource.registry.GitHubReleasesRegistry
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SGTranslator
 import dev.byrt.survivalgames.text.TextAlignment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.kyori.adventure.translation.GlobalTranslator
 import org.bukkit.event.Listener
 import org.reflections.Reflections
@@ -61,6 +63,7 @@ class Main : JavaPlugin() {
         setupEventListeners()
         setupConfigs()
         InterfacesListeners.install(this)
+        LobbyInfo.build()
         SGNPCs.spawnAllNPCs()
     }
 
@@ -68,6 +71,7 @@ class Main : JavaPlugin() {
         logger.info("Stopping Survival Games plugin.")
         GameManager.gameContainers.forEach { it.onDestroy() }
         GameManager.gameContainers.clear()
+        LobbyInfo.destroy()
         SGNPCs.clearNPCs()
     }
 
@@ -97,7 +101,7 @@ class Main : JavaPlugin() {
                 ) }
             .confirmationRequiredNotifier { sender, ctx ->
                 sender.sendMessage(
-                    Formatting.allTags.deserialize("<red><b><unicodeprefix:warning></b> This action is potentially disruptive!<newline>Confirm command <green>'/${ctx.commandContext().rawInput().input()}' <red>by running <yellow>'/confirm' <red>to execute.")
+                    Formatting.allTags.deserialize("<red><b><unicodeprefix:warning></b> This action is potentially disruptive!<newline>Confirm command <green>'/${ctx.commandContext().rawInput().input()}' <red>by running <yellow>'/confirm'<red>.")
                 ) }
             .expiration(Duration.ofSeconds(30))
             .build()
@@ -138,4 +142,4 @@ class Main : JavaPlugin() {
 
 val plugin = Bukkit.getPluginManager().getPlugin("SurvivalGames")!! as Main
 val logger = plugin.logger
-val messenger = Bukkit.getMessenger()
+val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)

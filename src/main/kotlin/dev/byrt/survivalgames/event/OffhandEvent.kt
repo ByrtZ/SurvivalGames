@@ -12,14 +12,10 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent
 class OffhandEvent: Listener {
     @EventHandler
     private fun onOffhand(e: PlayerSwapHandItemsEvent) {
-        if(e.player.sgPlayer().currentContainer != null) {
+        if(e.player.sgPlayer().currentContainer != null && e.player.sgPlayer().playerType == PlayerType.PARTICIPANT) {
             val container = e.player.sgPlayer().currentContainer!!
             if(container.instance.manager.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
-                if(e.player.sgPlayer().isDead || e.player.sgPlayer().playerType != PlayerType.PARTICIPANT || e.player.gameMode == GameMode.SPECTATOR) {
-                    e.isCancelled = true
-                } else {
-                    e.isCancelled = false
-                }
+                e.isCancelled = e.player.sgPlayer().isDead || e.player.sgPlayer().playerType != PlayerType.PARTICIPANT || e.player.gameMode == GameMode.SPECTATOR
             } else {
                 e.isCancelled = true
             }

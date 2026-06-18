@@ -91,7 +91,7 @@ class GameInstanceTask(val instance: GameInstance) {
                         for (player in instance.currentContainer?.players!!) {
                             player.showTitle(
                                 Title.title(
-                                    Formatting.allTags.deserialize("<playercolour>Starting in"),
+                                    Formatting.allTags.deserialize("$SG_FONT_TAG<playercolour>Starting in"),
                                     Formatting.allTags.deserialize("<b>${if(instance.timer.getTimer() == 3) "<green>" else if(instance.timer.getTimer() == 2) "<yellow>" else if(instance.timer.getTimer() == 1) "<red>" else ""}►${instance.timer.getTimer()}◄"),
                                     Title.Times.times(
                                         Duration.ofSeconds(0),

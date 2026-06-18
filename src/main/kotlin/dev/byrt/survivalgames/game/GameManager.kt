@@ -3,6 +3,7 @@ package dev.byrt.survivalgames.game
 import dev.byrt.survivalgames.game.instance.GamePlayerCount
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.library.Translation
+import dev.byrt.survivalgames.lobby.info.LobbyInfo
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.JukeboxTrack
@@ -52,6 +53,7 @@ object GameManager {
                         newContainer.onCreate()
 
                         gameContainers.add(newContainer)
+                        LobbyInfo.updateMatches()
                         cont.resume(newContainer)
                     } catch (e: Exception) {
                         cont.resumeWithException(e)
@@ -64,6 +66,7 @@ object GameManager {
     fun destroyContainer(gameContainer: GameContainer) {
         gameContainer.onDestroy()
         gameContainers.remove(gameContainer)
+        LobbyInfo.updateMatches()
     }
 
     fun getContainerById(id: String): GameContainer? {
@@ -74,7 +77,7 @@ object GameManager {
         return gameContainers.find { container -> container.containerId == id }
     }
 
-    //TODO: List of existing items and modify when states and player counts change so items are not generated upon every interface creation
+    //TODO: List existing items and modify when states and player counts change so items are not generated upon every interface creation
     fun getContainerMatchmakingItems(): List<ItemStack> {
         val items = mutableListOf<ItemStack>()
         for(container in gameContainers) {
@@ -82,7 +85,7 @@ object GameManager {
             val containerPlayersSize = container.players.filter { it.sgPlayer().playerType == PlayerType.PARTICIPANT }.size
             items.add(
                 ItemStack(if(gameState == GameState.IDLE) Material.LIME_DYE else if(gameState in listOf(GameState.STARTING, GameState.IN_GAME, GameState.OVERTIME)) Material.YELLOW_DYE else Material.RED_DYE).apply {
-                    editMeta { it ->
+                    editMeta {
                         it.displayName(Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour><b>Survival Games"))
                         it.lore(listOf(
                             Formatting.allTags.deserialize("<!i>"),
@@ -120,16 +123,16 @@ object GameManager {
         /** Auto-assign type to participant if joining regularly, if the game is not already running **/
         if(forceJoinAsSpectator) {
             player.sgPlayer().setType(PlayerType.SPECTATOR)
-            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG <gray>You joined the match as a spectator."))
+            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<gray>You joined the match as a spectator."))
             player.teleport(spectatorSpawn)
         } else {
             if(gameContainer.instance.manager.getGameState() == GameState.IDLE && gameContainer.players.filter { p -> p.sgPlayer().playerType == PlayerType.PARTICIPANT }.size < GamePlayerCount.MAX_PLAYERS) {
                 player.sgPlayer().setType(PlayerType.PARTICIPANT)
-                player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG <gray>You joined the match as a participant."))
+                player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<gray>You joined the match as a participant."))
                 player.teleport(preGameSpawn)
             } else {
                 player.sgPlayer().setType(PlayerType.SPECTATOR)
-                player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG <gray>You joined the match as a spectator; this match is already running or full."))
+                player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<gray>You joined the match as a spectator; this match is already running or full."))
                 player.teleport(spectatorSpawn)
             }
         }
@@ -146,7 +149,7 @@ object GameManager {
                 SGMap.HIGHLANDS -> Jukebox.startMusicLoop(player, JukeboxTrack.PRE_GAME_HIGHLANDS)
                 SGMap.AELUMIA_CITADEL -> Jukebox.startMusicLoop(player, JukeboxTrack.PRE_GAME_AELUMIA_CITADEL)
             }
-            /** Game auto-start **/
+            /** Game auto-start **/ //TODO Boss bar with 20s for others to join, possibly add property isGameAutoStarting?
             if(gameContainer.players.filter { p -> p.sgPlayer().playerType == PlayerType.PARTICIPANT }.size >= GamePlayerCount.MIN_PLAYERS) {
                 gameContainer.instance.manager.nextState()
             }

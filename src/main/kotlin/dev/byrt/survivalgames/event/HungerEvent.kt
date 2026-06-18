@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -12,7 +13,7 @@ class HungerEvent: Listener {
     private fun onHungerChange(e: FoodLevelChangeEvent) {
         if(e.entity is Player) {
             val player = e.entity as Player
-            if(player.sgPlayer().currentContainer != null) {
+            if(player.sgPlayer().currentContainer != null && player.sgPlayer().playerType == PlayerType.PARTICIPANT) {
                 val container = player.sgPlayer().currentContainer!!
                 if(container.instance.manager.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                     e.isCancelled = false

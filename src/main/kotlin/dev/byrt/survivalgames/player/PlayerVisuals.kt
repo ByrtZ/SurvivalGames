@@ -1,16 +1,20 @@
 package dev.byrt.survivalgames.player
 
+import dev.byrt.survivalgames.defaultCoroutineScope
 import dev.byrt.survivalgames.game.GameContainer
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.interfaces.SGDeathInterface
 import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
+import dev.byrt.survivalgames.lobby.info.LobbyInfo
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import io.papermc.paper.entity.TeleportFlag
+import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.*
@@ -29,13 +33,13 @@ object PlayerVisuals {
     fun damageIndicator(entity: LivingEntity, damage: Double) {
         if(damage > 1000) return
         val damageTaken = BigDecimal(damage).setScale(2, RoundingMode.HALF_EVEN)
-        val damageIndicatorEntity = entity.location.world.spawn(entity.location.clone().add(Random.nextDouble(-0.25, 0.35), Random.nextDouble(0.5, 2.5), Random.nextDouble(-0.25, 0.35)), TextDisplay::class.java).apply {
+        val damageIndicatorEntity = entity.location.world.spawn(entity.location.clone().add(Random.nextDouble(-0.35, 0.35), Random.nextDouble(0.5, 2.5), Random.nextDouble(-0.35, 0.35)), TextDisplay::class.java).apply {
             alignment = TextDisplay.TextAlignment.CENTER
             billboard = Display.Billboard.VERTICAL
             isShadowed = true
             isCustomNameVisible = true
             scoreboardTags.add("sg.damage_indicator")
-            customName(Formatting.allTags.deserialize("${SG_FONT_TAG}${if(damageTaken.toInt() <= 3) "<yellow>" else if(damageTaken.toInt() in 4..6) "<gold>" else if(damageTaken.toInt() >= 7) "<red>" else "<#000000>"}${damageTaken}"))
+            customName(Formatting.allTags.deserialize("${SG_FONT_TAG}${if(damageTaken.toInt() <= 4) "<yellow>" else if(damageTaken.toInt() in 5..7) "<gold>" else if(damageTaken.toInt() >= 8) "<red>" else "<#000000>"}${damageTaken}"))
         }
         object : BukkitRunnable() {
             override fun run() {
@@ -77,6 +81,7 @@ object PlayerVisuals {
             addScoreboardTag("${player.uniqueId}-death-vehicle")
             addPassenger(player)
         }
+        player.sendActionBar(Component.empty())
 
         val deathMessage = if (showDeathMessage) {
             if (killer != null) {
@@ -144,9 +149,10 @@ object PlayerVisuals {
                         fullRespawn(player, deathVehicle)
                         cancel()
                     }
-                    player.sendActionBar(Formatting.allTags.deserialize("${SG_FONT_TAG}Press <playercolour><key:key.sneak></playercolour> to continue <dark_gray>(Will be replaced with interface)"))
+                    player.sendActionBar(Formatting.allTags.deserialize("${SG_FONT_TAG}Press <playercolour><key:key.sneak></playercolour> to continue"))
                     if(player.isSneaking) {
-                        fullRespawn(player, deathVehicle)
+                        player.gameMode = GameMode.ADVENTURE
+                        defaultCoroutineScope.launch { SGDeathInterface.create(player) }
                         cancel()
                     }
                 } else {
@@ -158,6 +164,7 @@ object PlayerVisuals {
     }
 
     fun fullRespawn(player: Player, deathVehicle: ItemDisplay, shouldLeaveContainer: Boolean = false) {
+        player.gameMode = GameMode.SPECTATOR
         player.sendActionBar(Component.empty())
         object : BukkitRunnable() {
             override fun run() {
@@ -277,7 +284,7 @@ object PlayerVisuals {
     fun resetPlayerState(player: Player, shouldClearBossBar: Boolean = false, shouldClearInventory: Boolean = false, shouldResetScoreboard: Boolean = false) {
         if(shouldClearBossBar) player.activeBossBars().forEach { bossBar -> bossBar.removeViewer(player) }
         if(shouldClearInventory) player.inventory.clear()
-        if(shouldResetScoreboard) player.scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        if(shouldResetScoreboard) player.scoreboard = LobbyInfo.lobbyScoreboard
         if(player.sgPlayer().playerType == PlayerType.SPECTATOR) player.gameMode = GameMode.SPECTATOR else player.gameMode = GameMode.ADVENTURE
         player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
         player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0

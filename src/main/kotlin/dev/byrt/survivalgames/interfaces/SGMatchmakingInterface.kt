@@ -11,15 +11,15 @@ import dev.byrt.survivalgames.text.SG_FONT_TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.ItemStack
 
-object SGInterfaces {
-    suspend fun createMatchmakingInterface(player: Player) = buildChestInterface {
-        titleSupplier = { Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<b><playercolour><shadow:#0:0.75>Matchmaking") }
+object SGMatchmakingInterface {
+    val INTERFACE_TITLE = Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<b><playercolour><shadow:#0:0.75>Matchmaking")
+    suspend fun create(player: Player) = buildChestInterface {
+        titleSupplier = { INTERFACE_TITLE }
         rows = 6
         val containerItems: List<ItemStack> = GameManager.getContainerMatchmakingItems()
         /** Apply pagination transform **/
@@ -28,57 +28,64 @@ object SGInterfaces {
         withTransform { pane, _ ->
             val infoMenuItem = ItemStack(Material.NETHER_STAR)
             val infoMenuItemMeta = infoMenuItem.itemMeta
-            infoMenuItemMeta.displayName(Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Matchmaking"))
-            infoMenuItemMeta.lore(listOf(
-                Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<white>View all instances and click"),
-                Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<white>to join a match!")
-            ))
+            infoMenuItemMeta.displayName(Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<playercolour>Matchmaking"))
+            infoMenuItemMeta.lore(
+                listOf(
+                    Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<white>View all instances and click"),
+                    Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<white>to join a match!")
+                )
+            )
             infoMenuItem.itemMeta = infoMenuItemMeta
-            pane[0,4] = StaticElement(drawable(infoMenuItem))
+            pane[0, 4] = StaticElement(drawable(infoMenuItem))
         }
         /** Add close menu button **/
         withTransform { pane, _ ->
             val closeMenuItem = ItemStack(Material.BARRIER)
             val closeMenuItemMeta = closeMenuItem.itemMeta
-            closeMenuItemMeta.displayName(Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<red>Close Menu"))
+            closeMenuItemMeta.displayName(Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<red>Close Menu"))
             closeMenuItem.itemMeta = closeMenuItemMeta
-            pane[5,4] = StaticElement(drawable(closeMenuItem)) {
+            pane[5, 4] = StaticElement(drawable(closeMenuItem)) {
                 player.playSound(Sounds.Misc.INTERFACE_BACK)
                 player.closeInventory(InventoryCloseEvent.Reason.PLUGIN)
             }
         }
         /** Draw central information item if the interface cannot be populated **/
-        if(containerItems.isEmpty()) {
+        if (containerItems.isEmpty()) {
             withTransform { pane, _ ->
                 val noContainersItem = ItemStack(Material.BARRIER)
                 val noContainersItemMeta = noContainersItem.itemMeta
-                noContainersItemMeta.displayName(Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<red>No matches available"))
-                noContainersItemMeta.lore(listOf(
-                    Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<dark_gray>If this issue persists, please"),
-                    Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<dark_gray>report this to an admin."),
-                ))
+                noContainersItemMeta.displayName(Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<red>No matches available"))
+                noContainersItemMeta.lore(
+                    listOf(
+                        Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<dark_gray>If this issue persists, please"),
+                        Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<dark_gray>report this to an admin."),
+                    )
+                )
                 noContainersItem.itemMeta = noContainersItemMeta
-                pane[2,4] = StaticElement(drawable(noContainersItem))
+                pane[2, 4] = StaticElement(drawable(noContainersItem))
             }
         }
-        if(player.isOp) {
+        if (player.isOp) {
             withTransform { pane, _ ->
                 val createContainerItem = ItemStack(Material.COMMAND_BLOCK)
                 val createContainerItemMeta = createContainerItem.itemMeta
-                createContainerItemMeta.displayName(Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<green>Click to create a match"))
-                createContainerItemMeta.lore(listOf(
-                    Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Builds a new container with"),
-                    Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>default options. If you wish"),
-                    Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>to use custom options, use"),
-                    Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>the command <yellow>'/container'")
-                ))
+                createContainerItemMeta.displayName(Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<green>Click to create a match"))
+                createContainerItemMeta.lore(
+                    listOf(
+                        Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<playercolour>Builds a new default container."),
+                        Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<playercolour>If you wish to run"),
+                        Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<playercolour>custom settings, use"),
+                        Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<playercolour>the command <yellow>'/container'")
+                    )
+                )
                 createContainerItem.itemMeta = createContainerItemMeta
-                pane[0,0] = StaticElement(drawable(createContainerItem)) {
+                pane[0, 0] = StaticElement(drawable(createContainerItem)) {
                     player.closeInventory(InventoryCloseEvent.Reason.PLUGIN)
                     player.playSound(Sounds.Misc.INTERFACE_ENTER_SUB_MENU)
                     ChatUtility.broadcastDev("<dark_gray>[Matchmaking] ${player.name} is generating a default container.", true)
                     CoroutineScope(Dispatchers.Default).launch {
                         GameManager.createContainer()
+                    }.invokeOnCompletion { _ -> ChatUtility.broadcastDev("<dark_gray>[Matchmaking] ${player.name}'s default container is ready.", true)
                     }
                 }
             }
@@ -91,10 +98,10 @@ object SGInterfaces {
                 }
             }
             val borderElement = StaticElement(drawable(borderItem))
-            for(column in 0..8) {
-                for(row in 0..<rows) {
-                    if(column in listOf(0, 8) || row in listOf(0, rows - 1)) {
-                        if(pane[row, column] == null) {
+            for (column in 0..8) {
+                for (row in 0..<rows) {
+                    if (column in listOf(0, 8) || row in listOf(0, rows - 1)) {
+                        if (pane[row, column] == null) {
                             pane[row, column] = borderElement
                         }
                     }
@@ -103,3 +110,4 @@ object SGInterfaces {
         }
     }.open(player)
 }
+

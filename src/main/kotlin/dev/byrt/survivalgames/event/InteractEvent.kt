@@ -5,6 +5,7 @@ import dev.byrt.survivalgames.lobby.npc.SGNPC
 import dev.byrt.survivalgames.map.MapDataPointType
 import dev.byrt.survivalgames.map.MapTools
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.util.Keys
 import dev.byrt.survivalgames.util.cooldown.Cooldowns
 import dev.byrt.survivalgames.util.extension.decrementItemInHand
@@ -45,27 +46,27 @@ class InteractEvent: Listener {
                     }
                 }
             }
-            /** Item interactions **/
-            val material = e.player.inventory.itemInMainHand.type
-            val allowItemUse = e.action.isRightClick && (
-                    material.isEdible || material in gameAllowItemInteractionList ||
-                            material.name.endsWith("_HELMET") || material.name.endsWith("_CHESTPLATE") ||
-                            material.name.endsWith("_LEGGINGS") || material.name.endsWith("_BOOTS")
-                    )
-            if(allowItemUse) {
-                e.setUseItemInHand(Event.Result.ALLOW)
-                if(material == Material.TNT) {
-                    if(Cooldowns.attemptUseTnt(e.player)) {
-                        e.player.decrementItemInHand(e.player, e.player.inventory.itemInMainHand)
-                        val tnt = e.player.world.spawn(e.player.eyeLocation, TNTPrimed::class.java)
-                        tnt.source = e.player
-                        val tntVelocity = e.player.location.direction.multiply(1.35)
-                        tnt.velocity = tntVelocity
+            if(container.instance.manager.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME) && e.player.sgPlayer().playerType == PlayerType.PARTICIPANT) {
+                /** Item interactions **/
+                val material = e.player.inventory.itemInMainHand.type
+                val allowItemUse = e.action.isRightClick && (
+                        material.isEdible || material in gameAllowItemInteractionList ||
+                                material.name.endsWith("_HELMET") || material.name.endsWith("_CHESTPLATE") ||
+                                material.name.endsWith("_LEGGINGS") || material.name.endsWith("_BOOTS")
+                        )
+                if(allowItemUse) {
+                    e.setUseItemInHand(Event.Result.ALLOW)
+                    if(material == Material.TNT) {
+                        if(Cooldowns.attemptUseTnt(e.player)) {
+                            e.player.decrementItemInHand(e.player, e.player.inventory.itemInMainHand)
+                            val tnt = e.player.world.spawn(e.player.eyeLocation, TNTPrimed::class.java)
+                            tnt.source = e.player
+                            val tntVelocity = e.player.location.direction.multiply(1.35)
+                            tnt.velocity = tntVelocity
+                        }
                     }
                 }
-            }
-            /** Block interactions **/
-            if(container.instance.manager.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
+                /** Block interactions **/
                 if(e.clickedBlock != null) {
                     val block = e.clickedBlock
                     if (block != null) {

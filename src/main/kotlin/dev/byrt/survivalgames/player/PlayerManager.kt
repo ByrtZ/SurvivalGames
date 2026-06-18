@@ -3,9 +3,8 @@ package dev.byrt.survivalgames.player
 import dev.byrt.survivalgames.exception.PlayerManagerException
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.logger
-import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
-import java.util.UUID
+import java.util.*
 
 object PlayerManager {
     private val sgPlayers = mutableMapOf<UUID, SGPlayer>()

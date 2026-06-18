@@ -10,7 +10,9 @@ import com.noxcrew.interfaces.transform.builtin.PaginationButton
 import com.noxcrew.interfaces.transform.builtin.PaginationTransformation
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.library.Sounds
+import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.text.Formatting
+import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.util.Keys
 import org.bukkit.Material
 import org.bukkit.event.inventory.ClickType
@@ -58,6 +60,8 @@ class SGMatchmakingPaginationTransformation(items: List<ItemStack>): PaginationT
                     val container = GameManager.getContainerById(containerStringId)
                     if(containerStringId.isEmpty() || container == null) {
                         player.closeInventory(InventoryCloseEvent.Reason.PLUGIN)
+                        player.playSound(Sounds.Misc.INTERFACE_ERROR)
+                        player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<#ff3333>This instance is not joinable or no longer exists."))
                         return@StaticElement
                     }
                     GameManager.addPlayerToContainer(player, container)

@@ -1,10 +1,9 @@
 package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.game.instance.GameState
-import dev.byrt.survivalgames.game.instance.GameTime
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.PlayerVisuals
-import org.bukkit.damage.DamageSource
 import org.bukkit.damage.DamageType
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
@@ -17,13 +16,13 @@ import org.bukkit.event.entity.EntityDamageEvent
 class DamageEvent: Listener {
     @EventHandler
     private fun onDamage(e: EntityDamageEvent) {
-        if(e.damageSource == DamageSource.builder(DamageType.FIREWORKS).build()) {
+        if(e.damageSource.damageType == DamageType.FIREWORKS) {
             e.isCancelled = true
             return
         }
         if (e.entity is Player) {
             val player = e.entity as Player
-            if (player.sgPlayer().currentContainer != null) {
+            if (player.sgPlayer().currentContainer != null && player.sgPlayer().playerType == PlayerType.PARTICIPANT) {
                 val currentContainer = player.sgPlayer().currentContainer!!
                 // Cancel ALL damage when not in the following game states
                 if (currentContainer.instance.manager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
@@ -64,7 +63,7 @@ class DamageEvent: Listener {
         }
         if(e.entity is Player) {
             val player = e.entity as Player
-            if(player.sgPlayer().currentContainer != null) {
+            if(player.sgPlayer().currentContainer != null && player.sgPlayer().playerType == PlayerType.PARTICIPANT) {
                 val currentContainer = player.sgPlayer().currentContainer!!
                 if(currentContainer.instance.manager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                     e.isCancelled = true
