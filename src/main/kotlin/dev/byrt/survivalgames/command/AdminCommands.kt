@@ -109,14 +109,14 @@ class AdminCommands {
     @Permission("sg.cmd.item")
     fun giveItem(sender: Player, @Argument("item") item: SGItems, @Argument("amount") amount: Int?, @Argument("player") player: Player?) {
         if(player == null) {
-            val item = SGLoot.getItem(item, 1)
-            if(amount != null) if(item.maxStackSize <= amount) item.amount = amount
-            sender.give(item)
+            val itemStack = SGLoot.getItem(item, 1)
+            if(amount != null) if(itemStack.maxStackSize <= amount) itemStack.amount = amount
+            sender.give(itemStack)
             sender.sendMessage(Formatting.allTags.deserialize("<green>Received x${amount ?: "1"} $item</green>"))
         } else {
-            val item = SGLoot.getItem(item, 1)
-            if(amount != null) if(item.maxStackSize <= amount) item.amount = amount
-            player.give(item)
+            val itemStack = SGLoot.getItem(item, 1)
+            if(amount != null) if(itemStack.maxStackSize <= amount) itemStack.amount = amount
+            player.give(itemStack)
             sender.sendMessage(Formatting.allTags.deserialize("<green>Gave x${amount ?: "1"} $item to ${player.name}</green>"))
             player.sendMessage(Formatting.allTags.deserialize("<green>Received x${amount ?: "1"} $item</green>"))
         }
