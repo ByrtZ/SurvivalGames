@@ -60,9 +60,9 @@ object PlayerVisuals {
 
         val deathMessage = if (showDeathMessage) {
             if (killer != null) {
-                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] $SG_FONT_TAG").append(Formatting.allTags.deserialize(SGDeathMessages.killerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>").replace("%k", "<#ff3333>${killer.name}</#ff3333>")))
+                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] ").append(Formatting.allTags.deserialize("$SG_FONT_TAG${SGDeathMessages.killerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>").replace("%k", "<#ff3333>${killer.name}</#ff3333>")}"))
             } else {
-                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] $SG_FONT_TAG").append(Formatting.allTags.deserialize(SGDeathMessages.nonKillerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>")))
+                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] ").append(Formatting.allTags.deserialize("$SG_FONT_TAG${SGDeathMessages.nonKillerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>")}"))
             }
         } else Component.empty()
         player.showTitle(
