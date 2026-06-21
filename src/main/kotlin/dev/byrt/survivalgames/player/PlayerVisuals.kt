@@ -6,6 +6,7 @@ import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.interfaces.SGDeathInterface
 import dev.byrt.survivalgames.item.SGItem
+import dev.byrt.survivalgames.library.SGDeathMessages
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
@@ -56,7 +57,39 @@ object PlayerVisuals {
     fun death(player: Player, killer: Player?, showDeathMessage: Boolean) {
         player.sgPlayer().isDead = true
         player.sgPlayer().setType(PlayerType.SPECTATOR)
-        player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
+
+        val deathMessage = if (showDeathMessage) {
+            if (killer != null) {
+                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] $SG_FONT_TAG").append(Formatting.allTags.deserialize(SGDeathMessages.killerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>").replace("%k", "<#ff3333>${killer.name}</#ff3333>")))
+            } else {
+                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] $SG_FONT_TAG").append(Formatting.allTags.deserialize(SGDeathMessages.nonKillerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>")))
+            }
+        } else Component.empty()
+        player.showTitle(
+            Title.title(
+                Formatting.allTags.deserialize("<#ff3333>${SG_FONT_TAG}You died!"),
+                deathMessage,
+                Title.Times.times(
+                    Duration.ofMillis(250),
+                    Duration.ofSeconds(8),
+                    Duration.ofMillis(750)
+                )
+            )
+        )
+        player.playSound(Sounds.Score.DEATH)
+        player.playSound(Sounds.Score.DEATH_BACKGROUND)
+        deathMessage.let(Bukkit::broadcast)
+        repeat(3) {
+            firework(
+                player.location,
+                flicker = false,
+                trail = false,
+                color = Color.RED,
+                fireworkType = FireworkEffect.Type.BALL_LARGE,
+                variedVelocity = true
+            )
+        }
+
         val inventoryContents = player.inventory.storageContents + player.inventory.armorContents
         inventoryContents.forEach { item ->
             player.world.spawn(player.location, Item::class.java).apply {
@@ -69,13 +102,13 @@ object PlayerVisuals {
             }
         }
         player.inventory.clear()
+
         val deathOverlayItem = ItemStack(Material.CARVED_PUMPKIN)
         val deathOverlayItemMeta = deathOverlayItem.itemMeta
         deathOverlayItem.addEnchantment(Enchantment.BINDING_CURSE, 1)
         deathOverlayItemMeta.itemModel = NamespacedKey("minecraft", "air")
         deathOverlayItem.itemMeta = deathOverlayItemMeta
         player.inventory.helmet = deathOverlayItem
-
         val deathVehicle = player.world.spawn(player.location.add(0.0, 0.6, 0.0), ItemDisplay::class.java).apply {
             teleportDuration = 1
             addScoreboardTag("${player.uniqueId}-death-vehicle")
@@ -83,39 +116,9 @@ object PlayerVisuals {
         }
         player.sendActionBar(Component.empty())
 
-        val deathMessage = if (showDeathMessage) {
-            if (killer != null) {
-                Component.translatable("sg.death.killed_by", player.displayName(), killer.displayName())
-            } else {
-                Component.translatable("sg.death.died", player.displayName())
-            }
-        } else Component.empty()
-
-        player.showTitle(
-            Title.title(
-                Formatting.allTags.deserialize("<#ff3333>You died!"),
-                deathMessage,
-                Title.Times.times(
-                    Duration.ofMillis(250),
-                    Duration.ofSeconds(8),
-                    Duration.ofMillis(750)
-                )
-            )
-        )
-        player.playSound(Sounds.Score.DEATH)
-        deathMessage.let(Bukkit::broadcast)
-        for(i in 0..2) {
-            firework(
-                player.location,
-                flicker = false,
-                trail = false,
-                color = Color.RED,
-                fireworkType = FireworkEffect.Type.BALL_LARGE,
-                variedVelocity = true
-            )
-        }
-
         hidePlayer(player)
+
+        player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
 
         /** Move death vehicle ahead of the killer as a faux spectator mode. **/
         if(killer != null) {

@@ -24,7 +24,7 @@ import java.util.Locale.getDefault
 @Suppress("unused")
 class InteractEvent: Listener {
     private val gameAllowBlockInteractionList = listOf(Material.CRAFTING_TABLE, Material.CHEST)
-    private val gameAllowItemInteractionList = listOf(Material.BOW, Material.CROSSBOW, Material.TRIDENT, Material.WIND_CHARGE, Material.TNT, Material.ENDER_PEARL)
+    private val gameAllowItemInteractionList = listOf(Material.BOW, Material.CROSSBOW, Material.TRIDENT, Material.WIND_CHARGE, Material.TNT, Material.ENDER_PEARL, Material.FISHING_ROD)
     @EventHandler
     private fun onInteract(e: PlayerInteractEvent) {
         /** Deny by default **/

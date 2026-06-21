@@ -20,6 +20,7 @@ import com.noxcrew.interfaces.InterfacesListeners
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
 import dev.byrt.survivalgames.lobby.npc.SGNPCs
+import dev.byrt.survivalgames.loot.recipe.SGRecipes
 import dev.byrt.survivalgames.map.MapManager
 import dev.byrt.survivalgames.resource.ResourcePackApplier
 import dev.byrt.survivalgames.resource.ResourcePackLoader
@@ -65,6 +66,7 @@ class Main : JavaPlugin() {
         InterfacesListeners.install(this)
         LobbyInfo.build()
         SGNPCs.spawnAllNPCs()
+        SGRecipes.registerRecipes()
     }
 
     override fun onDisable() {

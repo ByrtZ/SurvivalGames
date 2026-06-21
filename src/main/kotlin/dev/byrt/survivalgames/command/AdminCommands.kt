@@ -2,6 +2,8 @@ package dev.byrt.survivalgames.command
 
 import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.loot.SGLoot
+import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.map.MapDataPointType
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
@@ -101,5 +103,22 @@ class AdminCommands {
     fun giveEditItem(player: Player, @Argument("data_point") dataPoint: MapDataPointType) {
         player.inventory.addItem(SGItem.getDataPointItem(dataPoint))
         player.sendMessage(Formatting.allTags.deserialize("Gave self data point tool with type ${dataPoint.typeName}"))
+    }
+
+    @Command("i <item> [amount] [player]")
+    @Permission("sg.cmd.item")
+    fun giveItem(sender: Player, @Argument("item") item: SGItems, @Argument("amount") amount: Int?, @Argument("player") player: Player?) {
+        if(player == null) {
+            val item = SGLoot.getItem(item, 1)
+            if(amount != null) if(item.maxStackSize <= amount) item.amount = amount
+            sender.give(item)
+            sender.sendMessage(Formatting.allTags.deserialize("<green>Received x${amount ?: "1"} $item</green>"))
+        } else {
+            val item = SGLoot.getItem(item, 1)
+            if(amount != null) if(item.maxStackSize <= amount) item.amount = amount
+            player.give(item)
+            sender.sendMessage(Formatting.allTags.deserialize("<green>Gave x${amount ?: "1"} $item to ${player.name}</green>"))
+            player.sendMessage(Formatting.allTags.deserialize("<green>Received x${amount ?: "1"} $item</green>"))
+        }
     }
 }

@@ -11,7 +11,6 @@ import org.bukkit.event.player.PlayerStatisticIncrementEvent
 class AdvancementsRecipesEvent : Listener {
     @EventHandler
     private fun onRecipeUnlock(e: PlayerRecipeDiscoverEvent) {
-        e.player.discoveredRecipes.clear()
         e.isCancelled = true
     }
 

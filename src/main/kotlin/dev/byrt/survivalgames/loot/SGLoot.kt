@@ -5,19 +5,23 @@ import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.loot.items.SGItems
+import dev.byrt.survivalgames.loot.pool.SGLootPool
 import dev.byrt.survivalgames.map.MapDataPointType
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
+import dev.byrt.survivalgames.util.Keys
 import dev.byrt.survivalgames.util.extension.name
 import org.bukkit.*
 import org.bukkit.block.Chest
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.scheduler.BukkitRunnable
-import java.util.UUID
+import java.util.*
 import kotlin.random.Random
 
 @Suppress("unstableApiUsage")
@@ -47,25 +51,13 @@ object SGLoot {
         val inventory = chestState.inventory
 
         repeat(Random.nextInt(3, 6)) {
-            val lootItem = SGLootPool.getRandomItem(lootPool)
-            if (lootItem.material == Material.AIR) return
-            if (lootItem.amountMin < 1) return
-            if (lootItem.amountMax < 1) return
+            val lootItem = SGLootPool.getRandomLoot(lootPool)
+            if (lootItem.item.item.material == Material.AIR) return
+            if (lootItem.odds.amountMin < 1) return
+            if (lootItem.odds.amountMax < 1) return
 
             val slotIndex = Random.nextInt(0, inventory.size - 1)
-            val item = ItemStack(lootItem.material, Random.nextInt(lootItem.amountMin, lootItem.amountMax.inc())).apply {
-                editMeta {
-                    it.displayName(Formatting.allTags.deserialize("<reset><!i><${lootItem.rarity.rarityColour}>${SG_FONT_TAG}${lootItem.nameOverride.ifBlank { lootItem.material.name() }}</reset>"))
-                    it.lore(listOf(Formatting.allTags.deserialize("<reset><!i><white>${lootItem.rarity.asMiniMessage()}${lootItem.type.asMiniMessage()}")))
-                    it.isUnbreakable = true
-                    it.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS)
-                    if(lootItem.enchantments.enchantments().isNotEmpty()) {
-                        lootItem.enchantments.enchantments().forEach { (enchantment, level) ->
-                            it.addEnchant(enchantment, level, true)
-                        }
-                    }
-                }
-            }
+            val item = getItem(lootItem.item, Random.nextInt(lootItem.odds.amountMin, lootItem.odds.amountMax.inc()))
             if (inventory.getItem(slotIndex) == null) {
                 inventory.setItem(slotIndex, item)
             } else {
@@ -144,5 +136,22 @@ object SGLoot {
                 }
             }.runTaskTimer(plugin, 20L * 14L, 4L)
         } else return
+    }
+
+    fun getItem(sgItem: SGItems, amount: Int = 1): ItemStack {
+        return ItemStack(sgItem.item.material, amount).apply {
+            editMeta {
+                it.displayName(Formatting.allTags.deserialize("<reset><!i><${sgItem.item.rarity.rarityColour}>${SG_FONT_TAG}${sgItem.item.nameOverride.ifBlank { sgItem.item.material.name() }}</reset>"))
+                it.lore(listOf(Formatting.allTags.deserialize("<reset><!i><white>${sgItem.item.rarity.asMiniMessage()}${sgItem.item.type.asMiniMessage()}")))
+                it.isUnbreakable = true
+                it.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS)
+                it.persistentDataContainer.set(Keys.LOOT_ITEM, PersistentDataType.BOOLEAN, true)
+                if(sgItem.item.enchantments.enchantments().isNotEmpty()) {
+                    sgItem.item.enchantments.enchantments().forEach { (enchantment, level) ->
+                        it.addEnchant(enchantment, level, true)
+                    }
+                }
+            }
+        }
     }
 }

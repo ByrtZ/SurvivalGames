@@ -16,7 +16,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 class DamageEvent: Listener {
     @EventHandler
     private fun onDamage(e: EntityDamageEvent) {
-        if(e.damageSource.damageType == DamageType.FIREWORKS) {
+        if(e.damageSource.damageType == DamageType.FIREWORKS || e.damageSource.damageType == DamageType.ENDER_PEARL) {
             e.isCancelled = true
             return
         }

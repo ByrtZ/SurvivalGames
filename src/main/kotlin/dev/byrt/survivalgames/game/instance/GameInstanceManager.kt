@@ -15,6 +15,8 @@ import dev.byrt.survivalgames.text.SG_FONT_TAG
 import io.papermc.paper.entity.LookAnchor
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
+import org.bukkit.Color
+import org.bukkit.FireworkEffect
 import org.bukkit.Location
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -240,9 +242,20 @@ class GameInstanceManager(val instance: GameInstance) {
         if(playersAlive?.isNotEmpty() == true) {
             if(playersAlive.size == 1) {
                 val remainingPlayer = playersAlive[0]
+                remainingPlayer.playSound(Sounds.Score.WIN_GAME)
+                repeat(3) {
+                    PlayerVisuals.firework(
+                        remainingPlayer.location,
+                        flicker = true,
+                        trail = true,
+                        color = Color.ORANGE,
+                        fireworkType = FireworkEffect.Type.BURST,
+                        variedVelocity = true
+                    )
+                }
                 for(player in instance.currentContainer?.players!!) {
-                    player.sendMessage(Formatting.allTags.deserialize("${SG_FONT_TAG}<playercolour>${if(player == remainingPlayer) "<b>You</b>" else remainingPlayer.name}</playercolour> won the game!").appendNewline())
-                    player.playSound(Sounds.Score.WIN_GAME)
+                    player.sendMessage(Formatting.allTags.deserialize("<newline>${SG_FONT_TAG}<playercolour>${if(player == remainingPlayer) "<b>You</b>" else remainingPlayer.name}</playercolour> won the game!<newline>").appendNewline())
+
                 }
                 setGameState(GameState.GAME_END)
             }
@@ -265,8 +278,8 @@ object GameTime {
 }
 
 object GamePlayerCount {
-    const val MAX_PLAYERS = 32
-    const val MIN_PLAYERS = 32
+    const val MAX_PLAYERS = 24
+    const val MIN_PLAYERS = 24
 }
 
 enum class GameState {

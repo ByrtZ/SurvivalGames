@@ -6,6 +6,7 @@ import dev.byrt.survivalgames.player.PlayerManager
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
+import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.event.EventHandler
@@ -20,7 +21,7 @@ class PlayerJoin: Listener {
         e.joinMessage(null)
         PlayerManager.registerPlayer(e.player)
         e.player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
-        e.player.sendPlayerListHeader(Formatting.allTags.deserialize(" <b><playercolour>${SG_FONT_TAG}Survival Games<reset><newline>${SG_FONT_TAG} An unbeatable classic Minecraft minigame. "))
+        e.player.sendPlayerListHeaderAndFooter(Formatting.allTags.deserialize(" <b><playercolour>${SG_FONT_TAG}Survival Games<reset><newline>${SG_FONT_TAG} An unbeatable classic Minecraft minigame. "), Component.empty())
         LobbyInfo.updateTotalPlayers()
     }
 

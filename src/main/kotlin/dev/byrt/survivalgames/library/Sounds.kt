@@ -33,6 +33,7 @@ object Sounds {
         val ELIMINATION = sound(key("entity.player.levelup"), Source.MASTER, 0.5f, 1f)
         val WIN_GAME = sound(key("entity.player.levelup"), Source.MASTER, 1f, 0.5f)
         val DEATH = sound(key("item.trident.thunder"), Source.MASTER, 5f, 1.2f)
+        val DEATH_BACKGROUND = sound(key("item.trident.return"), Source.MASTER, 2f, 0f)
         val DEATH_STATS = sound(key("item.trident.riptide_3"), Source.MASTER, 1f, 0f)
         val RESPAWN = sound(key("block.bubble_column.upwards_inside"), Source.MASTER, 2f, 0f)
     }
