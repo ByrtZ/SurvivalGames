@@ -28,31 +28,31 @@ object SGRecipes {
         },
         ShapedRecipe(Keys.IRON_HELMET_RECIPE, SGLoot.getItem(SGItems.IRON_HELMET)).apply {
             shape(
-                "I", "I", "I",
-                "I", "", "I"
+                "III",
+                "I I"
             )
             setIngredient('I', SGLoot.getItem(SGItems.IRON_INGOT))
         },
         ShapedRecipe(Keys.IRON_CHESTPLATE_RECIPE, SGLoot.getItem(SGItems.IRON_CHESTPLATE)).apply {
             shape(
-                "I", "", "I",
-                "I", "I", "I",
-                "I", "I", "I"
+                "I I",
+                "III",
+                "III"
             )
             setIngredient('I', SGLoot.getItem(SGItems.IRON_INGOT))
         },
         ShapedRecipe(Keys.IRON_LEGGINGS_RECIPE, SGLoot.getItem(SGItems.IRON_LEGGINGS)).apply {
             shape(
-                "I", "I", "I",
-                "I", "", "I",
-                "I", "", "I"
+                "III",
+                "I I",
+                "I I"
             )
             setIngredient('I', SGLoot.getItem(SGItems.IRON_INGOT))
         },
         ShapedRecipe(Keys.IRON_BOOTS_RECIPE, SGLoot.getItem(SGItems.IRON_BOOTS)).apply {
             shape(
-                "I", "", "I",
-                "I", "", "I"
+                "I I",
+                "I I"
             )
             setIngredient('I', SGLoot.getItem(SGItems.IRON_INGOT))
         }
