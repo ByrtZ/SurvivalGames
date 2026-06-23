@@ -17,6 +17,10 @@ object Keys {
      * Recipe related
      */
     val IRON_SWORD_RECIPE = NamespacedKey(plugin, "sg.recipe.iron_sword")
+    val IRON_HELMET_RECIPE = NamespacedKey(plugin, "sg.recipe.iron_helmet")
+    val IRON_CHESTPLATE_RECIPE = NamespacedKey(plugin, "sg.recipe.iron_chestplate")
+    val IRON_LEGGINGS_RECIPE = NamespacedKey(plugin, "sg.recipe.iron_leggings")
+    val IRON_BOOTS_RECIPE = NamespacedKey(plugin, "sg.recipe.iron_boots")
     val DIAMOND_SWORD_RECIPE = NamespacedKey(plugin, "sg.recipe.diamond_sword")
     /**
      * Lobby related
