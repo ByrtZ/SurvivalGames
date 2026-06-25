@@ -79,7 +79,7 @@ class InteractEvent: Listener {
                     if (block != null) {
                         val type = block.type
                         if(type in gameAllowBlockInteractionList || type.name.endsWith("_DOOR") || type.name.endsWith("_TRAPDOOR")) {
-                            if(type == Material.CHEST) (block.state as Lidded).open()
+                            if(type == Material.CHEST && e.hand == EquipmentSlot.HAND) (block.state as Lidded).open()
                             e.setUseInteractedBlock(Event.Result.ALLOW)
                         }
                     }

@@ -6,7 +6,7 @@ import java.util.UUID
 
 object Cooldowns {
     private var dataPointToolInteractions = HashMap<UUID, Long>()
-    private const val DATA_POINT_TOOL_COOLDOWN_TIME = 2500
+    private const val DATA_POINT_TOOL_COOLDOWN_TIME = 1750
     fun attemptCreateDataPoint(player: Player): Boolean {
         return if(!dataPointToolInteractions.containsKey(player.uniqueId) || System.currentTimeMillis() - dataPointToolInteractions[player.uniqueId]!! > DATA_POINT_TOOL_COOLDOWN_TIME) {
             dataPointToolInteractions[player.uniqueId] = System.currentTimeMillis()
