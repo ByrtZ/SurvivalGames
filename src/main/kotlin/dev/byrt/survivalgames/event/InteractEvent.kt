@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
 import java.util.Locale.getDefault
 
@@ -48,7 +49,12 @@ class InteractEvent: Listener {
             }
             if(container.instance.manager.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME) && e.player.sgPlayer().playerType == PlayerType.PARTICIPANT) {
                 /** Item interactions **/
-                val material = e.player.inventory.itemInMainHand.type
+                val item = when(e.hand) {
+                    EquipmentSlot.HAND -> e.player.inventory.itemInMainHand
+                    EquipmentSlot.OFF_HAND -> e.player.inventory.itemInOffHand
+                    else -> return
+                }
+                val material = item.type
                 val allowItemUse = e.action.isRightClick && (
                         material.isEdible || material in gameAllowItemInteractionList ||
                                 material.name.endsWith("_HELMET") || material.name.endsWith("_CHESTPLATE") ||
@@ -56,7 +62,7 @@ class InteractEvent: Listener {
                         )
                 if(allowItemUse) {
                     e.setUseItemInHand(Event.Result.ALLOW)
-                    if(material == Material.TNT) {
+                    if(material == Material.TNT && e.hand == EquipmentSlot.HAND) {
                         if(Cooldowns.attemptUseTnt(e.player)) {
                             e.player.decrementItemInHand(e.player, e.player.inventory.itemInMainHand)
                             val tnt = e.player.world.spawn(e.player.eyeLocation, TNTPrimed::class.java)
