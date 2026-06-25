@@ -1,6 +1,6 @@
 import java.io.BufferedReader
 
-val patch = "INDEV"
+val patch = "1.0"
 
 val commitHash = Runtime
     .getRuntime()
