@@ -25,7 +25,7 @@ object SGDeathInterface {
             infoMenuItemMeta.displayName(Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<#ff3333>You died!"))
             infoMenuItemMeta.lore(
                 listOf(
-                    Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<white>Continue spectating freely or"),
+                    Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<white>Continue spectating or"),
                     Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<white>return to the hub.")
                 )
             )

@@ -27,6 +27,25 @@ object SGItem {
         return supplyDropCompass
     }
 
+    fun getLantern(): ItemStack {
+        val lantern = ItemStack(Material.LANTERN, 1)
+        val lanternMeta = lantern.itemMeta
+        lanternMeta.displayName(Formatting.allTags.deserialize("<!i><playercolour>${SG_FONT_TAG}Mistwoods Lantern</playercolour>"))
+        val loreList = mutableListOf(
+            Formatting.allTags.deserialize("<!i>"),
+            Formatting.allTags.deserialize("<!i><#ffff00>${SG_FONT_TAG}While holding this lantern,"),
+            Formatting.allTags.deserialize("<!i><#ffff00>${SG_FONT_TAG}the bearer is able to see"),
+            Formatting.allTags.deserialize("<!i><#ffff00>${SG_FONT_TAG}their nearby surroundings."),
+            Formatting.allTags.deserialize("<!i>"),
+            Formatting.allTags.deserialize("<!i><#ff3333>${SG_FONT_TAG}Beware of opponents lurking"),
+            Formatting.allTags.deserialize("<!i><#ff3333>${SG_FONT_TAG}in the darkness..."),
+        )
+        lanternMeta.lore(loreList)
+        lanternMeta.persistentDataContainer.set(Keys.LANTERN, PersistentDataType.BOOLEAN, true)
+        lantern.itemMeta = lanternMeta
+        return lantern
+    }
+
     fun getDataPointItem(dataPointType: MapDataPointType): ItemStack {
         val dataPointItem = ItemStack(Material.STICK, 1)
         val dataPointItemMeta = dataPointItem.itemMeta

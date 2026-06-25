@@ -93,7 +93,7 @@ object PlayerVisuals {
         val inventoryContents = player.inventory.storageContents + player.inventory.armorContents
         inventoryContents.forEach { item ->
             player.world.spawn(player.location, Item::class.java).apply {
-                if (item != null && item.type !in listOf(Material.AIR, Material.COMPASS)) {
+                if (item != null && item.type !in listOf(Material.AIR, Material.COMPASS, Material.LANTERN)) {
                     itemStack = item
                     velocity = Vector(Random.nextDouble(-0.25, 0.25), Random.nextDouble(-0.25, 0.25), Random.nextDouble(-0.25, 0.25))
                 } else {
@@ -275,7 +275,7 @@ object PlayerVisuals {
                     )
                 )
             )
-            player.inventory.addItem(SGItem.getSupplyDropCompass())
+            player.give(SGItem.getSupplyDropCompass())
         }
     }
 

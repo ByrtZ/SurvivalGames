@@ -1,6 +1,7 @@
 package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.game.GameManager
+import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.logger
@@ -30,6 +31,7 @@ class GameInstanceManager(val instance: GameInstance) {
             if(field == value) return
             field = value
             instance.info.updatePreGameMap()
+            instance.currentContainer?.containerWorld?.time = if(map == SGMap.MISTWOODS) 18000 else 10000
         }
     private var gameState = GameState.IDLE
     private var overtimeActive = true
@@ -135,7 +137,9 @@ class GameInstanceManager(val instance: GameInstance) {
         /** Set world border center and size **/
         val borderCenter = map.worldCenter.first()
         instance.currentContainer?.containerWorld?.worldBorder?.setCenter(borderCenter.x + 0.5, borderCenter.z + 0.5)
-        instance.currentContainer?.containerWorld?.worldBorder?.size = if(map.isQuickMatch) 450.0 else 750.0
+        instance.currentContainer?.containerWorld?.worldBorder?.size = map.borderSize
+        instance.currentContainer?.containerWorld?.worldBorder?.damageBuffer = 0.0
+        instance.currentContainer?.containerWorld?.worldBorder?.damageAmount = 0.05
         /** Spawn allocation, only use first available spectator spawn and cast participant spawns to list and iterate for each participant **/
         val spectatorSpawn = map.spectatorSpawns.first()
         val participantSpawns = map.participantSpawns.flatMap { listOf(Location(instance.currentContainer?.containerWorld, it.x, it.y, it.z)) }
@@ -153,6 +157,7 @@ class GameInstanceManager(val instance: GameInstance) {
                     if(participantSpawnIndex > participantSpawns.size - 1) participantSpawnIndex = 0
                     player.teleport(participantSpawns[participantSpawnIndex])
                     participantSpawnIndex++
+                    if(map == SGMap.MISTWOODS) player.give(SGItem.getLantern())
                 }
                 else -> logger.info("Unregistered player in container.")
             }
@@ -241,6 +246,7 @@ class GameInstanceManager(val instance: GameInstance) {
         val playersAlive = instance.currentContainer?.players?.filter { player -> player.sgPlayer().playerType == PlayerType.PARTICIPANT }
         if(playersAlive?.isNotEmpty() == true) {
             if(playersAlive.size == 1) {
+                setGameState(GameState.GAME_END)
                 val remainingPlayer = playersAlive[0]
                 remainingPlayer.playSound(Sounds.Score.WIN_GAME)
                 repeat(3) {
@@ -257,7 +263,17 @@ class GameInstanceManager(val instance: GameInstance) {
                     player.sendMessage(Formatting.allTags.deserialize("<newline>${SG_FONT_TAG}<playercolour>${if(player == remainingPlayer) "<b>You</b>" else remainingPlayer.name}</playercolour> won the game!<newline>").appendNewline())
 
                 }
-                setGameState(GameState.GAME_END)
+                remainingPlayer.showTitle(
+                    Title.title(
+                        Formatting.allTags.deserialize("${SG_FONT_TAG}<playercolour><b>Victory"),
+                        Formatting.allTags.deserialize("${SG_FONT_TAG}You won the game!"),
+                        Title.Times.times(
+                            Duration.ofSeconds(0),
+                            Duration.ofSeconds(4),
+                            Duration.ofSeconds(1)
+                        )
+                    )
+                )
             }
         } else {
             // Force game to end if empty

@@ -94,6 +94,8 @@ object GameManager {
                             Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>State: <white>${gameState.name.clean()}"),
                             Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Instance: <white>${container.containerId.trimmed()}"),
                             Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Availability: ${if(container.isEditMode) "<#ff3333>Admin Only" else "<green>Public Match"}"),
+                            Formatting.allTags.deserialize("<!i>"),
+                            Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<yellow><b>CLICK TO JOIN THE FIGHT"),
                             Formatting.allTags.deserialize("<!i>")
                         ))
                         it.persistentDataContainer.set(Keys.CONTAINER_ID, PersistentDataType.STRING, container.containerId.toString())

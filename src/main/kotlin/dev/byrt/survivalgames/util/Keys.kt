@@ -12,6 +12,7 @@ object Keys {
      * Gameplay related
      */
     val SUPPLY_DROP_COMPASS = NamespacedKey(plugin, "sg.supply_drop_compass")
+    val LANTERN = NamespacedKey(plugin, "sg.lantern")
     val LOOT_ITEM = NamespacedKey(plugin, "sg.loot")
     /**
      * Recipe related
