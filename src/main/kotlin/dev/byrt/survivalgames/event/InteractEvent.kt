@@ -11,6 +11,7 @@ import dev.byrt.survivalgames.util.cooldown.Cooldowns
 import dev.byrt.survivalgames.util.extension.decrementItemInHand
 import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.block.Lidded
 import org.bukkit.entity.Mannequin
 import org.bukkit.entity.TNTPrimed
 import org.bukkit.event.Event
@@ -78,6 +79,7 @@ class InteractEvent: Listener {
                     if (block != null) {
                         val type = block.type
                         if(type in gameAllowBlockInteractionList || type.name.endsWith("_DOOR") || type.name.endsWith("_TRAPDOOR")) {
+                            if(type == Material.CHEST) (block.state as Lidded).open()
                             e.setUseInteractedBlock(Event.Result.ALLOW)
                         }
                     }
