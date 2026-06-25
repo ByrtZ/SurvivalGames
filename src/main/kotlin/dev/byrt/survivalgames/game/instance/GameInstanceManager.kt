@@ -22,7 +22,8 @@ import org.bukkit.Location
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.time.Duration
-import java.util.*
+import java.util.UUID
+import kotlin.random.Random
 
 class GameInstanceManager(val instance: GameInstance) {
     /** Not to be set outside of initialisation under any circumstance **/
@@ -249,27 +250,24 @@ class GameInstanceManager(val instance: GameInstance) {
                 setGameState(GameState.GAME_END)
                 val remainingPlayer = playersAlive[0]
                 remainingPlayer.playSound(Sounds.Score.WIN_GAME)
-                repeat(3) {
+                repeat(5) {
                     PlayerVisuals.firework(
-                        remainingPlayer.location,
+                        remainingPlayer.location.clone().add(Random.nextDouble(-3.0, 3.0), Random.nextDouble(-3.0, 3.0), Random.nextDouble(-3.0, 3.0)),
                         flicker = true,
                         trail = true,
                         color = Color.ORANGE,
-                        fireworkType = FireworkEffect.Type.BURST,
+                        fireworkType = FireworkEffect.Type.STAR,
                         variedVelocity = true
                     )
                 }
-                for(player in instance.currentContainer?.players!!) {
-                    player.sendMessage(Formatting.allTags.deserialize("<newline>${SG_FONT_TAG}<playercolour>${if(player == remainingPlayer) "<b>You</b>" else remainingPlayer.name}</playercolour> won the game!<newline>").appendNewline())
-
-                }
+                instance.currentContainer?.players!!.forEach { player -> player.sendMessage(Formatting.allTags.deserialize("<newline>${SG_FONT_TAG}<playercolour>${if(player == remainingPlayer) "<b>You</b>" else remainingPlayer.name}</playercolour> won the game!<newline>")) }
                 remainingPlayer.showTitle(
                     Title.title(
                         Formatting.allTags.deserialize("${SG_FONT_TAG}<playercolour><b>Victory"),
                         Formatting.allTags.deserialize("${SG_FONT_TAG}You won the game!"),
                         Title.Times.times(
                             Duration.ofSeconds(0),
-                            Duration.ofSeconds(4),
+                            Duration.ofSeconds(8),
                             Duration.ofSeconds(1)
                         )
                     )
