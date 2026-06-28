@@ -69,6 +69,14 @@ object GameManager {
         LobbyInfo.updateMatches()
     }
 
+    fun destroyAllContainers() {
+        for(container in gameContainers) {
+            container.onDestroy()
+        }
+        gameContainers.clear()
+        LobbyInfo.updateMatches()
+    }
+
     fun getContainerById(id: String): GameContainer? {
         return gameContainers.find { container -> container.containerId.toString() == id }
     }

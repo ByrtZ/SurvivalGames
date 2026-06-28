@@ -43,7 +43,7 @@ class ContainerCommands {
     @Confirmation
     fun destroyAllContainers(sender: Player) {
         ChatUtility.broadcastDev("<dark_gray>${sender.name} destroyed all containers", false)
-        GameManager.gameContainers.forEach{ container -> GameManager.destroyContainer(container) }
+        GameManager.destroyAllContainers()
     }
 
     @Command("container join <container>")
