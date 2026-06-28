@@ -1,5 +1,6 @@
 package dev.byrt.survivalgames.game.instance
 
+import dev.byrt.survivalgames.defaultCoroutineScope
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.Sounds
@@ -11,9 +12,12 @@ import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.PlayerVisuals
+import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
+import dev.byrt.survivalgames.util.extension.trimmed
 import io.papermc.paper.entity.LookAnchor
+import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.Color
@@ -21,21 +25,22 @@ import org.bukkit.FireworkEffect
 import org.bukkit.Location
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.scheduler.BukkitRunnable
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import kotlin.random.Random
 
 class GameInstanceManager(val instance: GameInstance) {
+    private var gameState = GameState.IDLE
+    private var overtimeActive = true
+    val activeSupplyDrops = mutableMapOf<UUID, Location>()
     /** Not to be set outside of initialisation under any circumstance **/
-    var map = SGMap.AUBURN_FOREST //TODO randomised map selection
+    var map = listOf(SGMap.AUBURN_FOREST, SGMap.AELUMIA_CITADEL).random()
         set(value) {
             if(field == value) return
             field = value
             instance.info.updatePreGameMap()
-            instance.currentContainer?.containerWorld?.time = if(map == SGMap.MISTWOODS) 18000 else 10000
         }
-    private var gameState = GameState.IDLE
-    private var overtimeActive = true
     var isGracePeriod: Boolean? = null
         set(value) {
             if(field == value) return
@@ -43,7 +48,6 @@ class GameInstanceManager(val instance: GameInstance) {
             if(field == true) PlayerVisuals.gracePeriodStart(instance.currentContainer)
             if(field == false) PlayerVisuals.gracePeriodEnd(instance.currentContainer)
         }
-    val activeSupplyDrops = mutableMapOf<UUID, Location>()
 
     fun nextState() {
         if(instance.currentContainer?.isEditMode == true) return
@@ -128,11 +132,35 @@ class GameInstanceManager(val instance: GameInstance) {
                     PotionEffect(PotionEffectType.ABSORPTION, 20 * GameTime.GRACE_PERIOD, 1, true, true)
                 )
             )
+            if(map == SGMap.MISTWOODS) player.give(SGItem.getLantern())
         }
         isGracePeriod = true
+
+        if(map == SGMap.MISTWOODS) {
+            instance.currentContainer?.containerWorld?.time = 10000
+            object : BukkitRunnable() {
+                override fun run() {
+                    if(instance.currentContainer != null) {
+                        if(instance.currentContainer?.containerWorld?.time!! < 18000) {
+                            instance.currentContainer?.containerWorld?.time += 5
+                        } else {
+                            instance.currentContainer?.containerWorld?.time = 18000
+                            cancel()
+                        }
+                    } else {
+                        cancel()
+                    }
+                }
+            }.runTaskTimer(plugin, 0L, 1L)
+        }
     }
 
     private fun starting() {
+        defaultCoroutineScope.launch {
+            GameManager.createContainer()
+        }.invokeOnCompletion { _ ->
+            logger.info("[Matchmaking] Game started in instance ${instance.gameInstanceId.trimmed()}, server generated another match.")
+        }
         /** Populate map loot **/
         instance.currentContainer?.containerWorld?.let { SGLoot.populateMapLoot(it, map) }
         /** Set world border center and size **/
@@ -158,7 +186,6 @@ class GameInstanceManager(val instance: GameInstance) {
                     if(participantSpawnIndex > participantSpawns.size - 1) participantSpawnIndex = 0
                     player.teleport(participantSpawns[participantSpawnIndex])
                     participantSpawnIndex++
-                    if(map == SGMap.MISTWOODS) player.give(SGItem.getLantern())
                 }
                 else -> logger.info("Unregistered player in container.")
             }

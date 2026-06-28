@@ -3,13 +3,11 @@ package dev.byrt.survivalgames.interfaces
 import com.noxcrew.interfaces.drawable.Drawable.Companion.drawable
 import com.noxcrew.interfaces.element.StaticElement
 import com.noxcrew.interfaces.interfaces.buildChestInterface
+import dev.byrt.survivalgames.defaultCoroutineScope
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.library.Sounds
-import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -82,10 +80,10 @@ object SGMatchmakingInterface {
                 pane[0, 0] = StaticElement(drawable(createContainerItem)) {
                     player.closeInventory(InventoryCloseEvent.Reason.PLUGIN)
                     player.playSound(Sounds.Misc.INTERFACE_ENTER_SUB_MENU)
-                    ChatUtility.broadcastDev("<gray>[Matchmaking] ${player.name} is generating a default container.", true)
-                    CoroutineScope(Dispatchers.Default).launch {
+                    player.sendMessage(Formatting.allTags.deserialize("$SG_FONT_TAG<gray>[Matchmaking] Generating a new match."))
+                    defaultCoroutineScope.launch {
                             GameManager.createContainer()
-                        }.invokeOnCompletion { _ -> ChatUtility.broadcastDev("<gray>[Matchmaking] ${player.name}'s default container is ready.", true)
+                        }.invokeOnCompletion { _ -> player.sendMessage(Formatting.allTags.deserialize("$SG_FONT_TAG<gray>[Matchmaking] New match is ready."))
                     }
                 }
             }

@@ -1,21 +1,6 @@
 package dev.byrt.survivalgames
 
 import com.github.benmanes.caffeine.cache.Caffeine
-
-import org.bukkit.Bukkit
-import org.bukkit.command.CommandSender
-import org.bukkit.plugin.java.JavaPlugin
-
-import org.incendo.cloud.annotations.AnnotationParser
-import org.incendo.cloud.description.CommandDescription
-import org.incendo.cloud.execution.ExecutionCoordinator
-import org.incendo.cloud.kotlin.coroutines.annotations.installCoroutineSupport
-import org.incendo.cloud.paper.LegacyPaperCommandManager
-import org.incendo.cloud.processors.cache.CaffeineCache
-import org.incendo.cloud.processors.confirmation.ConfirmationConfiguration
-import org.incendo.cloud.processors.confirmation.ConfirmationManager
-import org.incendo.cloud.processors.confirmation.annotation.ConfirmationBuilderModifier
-
 import com.noxcrew.interfaces.InterfacesListeners
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
@@ -30,10 +15,22 @@ import dev.byrt.survivalgames.text.SGTranslator
 import dev.byrt.survivalgames.text.TextAlignment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.kyori.adventure.translation.GlobalTranslator
+import org.bukkit.Bukkit
+import org.bukkit.command.CommandSender
 import org.bukkit.event.Listener
+import org.bukkit.plugin.java.JavaPlugin
+import org.incendo.cloud.annotations.AnnotationParser
+import org.incendo.cloud.description.CommandDescription
+import org.incendo.cloud.execution.ExecutionCoordinator
+import org.incendo.cloud.kotlin.coroutines.annotations.installCoroutineSupport
+import org.incendo.cloud.paper.LegacyPaperCommandManager
+import org.incendo.cloud.processors.cache.CaffeineCache
+import org.incendo.cloud.processors.confirmation.ConfirmationConfiguration
+import org.incendo.cloud.processors.confirmation.ConfirmationManager
+import org.incendo.cloud.processors.confirmation.annotation.ConfirmationBuilderModifier
 import org.reflections.Reflections
-
 import java.time.Duration
 import java.util.function.Consumer
 import kotlin.io.path.createDirectories
@@ -67,6 +64,11 @@ class Main : JavaPlugin() {
         LobbyInfo.build()
         SGNPCs.spawnAllNPCs()
         SGRecipes.registerRecipes()
+        defaultCoroutineScope.launch {
+            GameManager.createContainer()
+        }.invokeOnCompletion { _ ->
+            logger.info("[Matchmaking] Server generated a match on enable.")
+        }
     }
 
     override fun onDisable() {

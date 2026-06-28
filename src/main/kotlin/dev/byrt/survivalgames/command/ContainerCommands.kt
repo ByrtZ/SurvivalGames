@@ -37,13 +37,21 @@ class ContainerCommands {
         GameManager.getContainerById(container)?.let { GameManager.destroyContainer(it) }
     }
 
+    @Command("container destroy all")
+    @CommandDescription("Destroys all game containers.")
+    @Permission("burb.cmd.container")
+    @Confirmation
+    fun destroyAllContainers(sender: Player) {
+        ChatUtility.broadcastDev("<dark_gray>${sender.name} destroyed all containers", false)
+        GameManager.gameContainers.forEach{ container -> GameManager.destroyContainer(container) }
+    }
+
     @Command("container join <container>")
     @CommandDescription("Allows executing player to join specified container.")
     @Permission("burb.cmd.container")
     fun joinContainer(sender: Player, @Argument(value = "container",  suggestions = "containers") container: String) {
         if(sender.sgPlayer().currentContainer?.containerId?.toString() != container) {
             GameManager.getContainerById(container)?.let { GameManager.addPlayerToContainer(sender, it) }
-            ChatUtility.broadcastDev("<dark_gray>${sender.name} joined container (${container})", false)
         }
     }
 
@@ -52,7 +60,6 @@ class ContainerCommands {
     @Permission("burb.cmd.container")
     fun leaveContainer(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
-            ChatUtility.broadcastDev("<dark_gray>${sender.name} left container (${sender.sgPlayer().currentContainer?.containerId})", false)
             GameManager.removePlayerFromContainer(sender)
         }
     }

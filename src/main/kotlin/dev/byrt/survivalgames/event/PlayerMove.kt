@@ -1,7 +1,7 @@
 package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.game.instance.GameState
-import dev.byrt.survivalgames.game.mechanic.SGPlayerDynamicLight
+import dev.byrt.survivalgames.game.mechanic.light.SGPlayerDynamicLight
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType

@@ -47,7 +47,8 @@ object MapTools {
         dataPoints.forEach { point ->
             val location = Location(container.containerWorld, point.x, point.y, point.z)
             location.block.type = Material.OCHRE_FROGLIGHT
-            location.world.spawn(location.add(if(location.x == 0.0) 0.5 else 0.0, 1.5, if(location.z == 0.0) 0.5 else 0.0), TextDisplay::class.java).apply {
+            val shouldCenterDisplay = point.mapDataPointType in listOf(MapDataPointType.WORLD_CENTER, MapDataPointType.SUPPLY_DROP_SPAWN, MapDataPointType.LOOT_CHEST_1, MapDataPointType.LOOT_CHEST_2, MapDataPointType.LOOT_CHEST_3)
+            location.world.spawn(location.add(if(shouldCenterDisplay) 0.5 else 0.0, 1.5, if(shouldCenterDisplay) 0.5 else 0.0), TextDisplay::class.java).apply {
                 isShadowed = true
                 billboard = Display.Billboard.VERTICAL
                 text(Formatting.allTags.deserialize("<yellow><b>${SG_FONT_TAG}DATA POINT</b></yellow><newline>Type: <yellow>${point.mapDataPointType.typeName}</yellow><newline>Location: <yellow>(${point.x}, ${point.y}, ${point.z})</yellow><newline>Map: <yellow>${map.mapName}</yellow>"))

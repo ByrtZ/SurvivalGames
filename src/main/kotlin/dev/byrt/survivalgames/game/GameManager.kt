@@ -95,7 +95,7 @@ object GameManager {
                             Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Instance: <white>${container.containerId.trimmed()}"),
                             Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Availability: ${if(container.isEditMode) "<#ff3333>Admin Only" else "<green>Public Match"}"),
                             Formatting.allTags.deserialize("<!i>"),
-                            Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<yellow><b>CLICK TO JOIN THE FIGHT"),
+                            Formatting.allTags.deserialize("<!i>$SG_FONT_TAG${if(gameState == GameState.IDLE) "<green><b>CLICK TO JOIN THE FIGHT" else if(gameState in listOf(GameState.STARTING, GameState.IN_GAME, GameState.ROUND_END, GameState.OVERTIME)) "<yellow><b>CLICK TO SPECTATE" else "<#ff3333><b>MATCH ENDING"}"),
                             Formatting.allTags.deserialize("<!i>")
                         ))
                         it.persistentDataContainer.set(Keys.CONTAINER_ID, PersistentDataType.STRING, container.containerId.toString())
@@ -108,7 +108,7 @@ object GameManager {
 
     fun addPlayerToContainer(player: Player, gameContainer: GameContainer, forceJoinAsSpectator: Boolean = false) {
         if(gameContainer.isEditMode && !player.isOp) {
-            player.sendMessage(Formatting.allTags.deserialize("<red>You do not have permission to join this instance."))
+            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<#ff3333>You do not have permission to join this instance."))
             return
         }
         player.sgPlayer().currentContainer = gameContainer

@@ -1,4 +1,4 @@
-package dev.byrt.survivalgames.game.mechanic
+package dev.byrt.survivalgames.game.mechanic.light
 
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.util.Keys
@@ -10,7 +10,7 @@ import org.bukkit.block.Block
 import org.bukkit.block.data.Levelled
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 object SGPlayerDynamicLight {
@@ -23,15 +23,16 @@ object SGPlayerDynamicLight {
         if(to == null) return
         if(from.blockX == to.blockX && from.blockY == to.blockY && from.blockZ == to.blockZ) return
         val block = player.location.block
-        if (!block.type.isAir) return
+        if(!block.type.isAir) return
 
         val lastBlock = lightMap[player.uniqueId]
-        if (lastBlock != null && lastBlock.location != block.location) {
+        if(lastBlock != null && lastBlock.location != block.location) {
             val originalState = lastBlock.state
 
             lastBlock.type = Material.LIGHT
             val lightData = lastBlock.blockData as Levelled
-            if(player.inventory.itemInMainHand.persistentDataContainer.get(Keys.LANTERN, PersistentDataType.BOOLEAN) == true || player.inventory.itemInOffHand.persistentDataContainer.get(Keys.LANTERN, PersistentDataType.BOOLEAN) == true) {
+            if(player.inventory.itemInMainHand.persistentDataContainer.get(Keys.LANTERN, PersistentDataType.BOOLEAN) == true || player.inventory.itemInOffHand.persistentDataContainer.get(
+                    Keys.LANTERN, PersistentDataType.BOOLEAN) == true) {
                 lightData.level = 15
             } else {
                 val playerArmourLevel = player.getAttribute(Attribute.ARMOR)?.value?.toInt()
@@ -48,7 +49,7 @@ object SGPlayerDynamicLight {
             }
             lastBlock.blockData = lightData
             Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-                if (lastBlock.type == Material.LIGHT) {
+                if(lastBlock.type == Material.LIGHT) {
                     originalState.update(true, false)
                 }
             }, LIGHT_DECAY_TICKS)

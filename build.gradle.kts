@@ -1,6 +1,7 @@
 import java.io.BufferedReader
 
 val patch = "1.0"
+val minecraftVersion = "1.21.11"
 
 val commitHash = Runtime
     .getRuntime()
@@ -25,7 +26,7 @@ plugins {
 }
 
 group = "dev.byrt"
-version = "$patch-build-$commitHash"
+version = "$patch+build-$commitHash+$minecraftVersion"
 
 repositories {
     mavenCentral()
@@ -34,7 +35,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("$minecraftVersion-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.incendo:cloud-core:2.0.0")
     implementation("org.incendo:cloud-paper:2.0.0-beta.10")
@@ -64,7 +65,7 @@ tasks {
         // Configure the Minecraft version for our task.
         // This is the only required configuration besides applying the plugin.
         // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("1.21.11")
+        minecraftVersion(minecraftVersion)
     }
 }
 
@@ -99,7 +100,7 @@ tasks {
         )
     }
     runServer {
-        minecraftVersion("1.21.11")
+        minecraftVersion(minecraftVersion)
     }
     processResources {
         val props = mapOf("version" to version)

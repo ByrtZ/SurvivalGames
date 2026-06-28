@@ -23,6 +23,8 @@ import org.bukkit.attribute.Attribute
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.*
 import org.bukkit.inventory.ItemStack
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.util.Vector
 import java.math.BigDecimal
@@ -65,6 +67,7 @@ object PlayerVisuals {
                 Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] ").append(Formatting.allTags.deserialize("$SG_FONT_TAG${SGDeathMessages.nonKillerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>")}"))
             }
         } else Component.empty()
+        player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 50, 255, true, false))
         player.showTitle(
             Title.title(
                 Formatting.allTags.deserialize("<#ff3333>${SG_FONT_TAG}You died!"),
