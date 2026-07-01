@@ -41,7 +41,7 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
 
     private fun setTabName() {
         when(playerType) {
-            PlayerType.IDLE -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> <dark_red>" else "<b>${rank.rankHexTag}${rank.rankPlate}</b> "}${bukkitPlayer().name}"))
+            PlayerType.IDLE -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> <dark_red>" else "${rank.rankHexTag}<b>${rank.rankPlate}</b> "}${bukkitPlayer().name}"))
             PlayerType.SPECTATOR -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<gray>${bukkitPlayer().name}"))
             PlayerType.PARTICIPANT -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<playercolour>${bukkitPlayer().name}"))
             PlayerType.UNREGISTERED -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<#0>${bukkitPlayer().name}"))

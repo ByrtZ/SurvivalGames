@@ -42,7 +42,7 @@ object GlobalRenderer: ChatRenderer {
             .appendSpace()
             .append(Component.`object`(ObjectContents.playerHead(source.uniqueId)))
             .appendSpace()
-            .append(source.displayName().color(if(source.isOp) NamedTextColor.DARK_RED else TextColor.fromHexString(source.sgPlayer().rank.rankHexTag)))
+            .append(source.displayName().color(if(source.isOp) NamedTextColor.DARK_RED else TextColor.fromHexString(source.sgPlayer().rank.rankHexColour)))
             .append(allTags.deserialize(":"))
             .appendSpace()
             .append(allTags.deserialize(plainMessage))
