@@ -90,7 +90,7 @@ object GameManager {
         val items = mutableListOf<ItemStack>()
         for(container in gameContainers) {
             val gameState = container.instance.manager.getGameState()
-            val containerPlayersSize = container.players.filter { it.sgPlayer().playerType == PlayerType.PARTICIPANT }.size
+            val containerPlayersSize = container.players.filter { it.playerType == PlayerType.PARTICIPANT }.size
             items.add(
                 ItemStack(if(gameState == GameState.IDLE) Material.LIME_DYE else if(gameState in listOf(GameState.STARTING, GameState.IN_GAME, GameState.OVERTIME)) Material.YELLOW_DYE else Material.RED_DYE).apply {
                     editMeta {
@@ -136,7 +136,7 @@ object GameManager {
             player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<gray>You joined the match as a spectator."))
             player.teleport(spectatorSpawn)
         } else {
-            if(gameContainer.instance.manager.getGameState() == GameState.IDLE && gameContainer.players.filter { p -> p.sgPlayer().playerType == PlayerType.PARTICIPANT }.size < GamePlayerCount.MAX_PLAYERS) {
+            if(gameContainer.instance.manager.getGameState() == GameState.IDLE && gameContainer.players.filter { p -> p.playerType == PlayerType.PARTICIPANT }.size < GamePlayerCount.MAX_PLAYERS) {
                 player.sgPlayer().setType(PlayerType.PARTICIPANT)
                 player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<gray>You joined the match as a participant."))
                 player.teleport(preGameSpawn)
@@ -146,7 +146,7 @@ object GameManager {
                 player.teleport(spectatorSpawn)
             }
         }
-        gameContainer.players.add(player)
+        gameContainer.players.add(player.sgPlayer())
         /** Update player's current scoreboard and pre-game scoreboard if game idle **/
         /** Set player's current Jukebox track **/
         if(gameContainer.instance.manager.getGameState() == GameState.IDLE) {
@@ -160,7 +160,7 @@ object GameManager {
                 SGMap.AELUMIA_CITADEL -> Jukebox.startMusicLoop(player, JukeboxTrack.PRE_GAME_AELUMIA_CITADEL)
             }
             /** Game auto-start **/ //TODO Boss bar with 20s for others to join, possibly add property isGameAutoStarting?
-            if(gameContainer.players.filter { p -> p.sgPlayer().playerType == PlayerType.PARTICIPANT }.size >= GamePlayerCount.MIN_PLAYERS) {
+            if(gameContainer.players.filter { p -> p.playerType == PlayerType.PARTICIPANT }.size >= GamePlayerCount.MIN_PLAYERS) {
                 gameContainer.instance.manager.nextState()
             }
         } else {
@@ -175,7 +175,7 @@ object GameManager {
     }
 
     fun removePlayerFromContainer(player: Player) {
-        player.sgPlayer().currentContainer?.players?.remove(player)
+        player.sgPlayer().currentContainer?.players?.remove(player.sgPlayer())
         player.sgPlayer().currentContainer = null
         player.sgPlayer().setType(PlayerType.IDLE)
         PlayerVisuals.resetPlayerState(player, shouldClearBossBar = true, shouldClearInventory = true, shouldResetScoreboard = true)

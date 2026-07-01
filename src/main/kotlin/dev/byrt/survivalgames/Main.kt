@@ -2,6 +2,7 @@ package dev.byrt.survivalgames
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.noxcrew.interfaces.InterfacesListeners
+import dev.byrt.survivalgames.event.NameTagListener
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
 import dev.byrt.survivalgames.lobby.npc.SGNPCs
@@ -56,6 +57,7 @@ class Main : JavaPlugin() {
 
         resourcePackApplier = ResourcePackApplier(resourcePackLoader)
         server.pluginManager.registerEvents(resourcePackApplier, this)
+        server.pluginManager.registerEvents(NameTagListener(), this)
 
         setupCommands()
         setupEventListeners()

@@ -4,7 +4,6 @@ import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.JukeboxTrack
-import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
@@ -29,7 +28,7 @@ class GameInstanceTask(val instance: GameInstance) {
                 if (instance.manager.getGameState() == GameState.STARTING && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
                     if (instance.timer.getTimer() == 30) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.showTitle(
+                            player.bukkitPlayer().showTitle(
                                 Title.title(
                                     Formatting.glyph("\uD000"),
                                     Component.empty(),
@@ -40,12 +39,12 @@ class GameInstanceTask(val instance: GameInstance) {
                                     )
                                 )
                             )
-                            player.playSound(Sounds.Misc.TITLE_SCREEN_ENTER)
+                            player.bukkitPlayer().playSound(Sounds.Misc.TITLE_SCREEN_ENTER)
                         }
                     }
                     if (instance.timer.getTimer() == 28) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.showTitle(
+                            player.bukkitPlayer().showTitle(
                                 Title.title(
                                     Formatting.allTags.deserialize("<playercolour>${SG_FONT_TAG}Survival Games"),
                                     Component.empty(),
@@ -60,13 +59,13 @@ class GameInstanceTask(val instance: GameInstance) {
                     }
                     if (instance.timer.getTimer() == 26) {
                         for (player in instance.currentContainer?.players!!) {
-                            Jukebox.startMusicLoop(player, JukeboxTrack.IN_GAME)
+                            Jukebox.startMusicLoop(player.bukkitPlayer(), JukeboxTrack.IN_GAME)
                         }
                     }
                     if (instance.timer.getTimer() == 15) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.playSound(player.location, Sounds.Tutorial.TUTORIAL_POP, 1f, 1f)
-                            player.sendMessage(
+                            player.bukkitPlayer().playSound(player.bukkitPlayer().location, Sounds.Tutorial.TUTORIAL_POP, 1f, 1f)
+                            player.bukkitPlayer().sendMessage(
                                 Component.text("-----------------------------------------------------")
                                     .color(NamedTextColor.GREEN).decoration(TextDecoration.STRIKETHROUGH, true).append(
                                         Component.text(" Starting soon:\n\n").color(NamedTextColor.WHITE)
@@ -89,7 +88,7 @@ class GameInstanceTask(val instance: GameInstance) {
                     }
                     if (instance.timer.getTimer() in 1..10) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.showTitle(
+                            player.bukkitPlayer().showTitle(
                                 Title.title(
                                     Formatting.allTags.deserialize("$SG_FONT_TAG<playercolour>Starting in"),
                                     Formatting.allTags.deserialize("<b>${if(instance.timer.getTimer() == 3) "<green>" else if(instance.timer.getTimer() == 2) "<yellow>" else if(instance.timer.getTimer() == 1) "<red>" else ""}►${instance.timer.getTimer()}◄"),
@@ -100,8 +99,8 @@ class GameInstanceTask(val instance: GameInstance) {
                                     )
                                 )
                             )
-                            if(instance.timer.getTimer() in 1..3) player.playSound(Sounds.Timer.STARTING_123)
-                            player.playSound(Sounds.Timer.STARTING_TICK)
+                            if(instance.timer.getTimer() in 1..3) player.bukkitPlayer().playSound(Sounds.Timer.STARTING_123)
+                            player.bukkitPlayer().playSound(Sounds.Timer.STARTING_TICK)
                         }
                     }
                     if (instance.timer.getTimer() <= 0) {
@@ -120,7 +119,7 @@ class GameInstanceTask(val instance: GameInstance) {
                     }
                     if (instance.timer.getTimer() in 11..59 || instance.timer.getTimer() % 60 == 0) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.playSound(Sounds.Timer.CLOCK_TICK)
+                            player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK)
                         }
                     }
                     if (instance.timer.getTimer() % 60 == 0) {
@@ -134,7 +133,7 @@ class GameInstanceTask(val instance: GameInstance) {
                     }
                     if (instance.timer.getTimer() in 0..10) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.playSound(Sounds.Timer.CLOCK_TICK_HIGH)
+                            player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK_HIGH)
                         }
                     }
                     if (instance.timer.getTimer() <= 0) {
@@ -145,12 +144,12 @@ class GameInstanceTask(val instance: GameInstance) {
                 /** OVERTIME **/
                 if (instance.manager.getGameState() == GameState.OVERTIME && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
                     if (instance.timer.getTimer() % 15 == 0) {
-                        for (player in instance.currentContainer?.players!!.filter { sgPlayer -> sgPlayer.sgPlayer().playerType == PlayerType.PARTICIPANT }) {
-                            if (player.getAttribute(Attribute.MAX_HEALTH)?.value != null) {
-                                val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
+                        for (player in instance.currentContainer?.players!!.filter { sgPlayer -> sgPlayer.playerType == PlayerType.PARTICIPANT }) {
+                            if (player.bukkitPlayer().getAttribute(Attribute.MAX_HEALTH)?.value != null) {
+                                val maxHealth = player.bukkitPlayer().getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
                                 if(maxHealth > 2.0) {
-                                    player.getAttribute(Attribute.MAX_HEALTH)?.baseValue -= 2.0
-                                    player.playSound(Sounds.Alert.HEALTH_DECREASE)
+                                    player.bukkitPlayer().getAttribute(Attribute.MAX_HEALTH)?.baseValue -= 2.0
+                                    player.bukkitPlayer().playSound(Sounds.Alert.HEALTH_DECREASE)
                                 }
                             }
                         }
@@ -175,7 +174,7 @@ class GameInstanceTask(val instance: GameInstance) {
                 if (instance.manager.getGameState() == GameState.GAME_END && instance.timer.getTimerState() == GameTimerState.ACTIVE) {
                     if (instance.timer.getTimer() == 0) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.showTitle(
+                            player.bukkitPlayer().showTitle(
                                 Title.title(
                                     Formatting.glyph("\uD000"),
                                     Component.empty(),

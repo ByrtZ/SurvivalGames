@@ -5,6 +5,8 @@ import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.map.MapDataPointType
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.data.Rank
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
@@ -117,5 +119,12 @@ class AdminCommands {
             sender.sendMessage(Formatting.allTags.deserialize("<green>Gave x${amount ?: "1"} $item to ${player.name}</green>"))
             player.sendMessage(Formatting.allTags.deserialize("<green>Received x${amount ?: "1"} $item</green>"))
         }
+    }
+
+    @Command("rank set <player> <rank>")
+    @Permission("sg.cmd.debug")
+    fun setRank(sender: Player, @Argument("player") player: Player, @Argument("rank") rank: Rank) {
+        sender.sendMessage(Formatting.allTags.deserialize("[TEMP] <green>Set ${player.name}'s rank to $rank</green>"))
+        player.sgPlayer().rank = rank
     }
 }

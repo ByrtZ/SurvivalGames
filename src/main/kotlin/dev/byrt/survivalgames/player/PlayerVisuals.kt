@@ -14,7 +14,6 @@ import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
-import io.papermc.paper.entity.TeleportFlag
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
@@ -137,7 +136,7 @@ object PlayerVisuals {
                                 val killerLocation = killer.location.setRotation(killer.yaw, 0f)
                                 val killerDirection = killerLocation.add(killerLocation.direction.normalize().multiply(2))
                                 killerDirection.y = killer.location.y + 0.25
-                                deathVehicle.teleport(killerDirection, TeleportFlag.EntityState.RETAIN_PASSENGERS)
+                                deathVehicle.teleport(killerDirection)
                                 player.setRotation(killer.yaw - 180.0f, 5.0f)
                             }
 
@@ -228,10 +227,10 @@ object PlayerVisuals {
         // Prevent shrink if supply drops active
         if(container?.instance?.manager?.activeSupplyDrops?.isNotEmpty() == true) return
         container?.containerWorld?.worldBorder?.changeSize(newSize, if(overrideTicks > 0) overrideTicks else container.instance.timer.getTimer().times(20).toLong())
-        for (player in container?.instance?.currentContainer?.players!!) {
-            player.playSound(Sounds.Alert.ALARM)
-            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}The World Border is shrinking!"))
-            player.showTitle(
+        for(player in container?.instance?.currentContainer?.players!!) {
+            player.bukkitPlayer().playSound(Sounds.Alert.ALARM)
+            player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}The World Border is shrinking!"))
+            player.bukkitPlayer().showTitle(
                 Title.title(
                     Component.empty(),
                     Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}World Border shrinking!"),
@@ -246,10 +245,10 @@ object PlayerVisuals {
     }
 
     fun gracePeriodStart(container: GameContainer?) {
-        for (player in container?.instance?.currentContainer?.players!!) {
-            player.playSound(Sounds.Alert.GRACE_PERIOD_BEGIN)
-            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#20d600><b>${SG_FONT_TAG}Grace Period has begun."))
-            player.showTitle(
+        for(player in container?.instance?.currentContainer?.players!!) {
+            player.bukkitPlayer().playSound(Sounds.Alert.GRACE_PERIOD_BEGIN)
+            player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#20d600><b>${SG_FONT_TAG}Grace Period has begun."))
+            player.bukkitPlayer().showTitle(
                 Title.title(
                     Component.empty(),
                     Formatting.allTags.deserialize("<#20d600><b>${SG_FONT_TAG}Grace Period active!"),
@@ -264,10 +263,10 @@ object PlayerVisuals {
     }
 
     fun gracePeriodEnd(container: GameContainer?) {
-        for (player in container?.instance?.currentContainer?.players!!) {
-            player.playSound(Sounds.Alert.GRACE_PERIOD_END)
-            player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}Grace Period has ended."))
-            player.showTitle(
+        for(player in container?.instance?.currentContainer?.players!!) {
+            player.bukkitPlayer().playSound(Sounds.Alert.GRACE_PERIOD_END)
+            player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}Grace Period has ended."))
+            player.bukkitPlayer().showTitle(
                 Title.title(
                     Component.empty(),
                     Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}Grace Period ended!"),
@@ -278,7 +277,7 @@ object PlayerVisuals {
                     )
                 )
             )
-            player.give(SGItem.getSupplyDropCompass())
+            player.bukkitPlayer().give(SGItem.getSupplyDropCompass())
         }
     }
 

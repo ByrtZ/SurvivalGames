@@ -4,9 +4,9 @@ import dev.byrt.survivalgames.game.instance.GameInstance
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.map.MapTools
 import dev.byrt.survivalgames.map.SGMap
+import dev.byrt.survivalgames.player.SGPlayer
 import dev.byrt.survivalgames.world.SGWorld
 import org.bukkit.World
-import org.bukkit.entity.Player
 import java.util.*
 
 data class GameContainer(val containerName: String, val containerId: UUID, val containerWorld: World) {
@@ -18,7 +18,7 @@ data class GameContainer(val containerName: String, val containerId: UUID, val c
     var forcedMap: SGMap? = null
     var disableGameEndCheck = false
 
-    val players: MutableList<Player> = mutableListOf()
+    val players: MutableList<SGPlayer> = mutableListOf()
     val instance: GameInstance = GameInstance(containerId)
 
     fun onCreate() {

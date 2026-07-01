@@ -1,6 +1,5 @@
 package dev.byrt.survivalgames.game.instance
 
-import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
@@ -129,13 +128,13 @@ class GameInstanceInfo(val instance: GameInstance) {
 
     fun updatePreGamePlayersRequired() {
         if(instance.manager.getGameState() == GameState.IDLE) {
-            preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.currentContainer?.players?.filter { player -> player.sgPlayer().playerType == PlayerType.PARTICIPANT && !player.sgPlayer().isDead }?.size}/${GamePlayerCount.MAX_PLAYERS}"))
+            preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.currentContainer?.players?.filter { player -> player.playerType == PlayerType.PARTICIPANT && !player.isDead }?.size}/${GamePlayerCount.MAX_PLAYERS}"))
         } else return
     }
 
     fun updateGamePlayersRemaining() {
         if(instance.manager.getGameState() in listOf(GameState.STARTING, GameState.IN_GAME, GameState.OVERTIME)) {
-            gamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.currentContainer?.players?.filter { player -> player.sgPlayer().playerType == PlayerType.PARTICIPANT && !player.sgPlayer().isDead }?.size}/${GamePlayerCount.MAX_PLAYERS}"))
+            gamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.currentContainer?.players?.filter { player -> player.playerType == PlayerType.PARTICIPANT && !player.isDead }?.size}/${GamePlayerCount.MAX_PLAYERS}"))
         } else return
     }
 
@@ -194,13 +193,13 @@ class GameInstanceInfo(val instance: GameInstance) {
 
             override fun run() {
                 if (instance.manager.getGameState() != GameState.IDLE) {
-                    instance.currentContainer?.players?.forEach { player -> if(!player.activeBossBars().contains(timerBossBar)) timerBossBar.addViewer(player) }
+                    instance.currentContainer?.players?.forEach { player -> if(!player.bukkitPlayer().activeBossBars().contains(timerBossBar)) timerBossBar.addViewer(player.bukkitPlayer()) }
                 }
                 when(instance.timer.getTimerState()) {
                     GameTimerState.ACTIVE -> {
                         when (instance.manager.getGameState()) {
                             GameState.IDLE -> {
-                                instance.currentContainer?.players?.forEach { player -> timerBossBar.removeViewer(player) }
+                                instance.currentContainer?.players?.forEach { player -> timerBossBar.removeViewer(player.bukkitPlayer()) }
                                 this.cancel()
                             }
 

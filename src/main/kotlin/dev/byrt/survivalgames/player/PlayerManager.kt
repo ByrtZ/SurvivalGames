@@ -7,7 +7,7 @@ import org.bukkit.entity.Player
 import java.util.*
 
 object PlayerManager {
-    private val sgPlayers = mutableMapOf<UUID, SGPlayer>()
+    val sgPlayers = mutableMapOf<UUID, SGPlayer>()
     fun registerPlayer(player: Player) {
         logger.info("Player Manager: Registering player ${player.name} as SGPlayer.")
         val sgPlayer = SGPlayer(player.uniqueId, player.name, PlayerType.UNREGISTERED)
@@ -21,6 +21,7 @@ object PlayerManager {
     }
 
     fun unregisterPlayer(sgPlayer: SGPlayer) {
+        sgPlayer.nameTagProvider = null
         sgPlayer.isDead = true
         GameManager.removePlayerFromContainer(sgPlayer.bukkitPlayer())
         sgPlayer.setType(PlayerType.UNREGISTERED)

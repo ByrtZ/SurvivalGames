@@ -78,9 +78,9 @@ object SGLoot {
             val supplyDropID = UUID.randomUUID()
             container?.instance?.manager?.activeSupplyDrops[supplyDropID] = supplyDropLocation
             container?.players?.forEach { player ->
-                player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<b><playercolour>${SG_FONT_TAG}Supply Drop spawning (<white>${supplyDropLocation.x.toInt()}, ${supplyDropLocation.y.toInt()}, ${supplyDropLocation.z.toInt()}</white><playercolour>)."))
-                player.playSound(Sounds.Alert.SUPPLY_DROP_SPAWN)
-                player.compassTarget = supplyDropLocation
+                player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<b><playercolour>${SG_FONT_TAG}Supply Drop spawning (<white>${supplyDropLocation.x.toInt()}, ${supplyDropLocation.y.toInt()}, ${supplyDropLocation.z.toInt()}</white><playercolour>)."))
+                player.bukkitPlayer().playSound(Sounds.Alert.SUPPLY_DROP_SPAWN)
+                player.bukkitPlayer().compassTarget = supplyDropLocation
             }
             // Spawn beacon location
             for(x in -1..1) {
