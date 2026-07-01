@@ -11,6 +11,7 @@ import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.progression.SGExperienceLevels
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
@@ -80,7 +81,13 @@ object PlayerVisuals {
         )
         player.playSound(Sounds.Score.DEATH)
         player.playSound(Sounds.Score.DEATH_BACKGROUND)
-        deathMessage.let(Bukkit::broadcast)
+        player.sgPlayer().currentContainer?.players?.forEach { p -> p.bukkitPlayer().sendMessage(deathMessage) }
+
+        // Append XP to survivors for survival
+        player.sgPlayer().currentContainer?.players?.filter { p -> p.playerType == PlayerType.PARTICIPANT }?.forEach { p -> SGExperienceLevels.appendExperience(p.bukkitPlayer(), 10) }
+        // Append XP to killer for elimination
+        if(killer != null) SGExperienceLevels.appendExperience(killer, 25)
+
         repeat(3) {
             firework(
                 player.location,

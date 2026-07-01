@@ -11,6 +11,7 @@ import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.PlayerVisuals
+import dev.byrt.survivalgames.player.progression.SGExperienceLevels
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
@@ -276,6 +277,7 @@ class GameInstanceManager(val instance: GameInstance) {
                 setGameState(GameState.GAME_END)
                 val remainingPlayer = playersAlive[0]
                 remainingPlayer.bukkitPlayer().playSound(Sounds.Score.WIN_GAME)
+                SGExperienceLevels.appendExperience(remainingPlayer.bukkitPlayer(), 200)
                 repeat(5) {
                     PlayerVisuals.firework(
                         remainingPlayer.bukkitPlayer().location.clone().add(Random.nextDouble(-3.0, 3.0), Random.nextDouble(-3.0, 3.0), Random.nextDouble(-3.0, 3.0)),

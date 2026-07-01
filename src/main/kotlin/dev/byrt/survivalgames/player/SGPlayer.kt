@@ -25,24 +25,27 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
         nameTagProvider = null // Always remove existing name tag prior to teleportation, because you obviously cannot teleport a player with passengers... also delay setting name tag later for safety
         when(newType) {
             PlayerType.IDLE -> {
-                bukkitPlayer().gameMode = GameMode.ADVENTURE
-                bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else ""}${bukkitPlayer().name}"))
                 Bukkit.getScheduler().runTaskLater(plugin, Runnable { nameTagProvider = LobbyNameTagProvider() }, 20L)
             }
             PlayerType.SPECTATOR -> {
                 if (currentContainer == null) bukkitPlayer().gameMode = GameMode.ADVENTURE else bukkitPlayer().gameMode = GameMode.SPECTATOR
-                bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else ""}<gray>${bukkitPlayer().name}"))
             }
             PlayerType.PARTICIPANT -> {
                 bukkitPlayer().gameMode = GameMode.ADVENTURE
-                bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else ""}<playercolour>${bukkitPlayer().name}"))
                 Bukkit.getScheduler().runTaskLater(plugin, Runnable { nameTagProvider = GameNameTagProvider() }, 20L)
-            }
-            PlayerType.UNREGISTERED -> {
-                bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else ""}<#0>${bukkitPlayer().name}"))
-            }
+            } else -> {}
         }
+        setTabName()
         logger.info("Type: ${this.playerName} now has value ${this.playerType}.")
+    }
+
+    private fun setTabName() {
+        when(playerType) {
+            PlayerType.IDLE -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> <dark_red>" else "<b>${rank.rankHexTag}${rank.rankPlate}</b> "}${bukkitPlayer().name}"))
+            PlayerType.SPECTATOR -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<gray>${bukkitPlayer().name}"))
+            PlayerType.PARTICIPANT -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<playercolour>${bukkitPlayer().name}"))
+            PlayerType.UNREGISTERED -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<#0>${bukkitPlayer().name}"))
+        }
     }
 
     var rank: Rank = Rank.RECRUIT
@@ -50,6 +53,7 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
             if (field == value) return
             field = value
             if(nameTagProvider != null) nameTagProvider?.update(this)
+            setTabName()
         }
 
     var isDead: Boolean = false
@@ -75,11 +79,13 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
             field?.destroy(this)
             field = value ?: run {
                 removeNameTag()
+                logger.info("Nametag: ${this.playerName} now has no nametag.")
                 return
             }
             ensureNameTag(value.lines)
             value.initialise(this)
             value.update(this)
+            logger.info("Nametag: ${this.playerName} now has value $value")
         }
 
     private fun removeNameTag() {

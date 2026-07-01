@@ -28,7 +28,7 @@ class NameTag(
     private val entities = MutableList(lines) { index ->
         player.world.spawn(player.location, TextDisplay::class.java).apply {
             isPersistent = false
-            billboard = Display.Billboard.VERTICAL
+            billboard = Display.Billboard.CENTER
             isShadowed = true
             backgroundColor = Color.fromARGB(1073741824)
             transformation = Transformation(

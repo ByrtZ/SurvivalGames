@@ -1,11 +1,14 @@
 package dev.byrt.survivalgames.text
 
 import dev.byrt.survivalgames.library.Sounds
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.text.Formatting.allTags
 import io.papermc.paper.chat.ChatRenderer
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.`object`.ObjectContents
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
@@ -35,10 +38,13 @@ object GlobalRenderer: ChatRenderer {
     override fun render(source: Player, sourceDisplayName: Component, message: Component, viewer: Audience): Component {
         val plainMessage = PlainTextComponentSerializer.plainText().serialize(message)
         return Component.text()
+            .append(allTags.deserialize("<b>${source.sgPlayer().rank.rankHexTag}${source.sgPlayer().rank.rankBadge}"))
+            .appendSpace()
             .append(Component.`object`(ObjectContents.playerHead(source.uniqueId)))
             .appendSpace()
-            .append(source.displayName().color(if(source.isOp) NamedTextColor.DARK_RED else NamedTextColor.WHITE))
-            .append(allTags.deserialize(": "))
+            .append(source.displayName().color(if(source.isOp) NamedTextColor.DARK_RED else TextColor.fromHexString(source.sgPlayer().rank.rankHexTag)))
+            .append(allTags.deserialize(":"))
+            .appendSpace()
             .append(allTags.deserialize(plainMessage))
             .build()
     }

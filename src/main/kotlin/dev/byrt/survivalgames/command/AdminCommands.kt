@@ -7,6 +7,8 @@ import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.map.MapDataPointType
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.data.Rank
+import dev.byrt.survivalgames.player.progression.SGExperienceLevels
+import dev.byrt.survivalgames.player.progression.SGLevel
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
@@ -121,10 +123,17 @@ class AdminCommands {
         }
     }
 
-    @Command("rank set <player> <rank>")
+    @Command("progression add_xp <xp> [player]")
+    @CommandDescription("Debug command for XP")
     @Permission("sg.cmd.debug")
-    fun setRank(sender: Player, @Argument("player") player: Player, @Argument("rank") rank: Rank) {
-        sender.sendMessage(Formatting.allTags.deserialize("[TEMP] <green>Set ${player.name}'s rank to $rank</green>"))
-        player.sgPlayer().rank = rank
+    fun debugXp(sender: Player, @Argument("xp") xp: Int, @Argument("player") player: Player?) {
+        SGExperienceLevels.appendExperience(player ?: sender, xp)
+    }
+
+    @Command("progression set_level <level> [player]")
+    @CommandDescription("Debug command for levels")
+    @Permission("sg.cmd.debug")
+    fun debugLevel(sender: Player, @Argument("level") level: SGLevel, @Argument("player") player: Player?) {
+        SGExperienceLevels.setLevel(player ?: sender, level)
     }
 }

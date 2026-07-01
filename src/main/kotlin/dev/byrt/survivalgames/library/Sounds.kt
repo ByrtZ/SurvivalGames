@@ -54,7 +54,9 @@ object Sounds {
         val INTERFACE_BACK = sound(key("block.vault.deactivate"), Source.MASTER, 1f, 1f)
         val INTERFACE_ERROR = sound(key("block.vault.reject_rewarded_player"), Source.MASTER, 1f, 1f)
         val TITLE_SCREEN_ENTER = sound(key("entity.breeze.shoot"), Source.MASTER, 1f, 0.75f)
-        val NPC_INTERACT = sound(key("entity.villager.trade"), Source.VOICE, 1f, 1f)
-        val NPC_INTERACT_HIT = sound(key("entity.villager.hurt"), Source.VOICE, 1f, 1.25f)
+        val NPC_INTERACT = sound(key("entity.villager.trade"), Source.MASTER, 1f, 1f)
+        val NPC_INTERACT_HIT = sound(key("entity.villager.hurt"), Source.MASTER, 1f, 1.25f)
+        val LEVEL_UP = sound(key("entity.illusioner.prepare_mirror"), Source.MASTER, 5f, 1f)
+        val RANK_UP = sound(key("entity.lightning_bolt.thunder"), Source.MASTER, 5f, 1f)
     }
 }

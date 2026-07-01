@@ -3,6 +3,7 @@ package dev.byrt.survivalgames.player
 import dev.byrt.survivalgames.exception.PlayerManagerException
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.player.data.SGPlayerData
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -12,6 +13,7 @@ object PlayerManager {
         logger.info("Player Manager: Registering player ${player.name} as SGPlayer.")
         val sgPlayer = SGPlayer(player.uniqueId, player.name, PlayerType.UNREGISTERED)
         sgPlayers[player.uniqueId] = sgPlayer
+        SGPlayerData.getPlayerData(player)
         PlayerVisuals.resetPlayerState(player,
             shouldClearBossBar = true,
             shouldClearInventory = true,
