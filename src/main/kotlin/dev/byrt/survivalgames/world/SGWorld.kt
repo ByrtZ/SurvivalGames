@@ -1,10 +1,9 @@
 package dev.byrt.survivalgames.world
 
 import dev.byrt.survivalgames.game.GameManager
+import dev.byrt.survivalgames.ioCoroutineScope
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.plugin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bukkit.*
@@ -24,7 +23,7 @@ object SGWorld: Listener {
 
     suspend fun createNewGameWorld(worldId: UUID): World =
         suspendCancellableCoroutine { cont ->
-            CoroutineScope(Dispatchers.IO).launch {
+            ioCoroutineScope.launch {
                 try {
                     val worldName = "sg-game-$worldId"
                     val worldFolder = File(Bukkit.getWorldContainer(), worldName)

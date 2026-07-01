@@ -3,12 +3,12 @@ package dev.byrt.survivalgames.text
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.text.Formatting.allTags
+import dev.byrt.survivalgames.text.Formatting.restrictedTags
 import io.papermc.paper.chat.ChatRenderer
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.`object`.ObjectContents
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
@@ -45,7 +45,7 @@ object GlobalRenderer: ChatRenderer {
             .append(source.displayName().color(if(source.isOp) NamedTextColor.DARK_RED else TextColor.fromHexString(source.sgPlayer().rank.rankHexColour)))
             .append(allTags.deserialize(":"))
             .appendSpace()
-            .append(allTags.deserialize(plainMessage))
+            .append(if(source.isOp) allTags.deserialize(plainMessage) else restrictedTags.deserialize(plainMessage))
             .build()
     }
 }

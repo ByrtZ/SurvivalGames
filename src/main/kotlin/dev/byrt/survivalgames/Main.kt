@@ -149,3 +149,4 @@ class Main : JavaPlugin() {
 val plugin = Bukkit.getPluginManager().getPlugin("SurvivalGames")!! as Main
 val logger = plugin.logger
 val defaultCoroutineScope = CoroutineScope(Dispatchers.Default)
+val ioCoroutineScope = CoroutineScope(Dispatchers.IO)

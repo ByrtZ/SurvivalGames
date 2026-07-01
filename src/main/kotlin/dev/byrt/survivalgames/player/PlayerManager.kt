@@ -17,12 +17,14 @@ object PlayerManager {
         PlayerVisuals.resetPlayerState(player,
             shouldClearBossBar = true,
             shouldClearInventory = true,
-            shouldResetScoreboard = true
+            shouldResetScoreboard = true,
+            shouldResetVehicle = true
         )
         PlayerVisuals.showPlayer(player)
     }
 
     fun unregisterPlayer(sgPlayer: SGPlayer) {
+        SGPlayerData.savePlayerData(sgPlayer)
         sgPlayer.nameTagProvider = null
         sgPlayer.isDead = true
         GameManager.removePlayerFromContainer(sgPlayer.bukkitPlayer())

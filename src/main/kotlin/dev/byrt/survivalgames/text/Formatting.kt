@@ -60,7 +60,6 @@ object Formatting {
         }
     }
 
-    private val SG_COLOUR = TagResolver.resolver("sgcolour", Tag.styling(TextColor.color(34, 224, 97)))
     private val PLAYER_COLOUR = TagResolver.resolver("playercolour", Tag.styling(TextColor.color(255, 230, 0)))
     private val SPECTATOR_COLOUR = TagResolver.resolver("speccolour", Tag.styling(TextColor.color(170, 170, 170)))
     private val NOTIFICATION_COLOUR = TagResolver.resolver("notifcolour", Tag.styling(TextColor.color(219, 0, 96)))
@@ -69,7 +68,6 @@ object Formatting {
         .tags(
             TagResolver.builder()
                 .resolver(StandardTags.defaults())
-                .resolver(SG_COLOUR)
                 .resolver(PLAYER_COLOUR)
                 .resolver(SPECTATOR_COLOUR)
                 .resolver(NOTIFICATION_COLOUR)
@@ -85,7 +83,6 @@ object Formatting {
                 .resolver(StandardTags.color())
                 .resolver(StandardTags.decorations())
                 .resolver(StandardTags.reset())
-                .resolver(SG_COLOUR)
                 .resolver(PLAYER_COLOUR)
                 .resolver(SPECTATOR_COLOUR)
                 .resolver(NOTIFICATION_COLOUR)

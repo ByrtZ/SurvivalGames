@@ -22,7 +22,7 @@ class NameTag(
         private const val BASE_HEIGHT = 0.25f
         private const val LINE_HEIGHT = 0.3f
         private const val VIEW_RANGE = 32f
-        private const val SHOW_TO_SELF = true
+        private const val SHOW_TO_SELF = false
     }
 
     private val entities = MutableList(lines) { index ->

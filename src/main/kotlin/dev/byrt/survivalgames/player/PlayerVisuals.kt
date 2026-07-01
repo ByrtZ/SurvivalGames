@@ -34,7 +34,7 @@ import kotlin.random.Random
 
 object PlayerVisuals {
     fun damageIndicator(entity: LivingEntity, damage: Double) {
-        if(damage > 1000) return
+        if(damage !in 0.1..1000.0) return
         val damageTaken = BigDecimal(damage).setScale(2, RoundingMode.HALF_EVEN)
         val damageIndicatorEntity = entity.location.world.spawn(entity.location.clone().add(Random.nextDouble(-0.35, 0.35), Random.nextDouble(0.5, 2.5), Random.nextDouble(-0.35, 0.35)), TextDisplay::class.java).apply {
             alignment = TextDisplay.TextAlignment.CENTER
@@ -85,8 +85,11 @@ object PlayerVisuals {
 
         // Append XP to survivors for survival
         player.sgPlayer().currentContainer?.players?.filter { p -> p.playerType == PlayerType.PARTICIPANT }?.forEach { p -> SGExperienceLevels.appendExperience(p.bukkitPlayer(), 10) }
-        // Append XP to killer for elimination
-        if(killer != null) SGExperienceLevels.appendExperience(killer, 25)
+        // Append XP and statistic increment to killer for elimination
+        if(killer != player && killer != null) {
+            killer.sgPlayer().eliminations++
+            SGExperienceLevels.appendExperience(killer, 25)
+        }
 
         repeat(3) {
             firework(
@@ -229,6 +232,16 @@ object PlayerVisuals {
         showPlayer(player)
     }
 
+    fun updateXp(player: Player) {
+        val xp = player.sgPlayer().exp / player.sgPlayer().level.requiredXp.toFloat()
+        player.exp = if(xp > 1f) 1f else xp
+    }
+
+    fun updateLevel(player: Player) {
+        val level = player.sgPlayer().level.ordinal + 1
+        player.level = level
+    }
+
     fun shrinkBorder(container: GameContainer?, newSize: Double = 50.0, overrideTicks: Long = 0) {
         if(newSize == container?.containerWorld?.worldBorder?.size) return
         // Prevent shrink if supply drops active
@@ -292,12 +305,18 @@ object PlayerVisuals {
      * Parameters available for the following:
      * Reset active bossbars [shouldClearBossBar],
      * Clear inventory [shouldClearInventory],
-     * Reset scoreboard [shouldResetScoreboard]
+     * Reset scoreboard [shouldResetScoreboard],
+     * Reset vehicle [shouldResetVehicle]
      * **/
-    fun resetPlayerState(player: Player, shouldClearBossBar: Boolean = false, shouldClearInventory: Boolean = false, shouldResetScoreboard: Boolean = false) {
+    fun resetPlayerState(player: Player, shouldClearBossBar: Boolean = false, shouldClearInventory: Boolean = false, shouldResetScoreboard: Boolean = false, shouldResetVehicle: Boolean = false) {
         if(shouldClearBossBar) player.activeBossBars().forEach { bossBar -> bossBar.removeViewer(player) }
         if(shouldClearInventory) player.inventory.clear()
         if(shouldResetScoreboard) player.scoreboard = LobbyInfo.lobbyScoreboard
+        if(shouldResetVehicle) {
+            val vehicle = player.vehicle
+            player.eject()
+            vehicle?.remove()
+        }
         if(player.sgPlayer().playerType == PlayerType.SPECTATOR) player.gameMode = GameMode.SPECTATOR else player.gameMode = GameMode.ADVENTURE
         player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
         player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0

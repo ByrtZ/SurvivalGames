@@ -7,6 +7,7 @@ import dev.byrt.survivalgames.nametag.NameTagProvider
 import dev.byrt.survivalgames.nametag.provider.GameNameTagProvider
 import dev.byrt.survivalgames.nametag.provider.LobbyNameTagProvider
 import dev.byrt.survivalgames.player.data.Rank
+import dev.byrt.survivalgames.player.progression.SGLevel
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import org.bukkit.Bukkit
@@ -18,6 +19,43 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
     init {
         logger.info("Player Manager: Registered player ${this.playerName} as SGPlayer.")
     }
+
+    var exp = 0
+        set(value) {
+            if (field == value) return
+            field = value
+            PlayerVisuals.updateXp(this.bukkitPlayer())
+        }
+    var level = SGLevel.LEVEL_1
+        set(value) {
+            if (field == value) return
+            field = value
+            PlayerVisuals.updateLevel(this.bukkitPlayer())
+        }
+
+    var rank: Rank = Rank.RECRUIT
+        set(value) {
+            if (field == value) return
+            field = value
+            if(nameTagProvider != null) nameTagProvider?.update(this)
+            setTabName()
+        }
+
+    var eliminations = 0
+        set(value) {
+            if (field == value) return
+            field = value
+        }
+    var wins = 0
+        set(value) {
+            if (field == value) return
+            field = value
+        }
+    var matchesPlayed = 0
+        set(value) {
+            if (field == value) return
+            field = value
+        }
 
     fun setType(newType: PlayerType) {
         if(newType == this.playerType) return
@@ -41,20 +79,12 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
 
     private fun setTabName() {
         when(playerType) {
-            PlayerType.IDLE -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> <dark_red>" else "${rank.rankHexTag}<b>${rank.rankPlate}</b> "}${bukkitPlayer().name}"))
-            PlayerType.SPECTATOR -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<gray>${bukkitPlayer().name}"))
-            PlayerType.PARTICIPANT -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<playercolour>${bukkitPlayer().name}"))
-            PlayerType.UNREGISTERED -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<#0>${bukkitPlayer().name}"))
+            PlayerType.IDLE -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> <dark_red>" else "${rank.rankHexTag}<b>${rank.rankPlate}</b> "}${this.playerName}"))
+            PlayerType.SPECTATOR -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<gray>${this.playerName}"))
+            PlayerType.PARTICIPANT -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<playercolour>${this.playerName}"))
+            PlayerType.UNREGISTERED -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<#0>${this.playerName}"))
         }
     }
-
-    var rank: Rank = Rank.RECRUIT
-        set(value) {
-            if (field == value) return
-            field = value
-            if(nameTagProvider != null) nameTagProvider?.update(this)
-            setTabName()
-        }
 
     var isDead: Boolean = false
         set(value) {

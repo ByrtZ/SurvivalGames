@@ -123,12 +123,12 @@ class GameInstanceTask(val instance: GameInstance) {
                         }
                     }
                     if (instance.timer.getTimer() % 60 == 0) {
-                        if(instance.timer.getTimer() == (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - 60 else GameTime.IN_GAME_TIME - 60) && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= if(instance.manager.map.isQuickMatch) 450.0 else 750.0) {
+                        if(instance.timer.getTimer() == (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - 60 else GameTime.IN_GAME_TIME - 60) && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= instance.manager.map.borderSize) {
                             PlayerVisuals.shrinkBorder(instance.currentContainer)
                         }
                     }
                     // Supply drop spawning
-                    if (instance.timer.getTimer() < (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME) && instance.timer.getTimer() % 90 == 0) {
+                    if (instance.timer.getTimer() < (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME) && instance.timer.getTimer() % 75 == 0) {
                         SGLoot.spawnSupplyDrop(instance.currentContainer, instance.manager.map)
                     }
                     if (instance.timer.getTimer() in 0..10) {
@@ -149,6 +149,7 @@ class GameInstanceTask(val instance: GameInstance) {
                                 val maxHealth = player.bukkitPlayer().getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
                                 if(maxHealth > 2.0) {
                                     player.bukkitPlayer().getAttribute(Attribute.MAX_HEALTH)?.baseValue -= 2.0
+                                    player.bukkitPlayer().damage(0.01)
                                     player.bukkitPlayer().playSound(Sounds.Alert.HEALTH_DECREASE)
                                 }
                             }

@@ -186,6 +186,7 @@ class GameInstanceManager(val instance: GameInstance) {
                     if(participantSpawnIndex > participantSpawns.size - 1) participantSpawnIndex = 0
                     player.bukkitPlayer().teleport(participantSpawns[participantSpawnIndex])
                     participantSpawnIndex++
+                    player.matchesPlayed++
                 }
                 else -> logger.info("Unregistered player in container.")
             }
@@ -276,6 +277,7 @@ class GameInstanceManager(val instance: GameInstance) {
             if(playersAlive.size == 1) {
                 setGameState(GameState.GAME_END)
                 val remainingPlayer = playersAlive[0]
+                remainingPlayer.wins++
                 remainingPlayer.bukkitPlayer().playSound(Sounds.Score.WIN_GAME)
                 SGExperienceLevels.appendExperience(remainingPlayer.bukkitPlayer(), 200)
                 repeat(5) {
