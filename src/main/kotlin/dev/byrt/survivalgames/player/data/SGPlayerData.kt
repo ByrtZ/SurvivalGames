@@ -1,6 +1,7 @@
 package dev.byrt.survivalgames.player.data
 
 import dev.byrt.survivalgames.ioCoroutineScope
+import dev.byrt.survivalgames.lobby.leaderboard.SGLeaderboards
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.SGPlayer
@@ -9,6 +10,7 @@ import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import kotlinx.coroutines.launch
+import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
@@ -19,17 +21,18 @@ import kotlin.toString
 object SGPlayerData {
     private val playerData = mutableMapOf<UUID, FileConfiguration>()
 
-    fun getPlayerData(player: Player) {
+    /** Fetches player data on join and stores locally to their SGPlayer object **/
+    fun getPlayerData(player: SGPlayer) {
         try {
             val folder = File("${plugin.dataFolder}/players")
             if(!folder.exists()) folder.mkdirs()
-            val playerFile = File(folder,"${player.uniqueId}.yml")
+            val playerFile = File(folder,"${player.uuid}.yml")
             if(!playerFile.exists()) playerFile.createNewFile()
             val fileConfiguration = YamlConfiguration.loadConfiguration(playerFile)
             // Set all if null
             for(stat in SGStatistics.entries) {
-                if(fileConfiguration.get("${player.uniqueId}${stat.statistic.statisticConfigPath}") == null) {
-                    fileConfiguration.set("${player.uniqueId}${stat.statistic.statisticConfigPath}",
+                if(fileConfiguration.get("${player.uuid}${stat.statistic.statisticConfigPath}") == null) {
+                    fileConfiguration.set("${player.uuid}${stat.statistic.statisticConfigPath}",
                         when(stat) { // Treat nonintegers as 'edge cases' as they have different properties
                             SGStatistics.RANK -> Rank.RECRUIT.name
                             SGStatistics.LEVEL -> SGLevel.LEVEL_1.name
@@ -39,20 +42,20 @@ object SGPlayerData {
                 }
             }
             // Locally set data from config, save and store file configuration reference
-            player.sgPlayer().rank = Rank.valueOf(fileConfiguration.get("${player.uniqueId}${SGStatistics.RANK.statistic.statisticConfigPath}").toString())
-            player.sgPlayer().level = SGLevel.valueOf(fileConfiguration.get("${player.uniqueId}${SGStatistics.LEVEL.statistic.statisticConfigPath}").toString())
-            player.sgPlayer().exp = fileConfiguration.get("${player.uniqueId}${SGStatistics.EXPERIENCE.statistic.statisticConfigPath}") as Int
-            player.sgPlayer().eliminations = fileConfiguration.get("${player.uniqueId}${SGStatistics.ELIMINATIONS.statistic.statisticConfigPath}") as Int
-            player.sgPlayer().wins = fileConfiguration.get("${player.uniqueId}${SGStatistics.WINS.statistic.statisticConfigPath}") as Int
-            player.sgPlayer().matchesPlayed = fileConfiguration.get("${player.uniqueId}${SGStatistics.GAMES_PLAYED.statistic.statisticConfigPath}") as Int
+            player.rank = Rank.valueOf(fileConfiguration.getString("${player.uuid}${SGStatistics.RANK.statistic.statisticConfigPath}") ?: Rank.RECRUIT.name)
+            player.level = SGLevel.valueOf(fileConfiguration.getString("${player.uuid}${SGStatistics.LEVEL.statistic.statisticConfigPath}") ?: SGLevel.LEVEL_1.name)
+            player.exp = fileConfiguration.getInt("${player.uuid}${SGStatistics.EXPERIENCE.statistic.statisticConfigPath}")
+            player.eliminations = fileConfiguration.getInt("${player.uuid}${SGStatistics.ELIMINATIONS.statistic.statisticConfigPath}")
+            player.wins = fileConfiguration.getInt("${player.uuid}${SGStatistics.WINS.statistic.statisticConfigPath}")
+            player.matchesPlayed = fileConfiguration.getInt("${player.uuid}${SGStatistics.GAMES_PLAYED.statistic.statisticConfigPath}")
 
             fileConfiguration.save(playerFile)
-            if(playerData.containsKey(player.uniqueId)) playerData.remove(player.uniqueId)
-            playerData[player.uniqueId] = fileConfiguration
-            logger.info("Player data fetched for player ${player.name} (${player.uniqueId})")
+            if(playerData.containsKey(player.uuid)) playerData.remove(player.uuid)
+            playerData[player.uuid] = fileConfiguration
+            logger.info("Player data fetched for player ${player.playerName} (${player.uuid})")
         } catch(e: Exception) {
-            ChatUtility.broadcastDev("$SG_FONT_TAG<#ff3333>Something went wrong while trying to fetch player data for player ${player.name} (${player.uniqueId}).", false)
-            logger.warning("Something went wrong while trying to fetch player data for player ${player.name} (${player.uniqueId}).")
+            ChatUtility.broadcastDev("$SG_FONT_TAG<#ff3333>Something went wrong while trying to fetch player data for player ${player.playerName} (${player.uuid}).", false)
+            logger.warning("Something went wrong while trying to fetch player data for player ${player.playerName} (${player.uuid}).")
             e.printStackTrace()
         }
     }
@@ -69,6 +72,47 @@ object SGPlayerData {
         ioCoroutineScope.launch {
             config.save(File("${plugin.dataFolder}/players","${player.uuid}.yml"))
         }.invokeOnCompletion { logger.info("Player data saved for player ${player.playerName} (${player.uuid})") }
+    }
+
+    fun getLeaderboardData() {
+        val folder = File("${plugin.dataFolder}/players")
+        if(!folder.exists()) return
+        // Lookup online players
+        val onlineUuids = mutableListOf<UUID>()
+        Bukkit.getOnlinePlayers().forEach { player -> onlineUuids.add(player.uniqueId) }
+
+        ioCoroutineScope.launch {
+            for(playerFile in folder.listFiles()) {
+                // Use online player data before fetching from config as local data is newer than config data; config data is only saved on quit
+                if(onlineUuids.contains(UUID.fromString(playerFile.nameWithoutExtension))) {
+                    val uuid = UUID.fromString(playerFile.nameWithoutExtension)
+                    val sgPlayer = uuid.sgPlayer()
+                    try {
+                        SGLeaderboards.leaderboardWinsData[uuid] = sgPlayer.wins
+                        SGLeaderboards.leaderboardEliminationsData[uuid] = sgPlayer.eliminations
+                        SGLeaderboards.leaderboardMatchesPlayedData[uuid] = sgPlayer.matchesPlayed
+                    } catch (e: Exception) {
+                        logger.warning("[Leaderboard Data] Failed to fetch online player data for player ${sgPlayer.playerName} (${sgPlayer.uuid})")
+                        e.printStackTrace()
+                    }
+                } else {
+                    val config = YamlConfiguration.loadConfiguration(playerFile)
+                    SGLeaderboards.leaderboardWinsData[UUID.fromString(playerFile.nameWithoutExtension)] = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.WINS.statistic.statisticConfigPath}")
+                    SGLeaderboards.leaderboardEliminationsData[UUID.fromString(playerFile.nameWithoutExtension)] = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.ELIMINATIONS.statistic.statisticConfigPath}")
+                    SGLeaderboards.leaderboardMatchesPlayedData[UUID.fromString(playerFile.nameWithoutExtension)] = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.GAMES_PLAYED.statistic.statisticConfigPath}")
+                }
+            }
+            SGLeaderboards.leaderboardWinsData = SGLeaderboards.leaderboardWinsData.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
+            SGLeaderboards.leaderboardEliminationsData = SGLeaderboards.leaderboardEliminationsData.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
+            SGLeaderboards.leaderboardMatchesPlayedData = SGLeaderboards.leaderboardMatchesPlayedData.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
+        }.invokeOnCompletion {
+            logger.info("[Leaderboard Data] Data finished populating for all leaderboards. ")
+            Bukkit.getScheduler().runTask(plugin, Runnable {
+                if(SGLeaderboards.leaderboards.isEmpty()) {
+                    SGLeaderboards.spawnAllLeaderboards()
+                }
+            })
+        }
     }
 
     fun getPlayerConfiguration(player: Player): FileConfiguration {

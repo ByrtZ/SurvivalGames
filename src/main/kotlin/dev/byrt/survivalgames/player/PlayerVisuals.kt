@@ -81,6 +81,7 @@ object PlayerVisuals {
         )
         player.playSound(Sounds.Score.DEATH)
         player.playSound(Sounds.Score.DEATH_BACKGROUND)
+        SGExperienceLevels.appendExperience(player, 5) // Consolation XP :pensive:
         player.sgPlayer().currentContainer?.players?.forEach { p -> p.bukkitPlayer().sendMessage(deathMessage) }
 
         // Append XP to survivors for survival

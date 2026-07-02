@@ -5,9 +5,11 @@ import com.noxcrew.interfaces.InterfacesListeners
 import dev.byrt.survivalgames.event.NameTagListener
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
+import dev.byrt.survivalgames.lobby.leaderboard.SGLeaderboards
 import dev.byrt.survivalgames.lobby.npc.SGNPCs
 import dev.byrt.survivalgames.loot.recipe.SGRecipes
 import dev.byrt.survivalgames.map.MapManager
+import dev.byrt.survivalgames.player.data.SGPlayerData
 import dev.byrt.survivalgames.resource.ResourcePackApplier
 import dev.byrt.survivalgames.resource.ResourcePackLoader
 import dev.byrt.survivalgames.resource.registry.GitHubReleasesRegistry
@@ -66,6 +68,7 @@ class Main : JavaPlugin() {
         LobbyInfo.build()
         SGNPCs.spawnAllNPCs()
         SGRecipes.registerRecipes()
+        SGPlayerData.getLeaderboardData()
         defaultCoroutineScope.launch {
             GameManager.createContainer()
         }.invokeOnCompletion { _ ->
@@ -79,6 +82,7 @@ class Main : JavaPlugin() {
         GameManager.gameContainers.clear()
         LobbyInfo.destroy()
         SGNPCs.clearNPCs()
+        SGLeaderboards.destroyLeaderboards()
     }
 
     private fun setupCommands() {

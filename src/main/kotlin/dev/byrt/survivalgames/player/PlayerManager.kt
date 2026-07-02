@@ -13,7 +13,7 @@ object PlayerManager {
         logger.info("Player Manager: Registering player ${player.name} as SGPlayer.")
         val sgPlayer = SGPlayer(player.uniqueId, player.name, PlayerType.UNREGISTERED)
         sgPlayers[player.uniqueId] = sgPlayer
-        SGPlayerData.getPlayerData(player)
+        SGPlayerData.getPlayerData(sgPlayer)
         PlayerVisuals.resetPlayerState(player,
             shouldClearBossBar = true,
             shouldClearInventory = true,
