@@ -35,7 +35,7 @@ class GameInstanceManager(val instance: GameInstance) {
     private var overtimeActive = true
     val activeSupplyDrops = mutableMapOf<UUID, Location>()
     /** Not to be set outside of initialisation under any circumstance **/
-    var map = listOf(SGMap.AUBURN_FOREST, SGMap.AELUMIA_CITADEL).random()
+    var map = listOf(SGMap.AUBURN_FOREST, SGMap.ROUGHWORKS, SGMap.AELUMIA_CITADEL).random()
         set(value) {
             if(field == value) return
             field = value
@@ -47,6 +47,11 @@ class GameInstanceManager(val instance: GameInstance) {
             field = value
             if(field == true) PlayerVisuals.gracePeriodStart(instance.currentContainer)
             if(field == false) PlayerVisuals.gracePeriodEnd(instance.currentContainer)
+        }
+    var isAutoStarting: Boolean = false
+        set(value) {
+            if(field == value) return
+            field = value
         }
 
     fun nextState() {
@@ -137,7 +142,7 @@ class GameInstanceManager(val instance: GameInstance) {
         isGracePeriod = true
 
         if(map == SGMap.MISTWOODS) {
-            instance.currentContainer?.containerWorld?.time = 10000
+            instance.currentContainer?.containerWorld?.time = 6000
             object : BukkitRunnable() {
                 override fun run() {
                     if(instance.currentContainer != null) {
@@ -185,12 +190,12 @@ class GameInstanceManager(val instance: GameInstance) {
                 PlayerType.PARTICIPANT -> {
                     if(participantSpawnIndex > participantSpawns.size - 1) participantSpawnIndex = 0
                     player.bukkitPlayer().teleport(participantSpawns[participantSpawnIndex])
+                    player.bukkitPlayer().lookAt(borderCenter.x + 0.5, borderCenter.y, borderCenter.z + 0.5, LookAnchor.EYES)
                     participantSpawnIndex++
                     player.matchesPlayed++
                 }
                 else -> logger.info("Unregistered player in container.")
             }
-            player.bukkitPlayer().lookAt(borderCenter.x + 0.5, borderCenter.y, borderCenter.z + 0.5, LookAnchor.EYES)
             Jukebox.disconnect(player.bukkitPlayer())
         }
     }
@@ -279,6 +284,7 @@ class GameInstanceManager(val instance: GameInstance) {
                 val remainingPlayer = playersAlive[0]
                 remainingPlayer.wins++
                 remainingPlayer.bukkitPlayer().playSound(Sounds.Score.WIN_GAME)
+                remainingPlayer.bukkitPlayer().playSound(Sounds.Score.WIN_GAME_HORN)
                 SGExperienceLevels.appendExperience(remainingPlayer.bukkitPlayer(), 200)
                 repeat(5) {
                     PlayerVisuals.firework(
@@ -323,7 +329,7 @@ object GameTime {
 
 object GamePlayerCount {
     const val MAX_PLAYERS = 24
-    const val MIN_PLAYERS = 24
+    const val MIN_PLAYERS = 8
 }
 
 enum class GameState {

@@ -5,10 +5,12 @@ import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.util.Keys
 import io.papermc.paper.datacomponent.item.ResolvableProfile
+import io.papermc.paper.datacomponent.item.ResolvableProfile.SkinPatch
 import org.bukkit.Bukkit
 import org.bukkit.entity.Mannequin
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.profile.PlayerTextures
 import org.bukkit.scheduler.BukkitRunnable
 import kotlin.random.Random
 
@@ -56,6 +58,7 @@ object SGNPCs {
             persistentDataContainer.set(Keys.LOBBY_NPC, PersistentDataType.STRING, npc.toString())
             profile = ResolvableProfile.resolvableProfile().apply {
                 addProperty(ProfileProperty("textures", npc.npcSkinTexture.ifEmpty { FALLBACK_TEXTURE }))
+                skinPatch(SkinPatch.skinPatch().model(PlayerTextures.SkinModel.SLIM).build())
             }.build()
         }
         npcs.add(mannequin)

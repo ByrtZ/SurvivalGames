@@ -319,6 +319,7 @@ object PlayerVisuals {
             vehicle?.remove()
         }
         if(player.sgPlayer().playerType == PlayerType.SPECTATOR) player.gameMode = GameMode.SPECTATOR else player.gameMode = GameMode.ADVENTURE
+        player.clearActivePotionEffects()
         player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
         player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
         player.foodLevel = 20

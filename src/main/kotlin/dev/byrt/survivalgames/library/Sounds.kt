@@ -32,6 +32,7 @@ object Sounds {
     object Score {
         val ELIMINATION = sound(key("entity.player.levelup"), Source.MASTER, 0.5f, 1f)
         val WIN_GAME = sound(key("entity.player.levelup"), Source.MASTER, 1f, 0.5f)
+        val WIN_GAME_HORN = sound(key("item.goat_horn.sound.1"), Source.MASTER, 3f, 1.5f)
         val DEATH = sound(key("item.trident.thunder"), Source.MASTER, 5f, 1.2f)
         val DEATH_BACKGROUND = sound(key("item.trident.return"), Source.MASTER, 2f, 0f)
         val DEATH_STATS = sound(key("item.trident.riptide_3"), Source.MASTER, 1f, 0f)
@@ -43,6 +44,8 @@ object Sounds {
         val GRACE_PERIOD_BEGIN = sound(key("entity.ender_eye.death"), Source.MASTER, 1f, 1f)
         val GRACE_PERIOD_END = sound(key("block.respawn_anchor.deplete"), Source.MASTER, 0.75f, 0.75f)
         val SUPPLY_DROP_SPAWN = sound(key("block.note_block.bit"), Source.MASTER, 0.75f, 1.25f)
+        val GAME_AUTO_START_INITIATED = sound(key("entity.wither.death"), Source.MASTER, 0.5f, 1.25f)
+        val GAME_AUTO_START_CANCELLED = sound(key("entity.wither.spawn"), Source.MASTER, 0.5f, 1.5f)
     }
     object Tutorial {
         const val TUTORIAL_POP = "entity.item.pickup"

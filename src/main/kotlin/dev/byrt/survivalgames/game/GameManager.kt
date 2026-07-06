@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.game
 
 import dev.byrt.survivalgames.game.instance.GamePlayerCount
 import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
 import dev.byrt.survivalgames.map.SGMap
@@ -13,11 +14,14 @@ import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
+import dev.byrt.survivalgames.text.TextAlignment
 import dev.byrt.survivalgames.util.Keys
 import dev.byrt.survivalgames.util.extension.clean
 import dev.byrt.survivalgames.util.extension.trimmed
 import dev.byrt.survivalgames.world.SGWorld
 import kotlinx.coroutines.suspendCancellableCoroutine
+import net.kyori.adventure.bossbar.BossBar
+import net.kyori.adventure.bossbar.BossBar.Color
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.Bukkit
@@ -152,6 +156,8 @@ object GameManager {
         if(gameContainer.instance.manager.getGameState() == GameState.IDLE) {
             player.scoreboard = gameContainer.instance.info.preGameScoreboard
             gameContainer.instance.info.updatePreGamePlayersRequired()
+            gameContainer.containerWorld.worldBorder.setCenter(preGameSpawn.x, preGameSpawn.z)
+            gameContainer.containerWorld.worldBorder.size = 50.0
             when(gameContainer.instance.manager.map) {
                 SGMap.AUBURN_FOREST -> Jukebox.startMusicLoop(player, JukeboxTrack.PRE_GAME_AUBURN_FOREST)
                 SGMap.ROUGHWORKS -> Jukebox.startMusicLoop(player, JukeboxTrack.PRE_GAME_ROUGHWORKS)
@@ -159,9 +165,49 @@ object GameManager {
                 SGMap.HIGHLANDS -> Jukebox.startMusicLoop(player, JukeboxTrack.PRE_GAME_HIGHLANDS)
                 SGMap.AELUMIA_CITADEL -> Jukebox.startMusicLoop(player, JukeboxTrack.PRE_GAME_AELUMIA_CITADEL)
             }
-            /** Game auto-start **/ //TODO Boss bar with 20s for others to join, possibly add property isGameAutoStarting?
-            if(gameContainer.players.filter { p -> p.playerType == PlayerType.PARTICIPANT }.size >= GamePlayerCount.MIN_PLAYERS) {
-                gameContainer.instance.manager.nextState()
+            /** Game auto-start **/
+            if(gameContainer.players.filter { p -> p.playerType == PlayerType.PARTICIPANT }.size >= GamePlayerCount.MIN_PLAYERS && !gameContainer.instance.manager.isAutoStarting) {
+                gameContainer.instance.manager.isAutoStarting = true
+                gameContainer.players.forEach {
+                    player -> player.bukkitPlayer().playSound(Sounds.Alert.GAME_AUTO_START_INITIATED)
+                    player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#20d600>Match starting!<white> Please standby for the game to begin."))
+                }
+                object : BukkitRunnable() {
+                    var startTimer = 20
+                    val startBossBar = BossBar.bossBar(Formatting.allTags.deserialize(""), 0f, Color.RED, BossBar.Overlay.PROGRESS)
+                    override fun run() {
+                        if(startTimer <= 0 && gameContainer.instance.manager.getGameState() == GameState.IDLE) {
+                            startBossBar.name(TextAlignment.centreBossBarText("MATCH STARTED (${gameContainer.players.size}/${GamePlayerCount.MAX_PLAYERS})"))
+                            gameContainer.players.forEach { player -> if(player.bukkitPlayer().activeBossBars().contains(startBossBar)) startBossBar.removeViewer(player.bukkitPlayer()) }
+                            gameContainer.instance.manager.nextState()
+                            cancel()
+                        }
+                        // Add/Remove boss bar
+                        if(gameContainer.instance.manager.getGameState() == GameState.IDLE) {
+                            gameContainer.players.forEach { player -> if(!player.bukkitPlayer().activeBossBars().contains(startBossBar)) startBossBar.addViewer(player.bukkitPlayer()) }
+                        } else {
+                            gameContainer.players.forEach { player -> if(player.bukkitPlayer().activeBossBars().contains(startBossBar)) startBossBar.removeViewer(player.bukkitPlayer()) }
+                            cancel()
+                        }
+                        // Countdown, cancel if not enough players
+                        if(gameContainer.players.filter { p -> p.playerType == PlayerType.PARTICIPANT }.size >= GamePlayerCount.MIN_PLAYERS) {
+                            startTimer--
+                            gameContainer.players.forEach { player -> player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK)}
+                            gameContainer.instance.info.updatePreGameTitle(startTimer)
+                            startBossBar.name(TextAlignment.centreBossBarText("MATCH STARTING (${gameContainer.players.size}/${GamePlayerCount.MAX_PLAYERS}): <#ffff00>${String.format("%02d:%02d", (this.startTimer + 1) / 60, (this.startTimer + 1) % 60)}"))
+                        } else {
+                            gameContainer.instance.manager.isAutoStarting = false
+                            startBossBar.name(TextAlignment.centreBossBarText("AWAITING PLAYERS (${gameContainer.players.size}/${GamePlayerCount.MAX_PLAYERS})"))
+                            gameContainer.instance.info.updatePreGameTitle()
+                            gameContainer.players.forEach { player ->
+                                if(player.bukkitPlayer().activeBossBars().contains(startBossBar)) startBossBar.removeViewer(player.bukkitPlayer())
+                                player.bukkitPlayer().playSound(Sounds.Alert.GAME_AUTO_START_CANCELLED)
+                                player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333>Match cancelled<white>, there are not enough players to start the game."))
+                            }
+                            cancel()
+                        }
+                    }
+                }.runTaskTimer(plugin, 0L, 20L)
             }
         } else {
             player.scoreboard = gameContainer.instance.info.gameScoreboard

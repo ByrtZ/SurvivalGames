@@ -120,6 +120,16 @@ class GameInstanceInfo(val instance: GameInstance) {
         plugin.logger.info("Scoreboard constructed with ID ${gameObjective.name}")
     }
 
+    fun updatePreGameTitle(time: Int = 0) {
+        if(instance.manager.getGameState() == GameState.IDLE) {
+            if(instance.manager.isAutoStarting) {
+                preGameObjective.displayName(Formatting.allTags.deserialize("<playercolour><bold>${SG_FONT_TAG}Starting in <white>${String.format("%02d:%02d", (time + 1) / 60, (time + 1) % 60)}<reset>"))
+            } else {
+                preGameObjective.displayName(Formatting.allTags.deserialize("<green><bold>${SG_FONT_TAG}Awaiting players...<reset>"))
+            }
+        }
+    }
+
     fun updatePreGameMap() {
         if(instance.manager.getGameState() == GameState.IDLE) {
             preGameMapNameLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.manager.map.mapName}"))
@@ -128,7 +138,8 @@ class GameInstanceInfo(val instance: GameInstance) {
 
     fun updatePreGamePlayersRequired() {
         if(instance.manager.getGameState() == GameState.IDLE) {
-            preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${instance.currentContainer?.players?.filter { player -> player.playerType == PlayerType.PARTICIPANT && !player.isDead }?.size}/${GamePlayerCount.MAX_PLAYERS}"))
+            val playerCount = instance.currentContainer?.players?.filter { player -> player.playerType == PlayerType.PARTICIPANT && !player.isDead }?.size ?: 0
+            preGamePlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${playerCount}/${if(playerCount >= GamePlayerCount.MIN_PLAYERS) GamePlayerCount.MAX_PLAYERS else GamePlayerCount.MIN_PLAYERS}"))
         } else return
     }
 

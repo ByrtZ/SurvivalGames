@@ -71,7 +71,7 @@ object LobbyInfo {
     }
 
     fun updateTotalPlayers() {
-        lobbyPlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${Bukkit.getOnlinePlayers().size}"))
+        lobbyPlayerCountLine.prefix(Formatting.allTags.deserialize("${SG_FONT_TAG}${Bukkit.getOnlinePlayers().filter { player -> player.isOnline }.size}"))
     }
 
     fun updateMatches() {
