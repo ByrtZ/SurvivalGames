@@ -35,7 +35,7 @@ class GameInstanceManager(val instance: GameInstance) {
     private var overtimeActive = true
     val activeSupplyDrops = mutableMapOf<UUID, Location>()
     /** Not to be set outside of initialisation under any circumstance **/
-    var map = listOf(SGMap.AUBURN_FOREST, SGMap.ROUGHWORKS, SGMap.AELUMIA_CITADEL).random()
+    var map = listOf(SGMap.AUBURN_FOREST, SGMap.ROUGHWORKS, SGMap.MISTWOODS, SGMap.AELUMIA_CITADEL).random()
         set(value) {
             if(field == value) return
             field = value
