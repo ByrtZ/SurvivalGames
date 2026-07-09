@@ -48,7 +48,7 @@ object SGExperienceLevels {
                     sgPlayer.rank = newRank
                     for(p in Bukkit.getOnlinePlayers()) {
                         p.playSound(Sounds.Misc.RANK_UP)
-                        p.sendMessage(Formatting.allTags.deserialize("${SG_FONT_TAG}${newRank.rankHexTag}<b>${player.name}</b> <white>ranked up to <b>${newRank.rankHexTag}${newRank.rankName.uppercase()}</b><white>!"))
+                        p.sendMessage(Formatting.allTags.deserialize("<newline>${SG_FONT_TAG}${newRank.rankHexTag}<b>${player.name}</b> <white>ranked up to <b>${newRank.rankHexTag}${newRank.rankName.uppercase()}</b><white>!</font><newline>"))
                     }
                 }
                 sgPlayer.level = nextLevel
