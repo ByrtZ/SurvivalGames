@@ -60,6 +60,7 @@ object SGItem {
         )
         dataPointItemMeta.lore(loreList)
         dataPointItemMeta.persistentDataContainer.set(Keys.DATA_POINT_EDIT, PersistentDataType.STRING, dataPointType.name)
+        dataPointItemMeta.tooltipStyle = Keys.ADMIN_TOOLTIP
         dataPointItem.itemMeta = dataPointItemMeta
         return dataPointItem
     }

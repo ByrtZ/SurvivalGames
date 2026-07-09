@@ -8,6 +8,7 @@ import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
+import dev.byrt.survivalgames.util.Keys
 import kotlinx.coroutines.launch
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -76,6 +77,7 @@ object SGMatchmakingInterface {
                         Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<playercolour>the command <yellow>'/container'")
                     )
                 )
+                createContainerItemMeta.tooltipStyle = Keys.ADMIN_TOOLTIP
                 createContainerItem.itemMeta = createContainerItemMeta
                 pane[0, 0] = StaticElement(drawable(createContainerItem)) {
                     player.closeInventory(InventoryCloseEvent.Reason.PLUGIN)

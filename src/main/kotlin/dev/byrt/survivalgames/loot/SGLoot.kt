@@ -142,6 +142,7 @@ object SGLoot {
                 it.isUnbreakable = true
                 it.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS)
                 it.persistentDataContainer.set(Keys.LOOT_ITEM, PersistentDataType.BOOLEAN, true)
+                it.tooltipStyle = sgItem.item.tooltip
                 if(sgItem.item.enchantments.enchantments().isNotEmpty()) {
                     sgItem.item.enchantments.enchantments().forEach { (enchantment, level) ->
                         it.addEnchant(enchantment, level, true)
