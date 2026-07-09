@@ -99,8 +99,11 @@ class GameInstanceTask(val instance: GameInstance) {
                                     )
                                 )
                             )
-                            if(instance.timer.getTimer() in 1..3) player.bukkitPlayer().playSound(Sounds.Timer.STARTING_123)
-                            player.bukkitPlayer().playSound(Sounds.Timer.STARTING_TICK)
+                            if(instance.timer.getTimer() in 1..3) {
+                                player.bukkitPlayer().playSound(Sounds.Timer.STARTING_123)
+                                player.bukkitPlayer().playSound(Sounds.Timer.STARTING_TICK)
+                            }
+                            player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK_BASS)
                         }
                     }
                     if (instance.timer.getTimer() <= 0) {
@@ -117,9 +120,14 @@ class GameInstanceTask(val instance: GameInstance) {
                             instance.manager.isGracePeriod = false
                         }
                     }
-                    if (instance.timer.getTimer() in 11..59 || instance.timer.getTimer() % 60 == 0) {
+                    if (instance.timer.getTimer() in 11..30 || instance.timer.getTimer() % 60 == 0) {
                         for (player in instance.currentContainer?.players!!) {
-                            player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK)
+                            player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK_BASS)
+                        }
+                    }
+                    if (instance.timer.getTimer() in 0..10) {
+                        for (player in instance.currentContainer?.players!!) {
+                            player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK_BASS_HIGH)
                         }
                     }
                     if (instance.timer.getTimer() % 60 == 0) {
@@ -128,14 +136,10 @@ class GameInstanceTask(val instance: GameInstance) {
                         }
                     }
                     // Supply drop spawning
-                    if (instance.timer.getTimer() < (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME) && instance.timer.getTimer() % 75 == 0) {
+                    if (instance.timer.getTimer() < (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME) && instance.timer.getTimer() > (if(instance.manager.map.isQuickMatch) 80 else 120) && instance.timer.getTimer() % 75 == 0) {
                         SGLoot.spawnSupplyDrop(instance.currentContainer, instance.manager.map)
                     }
-                    if (instance.timer.getTimer() in 0..10) {
-                        for (player in instance.currentContainer?.players!!) {
-                            player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK_HIGH)
-                        }
-                    }
+
                     if (instance.timer.getTimer() <= 0) {
                         instance.manager.nextState()
                     }

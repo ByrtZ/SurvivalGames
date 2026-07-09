@@ -5,9 +5,9 @@ import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.logger
+import dev.byrt.survivalgames.loot.data.SGLootItem
 import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.loot.pool.SGLootPool
-import dev.byrt.survivalgames.map.MapDataPointType
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
@@ -32,14 +32,7 @@ object SGLoot {
             logger.info("No possible loot locations in map '${map.mapName}'")
         } else {
             map.lootChests.forEach { point ->
-                spawnLootChest(world, point.x.toInt(), point.y.toInt(), point.z.toInt(),
-                    when (point.mapDataPointType) {
-                        MapDataPointType.LOOT_CHEST_1 -> SGLootPool.LOOT_CHEST_1
-                        MapDataPointType.LOOT_CHEST_2 -> SGLootPool.LOOT_CHEST_2
-                        MapDataPointType.LOOT_CHEST_3 -> SGLootPool.LOOT_CHEST_3
-                        else -> SGLootPool.LOOT_CHEST_1
-                    }
-                )
+                spawnLootChest(world, point.x.toInt(), point.y.toInt(), point.z.toInt(), SGLootPool.getRandomLootPool())
             }
             logger.info("Finished populating loot for map '${map.mapName}'")
         }
@@ -50,8 +43,11 @@ object SGLoot {
         val chestState = chest.state as Chest
         val inventory = chestState.inventory
 
+        /** Loot filter for supply drops to ensure unique items each time **/
+        val lootFilter = mutableListOf<SGLootItem>()
         repeat(Random.nextInt(3, 6)) {
-            val lootItem = SGLootPool.getRandomLoot(lootPool)
+            val lootItem = SGLootPool.getRandomLoot(lootPool, filter = lootFilter)
+            if(lootPool == SGLootPool.SUPPLY_DROP) lootFilter.add(lootItem)
             if (lootItem.item.item.material == Material.AIR) return
             if (lootItem.odds.amountMin < 1) return
             if (lootItem.odds.amountMax < 1) return

@@ -192,7 +192,9 @@ object GameManager {
                         // Countdown, cancel if not enough players
                         if(gameContainer.players.filter { p -> p.playerType == PlayerType.PARTICIPANT }.size >= GamePlayerCount.MIN_PLAYERS) {
                             startTimer--
-                            gameContainer.players.forEach { player -> player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK)}
+                            if(startTimer <= 5) {
+                                gameContainer.players.forEach { player -> player.bukkitPlayer().playSound(Sounds.Timer.CLOCK_TICK)}
+                            }
                             gameContainer.instance.info.updatePreGameTitle(startTimer)
                             startBossBar.name(TextAlignment.centreBossBarText("MATCH STARTING (${gameContainer.players.size}/${GamePlayerCount.MAX_PLAYERS}): <#ffff00>${String.format("%02d:%02d", (this.startTimer + 1) / 60, (this.startTimer + 1) % 60)}"))
                         } else {
@@ -224,7 +226,7 @@ object GameManager {
         player.sgPlayer().currentContainer?.players?.remove(player.sgPlayer())
         player.sgPlayer().currentContainer = null
         player.sgPlayer().setType(PlayerType.IDLE)
-        PlayerVisuals.resetPlayerState(player, shouldClearBossBar = true, shouldClearInventory = true, shouldResetScoreboard = true)
+        PlayerVisuals.resetPlayerState(player, shouldClearBossBar = true, shouldClearInventory = true, shouldResetScoreboard = true, shouldResetVehicle = true)
         player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
         player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
         Jukebox.startMusicLoop(player, JukeboxTrack.LOBBY)

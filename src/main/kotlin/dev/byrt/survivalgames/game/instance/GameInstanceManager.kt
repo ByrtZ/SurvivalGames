@@ -176,7 +176,7 @@ class GameInstanceManager(val instance: GameInstance) {
         instance.currentContainer?.containerWorld?.worldBorder?.damageAmount = 0.05
         /** Spawn allocation, only use first available spectator spawn and cast participant spawns to list and iterate for each participant **/
         val spectatorSpawn = map.spectatorSpawns.first()
-        val participantSpawns = map.participantSpawns.flatMap { listOf(Location(instance.currentContainer?.containerWorld, it.x, it.y, it.z)) }
+        val participantSpawns = map.participantSpawns.flatMap { listOf(Location(instance.currentContainer?.containerWorld, it.x, it.y, it.z)).shuffled() }
         var participantSpawnIndex = 0
 
         instance.info.updateGamePlayersRemaining()
@@ -322,14 +322,14 @@ object GameTime {
     const val IN_GAME_TIME = 480
     const val IN_GAME_TIME_QUICK_MATCH = 240
     const val ROUND_END_TIME = 10
-    const val GAME_END_TIME = 20
+    const val GAME_END_TIME = 15
     const val OVERTIME_TIME = 600
     const val GRACE_PERIOD = 30
 }
 
 object GamePlayerCount {
     const val MAX_PLAYERS = 24
-    const val MIN_PLAYERS = 8
+    const val MIN_PLAYERS = 4
 }
 
 enum class GameState {

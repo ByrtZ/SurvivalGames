@@ -5,7 +5,6 @@ import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
-import dev.byrt.survivalgames.util.Keys
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -13,8 +12,6 @@ import org.bukkit.block.BlockFace
 import org.bukkit.entity.Display
 import org.bukkit.entity.Player
 import org.bukkit.entity.TextDisplay
-import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
 import java.io.File
 
 object MapTools {
@@ -47,7 +44,7 @@ object MapTools {
         dataPoints.forEach { point ->
             val location = Location(container.containerWorld, point.x, point.y, point.z)
             location.block.type = Material.OCHRE_FROGLIGHT
-            val shouldCenterDisplay = point.mapDataPointType in listOf(MapDataPointType.WORLD_CENTER, MapDataPointType.SUPPLY_DROP_SPAWN, MapDataPointType.LOOT_CHEST_1, MapDataPointType.LOOT_CHEST_2, MapDataPointType.LOOT_CHEST_3)
+            val shouldCenterDisplay = point.mapDataPointType in listOf(MapDataPointType.WORLD_CENTER, MapDataPointType.SUPPLY_DROP_SPAWN, MapDataPointType.LOOT_CHEST)
             location.world.spawn(location.add(if(shouldCenterDisplay) 0.5 else 0.0, 1.5, if(shouldCenterDisplay) 0.5 else 0.0), TextDisplay::class.java).apply {
                 isShadowed = true
                 billboard = Display.Billboard.VERTICAL

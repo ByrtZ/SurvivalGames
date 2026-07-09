@@ -57,9 +57,7 @@ object MapManager {
                             MapDataPointType.PARTICIPANT_SPAWN -> map.participantSpawns.add(point)
                             MapDataPointType.SPECTATOR_SPAWN -> map.spectatorSpawns.add(point)
                             MapDataPointType.SUPPLY_DROP_SPAWN -> map.supplyDropSpawns.add(point)
-                            MapDataPointType.LOOT_CHEST_1 -> map.lootChests.add(point)
-                            MapDataPointType.LOOT_CHEST_2 -> map.lootChests.add(point)
-                            MapDataPointType.LOOT_CHEST_3 -> map.lootChests.add(point)
+                            MapDataPointType.LOOT_CHEST -> map.lootChests.add(point)
                             MapDataPointType.WORLD_CENTER -> map.worldCenter.add(point)
                         }
                     }
@@ -81,9 +79,7 @@ object MapManager {
                     MapDataPointType.PARTICIPANT_SPAWN -> if(map.participantSpawns.isEmpty()) logger.warning("No data points found for $point")
                     MapDataPointType.SPECTATOR_SPAWN -> if(map.spectatorSpawns.isEmpty()) logger.warning("No data points found for $point")
                     MapDataPointType.SUPPLY_DROP_SPAWN -> if(map.supplyDropSpawns.isEmpty()) logger.warning("No data points found for $point")
-                    MapDataPointType.LOOT_CHEST_1 -> if(map.lootChests.isEmpty()) logger.warning("No data points found for $point")
-                    MapDataPointType.LOOT_CHEST_2 -> if(map.lootChests.isEmpty()) logger.warning("No data points found for $point")
-                    MapDataPointType.LOOT_CHEST_3 -> if(map.lootChests.isEmpty()) logger.warning("No data points found for $point")
+                    MapDataPointType.LOOT_CHEST -> if(map.lootChests.isEmpty()) logger.warning("No data points found for $point")
                     MapDataPointType.WORLD_CENTER -> if(map.worldCenter.isEmpty()) logger.warning("No data points found for $point")
                 }
             }

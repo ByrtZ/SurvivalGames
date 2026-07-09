@@ -7,7 +7,7 @@ import dev.byrt.survivalgames.loot.items.SGItems
 import kotlin.random.Random
 
 @Suppress("unstableApiUsage")
-enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>) {
+enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>, val lootPoolChance: Double) {
     LOOT_CHEST_1("loot_chest_1", listOf(
         SGLootItem(SGItems.APPLE, SGLootOdds(weight = 6.0, amountMax = 3)),
         SGLootItem(SGItems.WOODEN_SWORD, SGLootOdds(weight = 5.0)),
@@ -25,8 +25,9 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>)
         SGLootItem(SGItems.STICK, SGLootOdds(weight = 2.0)),
         SGLootItem(SGItems.IRON_INGOT, SGLootOdds(weight = 1.0)),
         SGLootItem(SGItems.TNT, SGLootOdds(weight = 1.0)),
-        SGLootItem(SGItems.ARROW, SGLootOdds(weight = 2.0)),
-    )),
+        SGLootItem(SGItems.ARROW, SGLootOdds(weight = 2.0))),
+        lootPoolChance = 0.65
+        ),
     LOOT_CHEST_2("loot_chest_2", listOf(
         SGLootItem(SGItems.COOKED_COD, SGLootOdds(weight = 4.0, amountMax = 3)),
         SGLootItem(SGItems.COOKED_CHICKEN, SGLootOdds(weight = 5.0, amountMax = 2)),
@@ -46,8 +47,9 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>)
         SGLootItem(SGItems.STICK, SGLootOdds(weight = 2.0)),
         SGLootItem(SGItems.FISHING_ROD, SGLootOdds(weight = 1.0)),
         SGLootItem(SGItems.IRON_INGOT, SGLootOdds(weight = 1.0)),
-        SGLootItem(SGItems.ENDER_PEARL, SGLootOdds(weight = 0.5)),
-    )),
+        SGLootItem(SGItems.ENDER_PEARL, SGLootOdds(weight = 0.5))),
+        lootPoolChance = 0.25
+    ),
     LOOT_CHEST_3("loot_chest_3", listOf(
         SGLootItem(SGItems.COOKED_PORKCHOP, SGLootOdds(weight = 6.0, amountMax = 3)),
         SGLootItem(SGItems.COOKED_BEEF, SGLootOdds(weight = 5.0, amountMax = 2)),
@@ -68,25 +70,45 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>)
         SGLootItem(SGItems.STICK, SGLootOdds(weight = 3.0, amountMax = 2)),
         SGLootItem(SGItems.FISHING_ROD, SGLootOdds(weight = 3.0)),
         SGLootItem(SGItems.ENDER_PEARL, SGLootOdds(weight = 0.75)),
-        SGLootItem(SGItems.IRON_INGOT, SGLootOdds(weight = 3.0)),
-    )),
+        SGLootItem(SGItems.IRON_INGOT, SGLootOdds(weight = 3.0))),
+        lootPoolChance = 0.1
+    ),
     SUPPLY_DROP("supply_drop", listOf(
+        SGLootItem(SGItems.IRON_SWORD, SGLootOdds(weight = 2.0)),
+        SGLootItem(SGItems.ARROW, SGLootOdds(weight = 4.0, amountMax = 4)),
+        SGLootItem(SGItems.SPECTRAL_ARROW, SGLootOdds(weight = 2.0, amountMax = 2)),
+        SGLootItem(SGItems.IRON_INGOT, SGLootOdds(weight = 3.5, amountMax = 3)),
         SGLootItem(SGItems.IRON_HELMET, SGLootOdds(weight = 3.0)),
         SGLootItem(SGItems.IRON_CHESTPLATE, SGLootOdds(weight = 3.0)),
         SGLootItem(SGItems.IRON_LEGGINGS, SGLootOdds(weight = 3.0)),
         SGLootItem(SGItems.IRON_BOOTS, SGLootOdds(weight = 3.0)),
-        SGLootItem(SGItems.DIAMOND, SGLootOdds(weight = 0.5)),
+        SGLootItem(SGItems.DIAMOND, SGLootOdds(weight = 0.75)),
         SGLootItem(SGItems.GOLDEN_APPLE, SGLootOdds(weight = 1.5)),
         SGLootItem(SGItems.CROSSBOW, SGLootOdds(weight = 2.0)),
-        SGLootItem(SGItems.LOYALTY_TRIDENT, SGLootOdds(weight = 0.5)),
+        SGLootItem(SGItems.LOYALTY_TRIDENT, SGLootOdds(weight = 0.25)),
         SGLootItem(SGItems.TNT, SGLootOdds(weight = 1.75, amountMax = 2)),
-        SGLootItem(SGItems.ENDER_PEARL, SGLootOdds(weight = 1.0)),
-        SGLootItem(SGItems.MACE, SGLootOdds(weight = 0.25)),
-        SGLootItem(SGItems.TOTEM_OF_UNDYING, SGLootOdds(weight = 0.5)),
-    ));
+        SGLootItem(SGItems.ENDER_PEARL, SGLootOdds(weight = 1.0, amountMax = 2)),
+        SGLootItem(SGItems.MACE, SGLootOdds(weight = 0.1)),
+        SGLootItem(SGItems.TOTEM_OF_UNDYING, SGLootOdds(weight = 0.5))),
+        lootPoolChance = 0.0
+    );
     companion object {
-        fun getRandomLoot(lootPool: SGLootPool): SGLootItem {
-            val totalItems = lootPool.lootItems
+        fun getRandomLootPool(): SGLootPool {
+            val totalWeight = SGLootPool.entries.sumOf { it.lootPoolChance }
+            val randomValue = Random.nextDouble(totalWeight)
+            var cumulativeWeight = 0.0
+            for(pool in SGLootPool.entries) {
+                cumulativeWeight += pool.lootPoolChance
+                if(randomValue < cumulativeWeight) {
+                    return pool
+                }
+            }
+            logger.warning("Unreachable code hit! No loot pool selected")
+            return LOOT_CHEST_1 // Should be unreachable but default to tier 1 in case of issue
+        }
+
+        fun getRandomLoot(lootPool: SGLootPool, filter: List<SGLootItem> = emptyList()): SGLootItem {
+            val totalItems = lootPool.lootItems.filter { !filter.contains(it) }
             val totalWeight = totalItems.sumOf { it.odds.weight }
             val randomValue = Random.nextDouble(totalWeight)
             var cumulativeWeight = 0.0
