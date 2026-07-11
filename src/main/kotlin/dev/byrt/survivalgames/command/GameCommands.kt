@@ -16,7 +16,7 @@ import org.incendo.cloud.processors.confirmation.annotation.Confirmation
 class GameCommands {
     @Command("game start")
     @CommandDescription("Starts the game in the executing player's game container.")
-    @Permission("burb.cmd.game")
+    @Permission("sg.cmd.game")
     @Confirmation
     fun start(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
@@ -30,7 +30,7 @@ class GameCommands {
 
     @Command("game stop")
     @CommandDescription("Stops the game in the executing player's game container.")
-    @Permission("burb.cmd.game")
+    @Permission("sg.cmd.game")
     fun stop(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
             val currentContainer = sender.sgPlayer().currentContainer!!
@@ -43,7 +43,7 @@ class GameCommands {
 
     @Command("game next_phase")
     @CommandDescription("Pushes the game to it's next phase in the executing player's game container.")
-    @Permission("burb.cmd.game")
+    @Permission("sg.cmd.game")
     @Confirmation
     fun nextPhase(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
@@ -56,7 +56,7 @@ class GameCommands {
 
     @Command("game force_state <state>")
     @CommandDescription("Forces the game into the specified phase in the executing player's game container.")
-    @Permission("burb.cmd.game")
+    @Permission("sg.cmd.game")
     @Confirmation
     fun forceState(sender: Player, @Argument(value = "state") state: GameState) {
         if(sender.sgPlayer().currentContainer != null) {
@@ -69,7 +69,7 @@ class GameCommands {
 
     @Command("game set_rounds <amount>")
     @CommandDescription("Sets the total number of rounds in the executing player's game container.")
-    @Permission("burb.cmd.game")
+    @Permission("sg.cmd.game")
     fun setRounds(sender: Player, @Argument amount: Int) {
         if(sender.sgPlayer().currentContainer != null) {
             val currentContainer = sender.sgPlayer().currentContainer!!

@@ -29,7 +29,8 @@ object Formatting {
         NO_PREFIX("", ""),
         DEV_PREFIX("dev", "\uD001"),
         ADMIN_PREFIX("admin", "\uD002"),
-        SPECTATOR_PREFIX("spectator", "\uD003");
+        SPECTATOR_PREFIX("spectator", "\uD003"),
+        STAFF_PREFIX("staff", "\uD004");
 
         companion object {
             fun ofName(str : String): Prefix {

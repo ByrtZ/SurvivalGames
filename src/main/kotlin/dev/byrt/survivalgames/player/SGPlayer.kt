@@ -78,8 +78,12 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
     }
 
     private fun setTabName() {
-        if(bukkitPlayer().isOp) {
+        if(bukkitPlayer().hasPermission("sg.group.admin")) {
             bukkitPlayer().playerListOrder = 99
+        } else if(bukkitPlayer().hasPermission("sg.group.dev")) {
+            bukkitPlayer().playerListOrder = 98
+        } else if(bukkitPlayer().hasPermission("sg.group.staff")) {
+            bukkitPlayer().playerListOrder = 97
         } else {
             bukkitPlayer().playerListOrder = when(rank) {
                 Rank.RECRUIT -> 1
@@ -91,10 +95,10 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
             }
         }
         when(playerType) {
-            PlayerType.IDLE -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> <dark_red>" else "${rank.rankHexTag}<b>${rank.rankPlate}</b> "}${this.playerName}"))
-            PlayerType.SPECTATOR -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<gray>${this.playerName}"))
-            PlayerType.PARTICIPANT -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<playercolour>${this.playerName}"))
-            PlayerType.UNREGISTERED -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().isOp) "<prefix:admin> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<#0>${this.playerName}"))
+            PlayerType.IDLE -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().hasPermission("sg.group.admin") || bukkitPlayer().hasPermission("sg.group.dev")) "<prefix:admin> <dark_red>" else if(bukkitPlayer().hasPermission("sg.group.staff")) "<prefix:staff> <playercolour>" else "${rank.rankHexTag}<b>${rank.rankPlate}</b> "}${this.playerName}"))
+            PlayerType.SPECTATOR -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().hasPermission("sg.group.admin") || bukkitPlayer().hasPermission("sg.group.dev")) "<prefix:admin> " else if(bukkitPlayer().hasPermission("sg.group.staff")) "<prefix:staff> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<gray>${this.playerName}"))
+            PlayerType.PARTICIPANT -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().hasPermission("sg.group.admin") || bukkitPlayer().hasPermission("sg.group.dev")) "<prefix:admin> " else if(bukkitPlayer().hasPermission("sg.group.staff")) "<prefix:staff> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<playercolour>${this.playerName}"))
+            PlayerType.UNREGISTERED -> bukkitPlayer().playerListName(Formatting.allTags.deserialize("<!i>${if(bukkitPlayer().hasPermission("sg.group.admin") || bukkitPlayer().hasPermission("sg.group.dev")) "<prefix:admin> " else if(bukkitPlayer().hasPermission("sg.group.staff")) "<prefix:staff> " else "<b>${rank.rankHexTag}${rank.rankPlate}<reset> "}<#0>${this.playerName}"))
         }
     }
 

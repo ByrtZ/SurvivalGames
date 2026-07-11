@@ -19,7 +19,7 @@ import org.incendo.cloud.suggestion.Suggestion
 class ContainerCommands {
     @Command("container create")
     @CommandDescription("Creates a new game container.")
-    @Permission("burb.cmd.container")
+    @Permission("sg.cmd.container")
     @Confirmation
     suspend fun createContainer(sender: Player, @Flag("map") forcedMap: SGMap? = null, @Flag("editMode") isEditMode: Boolean = false, @Flag("disableGameEndCheck") disableGameEndCheck: Boolean = false) {
         if(sender.sgPlayer().currentContainer == null) {
@@ -30,7 +30,7 @@ class ContainerCommands {
 
     @Command("container destroy <container>")
     @CommandDescription("Destroys the specified game container.")
-    @Permission("burb.cmd.container")
+    @Permission("sg.cmd.container")
     @Confirmation
     fun destroyContainer(sender: Player, @Argument(value = "container",  suggestions = "containers") container: String) {
         ChatUtility.broadcastDev("<dark_gray>${sender.name} destroyed container (${container})", false)
@@ -39,7 +39,7 @@ class ContainerCommands {
 
     @Command("container destroy all")
     @CommandDescription("Destroys all game containers.")
-    @Permission("burb.cmd.container")
+    @Permission("sg.cmd.container")
     @Confirmation
     fun destroyAllContainers(sender: Player) {
         ChatUtility.broadcastDev("<dark_gray>${sender.name} destroyed all containers", false)
@@ -48,7 +48,7 @@ class ContainerCommands {
 
     @Command("container join <container>")
     @CommandDescription("Allows executing player to join specified container.")
-    @Permission("burb.cmd.container")
+    @Permission("sg.cmd.container")
     fun joinContainer(sender: Player, @Argument(value = "container",  suggestions = "containers") container: String) {
         if(sender.sgPlayer().currentContainer?.containerId?.toString() != container) {
             GameManager.getContainerById(container)?.let { GameManager.addPlayerToContainer(sender, it) }
@@ -57,7 +57,7 @@ class ContainerCommands {
 
     @Command("container leave")
     @CommandDescription("Allows executing player to leave their current container.")
-    @Permission("burb.cmd.container")
+    @Permission("sg.cmd.container")
     fun leaveContainer(sender: Player) {
         if(sender.sgPlayer().currentContainer != null) {
             GameManager.removePlayerFromContainer(sender)
@@ -66,7 +66,7 @@ class ContainerCommands {
 
     @Command("move <container>")
     @CommandDescription("Moves all players not in a container to the specified container.")
-    @Permission("burb.cmd.container")
+    @Permission("sg.cmd.container")
     fun moveToContainer(sender: Player, @Argument(value = "container",  suggestions = "containers") container: String) {
         if(sender.sgPlayer().currentContainer?.containerId?.toString() != container) {
             if(GameManager.getContainerById(container) != null) {

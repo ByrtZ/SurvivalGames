@@ -5,8 +5,6 @@ import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.map.MapDataPointType
-import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
-import dev.byrt.survivalgames.player.data.Rank
 import dev.byrt.survivalgames.player.progression.SGExperienceLevels
 import dev.byrt.survivalgames.player.progression.SGLevel
 import dev.byrt.survivalgames.plugin
@@ -33,22 +31,32 @@ import org.incendo.cloud.annotations.processing.CommandContainer
 @Suppress("unused", "unstableApiUsage")
 @CommandContainer
 class AdminCommands {
-    @Command("ac <text>")
-    @CommandDescription("Sends a message to admin chat.")
-    @Permission("sg.cmd.admin_chat")
-    fun adminChat(sender: Player, @Argument("text") text: Array<String>) {
-        ChatUtility.broadcastAdmin(
-            "<skull:${sender.name}><dark_red>${sender.name}<white>: ${text.joinToString(" ")}",
+    @Command("staffchat|sc <text>")
+    @CommandDescription("Sends a message to staff chat.")
+    @Permission("sg.staff_chat")
+    fun staffChat(sender: Player, @Argument("text") text: Array<String>) {
+        ChatUtility.broadcastStaff(
+            "<playercolour>${sender.name}<white>: ${text.joinToString(" ")}",
             false
         )
     }
 
-    @Command("dc <text>")
+    @Command("adminchat|ac <text>")
+    @CommandDescription("Sends a message to admin chat.")
+    @Permission("sg.admin_chat")
+    fun adminChat(sender: Player, @Argument("text") text: Array<String>) {
+        ChatUtility.broadcastAdmin(
+            "<dark_red>${sender.name}<white>: ${text.joinToString(" ")}",
+            false
+        )
+    }
+
+    @Command("devchat|dc <text>")
     @CommandDescription("Sends a message to dev chat.")
-    @Permission("sg.cmd.dev_chat")
+    @Permission("sg.dev_chat")
     fun devChat(sender: Player, @Argument("text") text: Array<String>) {
         ChatUtility.broadcastDev(
-            "<skull:${sender.name}><gold>${sender.name}<white>: ${text.joinToString(" ")}",
+            "<gold>${sender.name}<white>: ${text.joinToString(" ")}",
             false
         )
     }
@@ -125,14 +133,14 @@ class AdminCommands {
 
     @Command("progression add_xp <xp> [player]")
     @CommandDescription("Debug command for XP")
-    @Permission("sg.cmd.debug")
+    @Permission("sg.cmd.xp")
     fun debugXp(sender: Player, @Argument("xp") xp: Int, @Argument("player") player: Player?) {
         SGExperienceLevels.appendExperience(player ?: sender, xp)
     }
 
     @Command("progression set_level <level> [player]")
     @CommandDescription("Debug command for levels")
-    @Permission("sg.cmd.debug")
+    @Permission("sg.cmd.level")
     fun debugLevel(sender: Player, @Argument("level") level: SGLevel, @Argument("player") player: Player?) {
         SGExperienceLevels.setLevel(player ?: sender, level)
     }

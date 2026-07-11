@@ -23,7 +23,7 @@ import java.time.Duration
 class PlayerCommands {
     @Command("info <player>")
     @CommandDescription("Gets all information about a player that is stored.")
-    @Permission("sg.cmd.player")
+    @Permission("sg.cmd.player_info")
     fun getPlayer(sender: Player, @Argument("player") player: Player) {
         sender.sendMessage(Formatting.allTags.deserialize("<newline><playercolour><bold>Player ${player.name}'s Info:<reset><newline><speccolour>Name: <yellow>${player.sgPlayer().playerName}<speccolour><newline>UUID: <yellow>${player.sgPlayer().uuid}<speccolour><newline>Client: <yellow>${player.clientBrandName}<speccolour><newline>Type: <yellow>${player.sgPlayer().playerType}<speccolour><newline>Dead: <yellow>${player.sgPlayer().isDead}<speccolour><newline>Container: <yellow>${player.sgPlayer().currentContainer?.containerId}<speccolour><newline>Rank: ${player.sgPlayer().rank.rankHexTag}${player.sgPlayer().rank.rankName}<speccolour><newline>Level: <yellow>${player.sgPlayer().level.levelName}<speccolour><newline>XP: <yellow>${player.sgPlayer().exp}<speccolour><newline>Matches Played: <yellow>${player.sgPlayer().matchesPlayed}<speccolour><newline>Wins: <yellow>${player.sgPlayer().wins}<speccolour><newline>Eliminations: <yellow>${player.sgPlayer().eliminations}<speccolour><newline>"))
     }
