@@ -64,11 +64,11 @@ object SGMatchmakingInterface {
                 pane[2, 4] = StaticElement(drawable(noContainersItem))
             }
         }
-        if (player.isOp) {
+        if (player.hasPermission("sg.group.admin") || player.hasPermission("sg.group.dev") || player.hasPermission("sg.group.staff")) {
             withTransform { pane, _ ->
                 val createContainerItem = ItemStack(Material.COMMAND_BLOCK)
                 val createContainerItemMeta = createContainerItem.itemMeta
-                createContainerItemMeta.displayName(Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<green>Click to create a match"))
+                createContainerItemMeta.displayName(Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<dark_red>Click to create a match"))
                 createContainerItemMeta.lore(
                     listOf(
                         Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<playercolour>Builds a new default container."),
