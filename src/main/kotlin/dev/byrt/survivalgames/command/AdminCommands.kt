@@ -1,16 +1,21 @@
 package dev.byrt.survivalgames.command
 
+import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.item.SGItem
+import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.map.MapDataPointType
+import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.progression.SGExperienceLevels
 import dev.byrt.survivalgames.player.progression.SGLevel
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.Formatting.SG_FONT
+import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.text.TextAlignment
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.bossbar.BossBar
@@ -20,6 +25,7 @@ import net.kyori.adventure.text.format.Style
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerTeleportEvent
 import org.bukkit.scheduler.BukkitRunnable
 import org.incendo.cloud.annotation.specifier.Greedy
 import org.incendo.cloud.annotations.Argument
@@ -40,6 +46,38 @@ class AdminCommands {
             false
         )
     }
+
+    @Command("tp|teleport|takemetothefollowingplayerrightthisinstant <player>")
+    @CommandDescription("Teleports the executor to the specified target.")
+    @Permission("sg.teleport")
+    fun teleport(sender: Player, @Argument("player") player: Player) {
+        if(sender == player) return
+        if(sender.sgPlayer().playerType == PlayerType.PARTICIPANT) return
+        val targetLocation = player.location
+        val direction = targetLocation.direction.normalize()
+        val teleportLocation = targetLocation.add(direction.multiply(-1.5)).add(0.0, 0.5, 0.0)
+        teleportLocation.direction = targetLocation.direction
+
+        if(sender.sgPlayer().currentContainer == player.sgPlayer().currentContainer) {
+            sender.teleport(teleportLocation, PlayerTeleportEvent.TeleportCause.PLUGIN)
+            sender.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}${SG_FONT_TAG}Teleported to <playercolour>${player.name}</playercolour>!"))
+        }
+        if(sender.sgPlayer().currentContainer == null && player.sgPlayer().currentContainer != null) {
+            GameManager.addPlayerToContainer(sender, player.sgPlayer().currentContainer!!, true)
+            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+                sender.teleport(teleportLocation, PlayerTeleportEvent.TeleportCause.PLUGIN)
+                sender.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}${SG_FONT_TAG}Teleported to <playercolour>${player.name}</playercolour>!"))
+            }, 20L)
+        }
+        if(sender.sgPlayer().currentContainer != null && player.sgPlayer().currentContainer == null) {
+            GameManager.removePlayerFromContainer(sender)
+            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+                sender.teleport(teleportLocation, PlayerTeleportEvent.TeleportCause.PLUGIN)
+                sender.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}${SG_FONT_TAG}Teleported to <playercolour>${player.name}</playercolour>!"))
+            }, 20L)
+        }
+    }
+
 
     @Command("adminchat|ac <text>")
     @CommandDescription("Sends a message to admin chat.")

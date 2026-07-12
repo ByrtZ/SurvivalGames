@@ -1,16 +1,15 @@
-package dev.byrt.survivalgames.player
+package dev.byrt.survivalgames.player.visuals
 
 import dev.byrt.survivalgames.defaultCoroutineScope
-import dev.byrt.survivalgames.game.GameContainer
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.interfaces.SGDeathInterface
 import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.SGDeathMessages
 import dev.byrt.survivalgames.library.Sounds
-import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
+import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.progression.SGExperienceLevels
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
@@ -62,12 +61,12 @@ object PlayerVisuals {
 
         val deathMessage = if (showDeathMessage) {
             if (killer != null) {
-                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] ").append(Formatting.allTags.deserialize("$SG_FONT_TAG${SGDeathMessages.killerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>").replace("%k", "<#ff3333>${killer.name}</#ff3333>")}"))
+                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] ").append(Formatting.allTags.deserialize("${SG_FONT_TAG}${SGDeathMessages.killerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>").replace("%k", "<#ff3333>${killer.name}</#ff3333>")}"))
             } else {
-                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] ").append(Formatting.allTags.deserialize("$SG_FONT_TAG${SGDeathMessages.nonKillerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>")}"))
+                Formatting.allTags.deserialize("[<#ff3333><unicodeprefix:skull></#ff3333>] ").append(Formatting.allTags.deserialize("${SG_FONT_TAG}${SGDeathMessages.nonKillerMessages.random().replace("%s", "<#ff3333>${player.name}</#ff3333>")}"))
             }
         } else Component.empty()
-        player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 50, 255, true, false))
+        player.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 100, 255, true, false))
         player.showTitle(
             Title.title(
                 Formatting.allTags.deserialize("<#ff3333>${SG_FONT_TAG}You died!"),
@@ -106,9 +105,13 @@ object PlayerVisuals {
         val inventoryContents = player.inventory.storageContents + player.inventory.armorContents
         inventoryContents.forEach { item ->
             player.world.spawn(player.location, Item::class.java).apply {
-                if (item != null && item.type !in listOf(Material.AIR, Material.COMPASS, Material.LANTERN)) {
+                if (item != null && item.type !in listOf(Material.AIR, Material.COMPASS, Material.LANTERN, Material.RECOVERY_COMPASS)) {
                     itemStack = item
-                    velocity = Vector(Random.nextDouble(-0.25, 0.25), Random.nextDouble(-0.25, 0.25), Random.nextDouble(-0.25, 0.25))
+                    velocity = Vector(
+                        Random.nextDouble(-0.25, 0.25),
+                        Random.nextDouble(-0.25, 0.25),
+                        Random.nextDouble(-0.25, 0.25)
+                    )
                 } else {
                     remove()
                 }
@@ -128,8 +131,6 @@ object PlayerVisuals {
             addPassenger(player)
         }
         player.sendActionBar(Component.empty())
-
-        hidePlayer(player)
 
         player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
 
@@ -181,7 +182,6 @@ object PlayerVisuals {
     }
 
     fun fullRespawn(player: Player, deathVehicle: ItemDisplay, shouldLeaveContainer: Boolean = false) {
-        player.gameMode = GameMode.SPECTATOR
         player.sendActionBar(Component.empty())
         object : BukkitRunnable() {
             override fun run() {
@@ -194,17 +194,6 @@ object PlayerVisuals {
                 }.runTaskLater(plugin, 20L)
             }
         }.runTask(plugin)
-    }
-
-    fun showPlayer(player: Player) {
-        for(other in Bukkit.getOnlinePlayers()) {
-            other.showPlayer(plugin, player)
-        }
-    }
-    fun hidePlayer(player: Player) {
-        for(other in Bukkit.getOnlinePlayers()) {
-            other.hidePlayer(plugin, player)
-        }
     }
 
     fun respawn(player: Player) {
@@ -230,7 +219,7 @@ object PlayerVisuals {
         player.health = player.getAttribute(Attribute.MAX_HEALTH)!!.value
         player.foodLevel = 20
         player.inventory.helmet = null
-        showPlayer(player)
+        player.give(SGItem.getSpectatorCompass())
     }
 
     fun updateXp(player: Player) {
@@ -241,65 +230,6 @@ object PlayerVisuals {
     fun updateLevel(player: Player) {
         val level = player.sgPlayer().level.ordinal + 1
         player.level = level
-    }
-
-    fun shrinkBorder(container: GameContainer?, newSize: Double = 50.0, overrideTicks: Long = 0) {
-        if(newSize == container?.containerWorld?.worldBorder?.size) return
-        // Prevent shrink if supply drops active
-        if(container?.instance?.manager?.activeSupplyDrops?.isNotEmpty() == true) return
-        container?.containerWorld?.worldBorder?.changeSize(newSize, if(overrideTicks > 0) overrideTicks else container.instance.timer.getTimer().times(20).toLong())
-        for(player in container?.instance?.currentContainer?.players!!) {
-            player.bukkitPlayer().playSound(Sounds.Alert.ALARM)
-            player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}The World Border is shrinking!"))
-            player.bukkitPlayer().showTitle(
-                Title.title(
-                    Component.empty(),
-                    Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}World Border shrinking!"),
-                    Title.Times.times(
-                        Duration.ofMillis(250),
-                        Duration.ofSeconds(1),
-                        Duration.ofMillis(250)
-                    )
-                )
-            )
-        }
-    }
-
-    fun gracePeriodStart(container: GameContainer?) {
-        for(player in container?.instance?.currentContainer?.players!!) {
-            player.bukkitPlayer().playSound(Sounds.Alert.GRACE_PERIOD_BEGIN)
-            player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#20d600><b>${SG_FONT_TAG}Grace Period has begun."))
-            player.bukkitPlayer().showTitle(
-                Title.title(
-                    Component.empty(),
-                    Formatting.allTags.deserialize("<#20d600><b>${SG_FONT_TAG}Grace Period active!"),
-                    Title.Times.times(
-                        Duration.ofMillis(250),
-                        Duration.ofSeconds(1),
-                        Duration.ofMillis(250)
-                    )
-                )
-            )
-        }
-    }
-
-    fun gracePeriodEnd(container: GameContainer?) {
-        for(player in container?.instance?.currentContainer?.players!!) {
-            player.bukkitPlayer().playSound(Sounds.Alert.GRACE_PERIOD_END)
-            player.bukkitPlayer().sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}<#ff3333><b>${SG_FONT_TAG}Grace Period has ended."))
-            player.bukkitPlayer().showTitle(
-                Title.title(
-                    Component.empty(),
-                    Formatting.allTags.deserialize("<#ff3333><b>${SG_FONT_TAG}Grace Period ended!"),
-                    Title.Times.times(
-                        Duration.ofMillis(250),
-                        Duration.ofSeconds(1),
-                        Duration.ofMillis(250)
-                    )
-                )
-            )
-            player.bukkitPlayer().give(SGItem.getSupplyDropCompass())
-        }
     }
 
     /** Resets player gamemode, health, food and saturation by default.
@@ -318,7 +248,7 @@ object PlayerVisuals {
             player.eject()
             vehicle?.remove()
         }
-        if(player.sgPlayer().playerType == PlayerType.SPECTATOR) player.gameMode = GameMode.SPECTATOR else player.gameMode = GameMode.ADVENTURE
+        player.gameMode = GameMode.ADVENTURE
         player.clearActivePotionEffects()
         player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0
         player.health = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0

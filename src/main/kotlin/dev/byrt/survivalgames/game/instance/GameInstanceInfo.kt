@@ -18,7 +18,7 @@ import org.bukkit.scoreboard.DisplaySlot
 @Suppress("DEPRECATION")
 class GameInstanceInfo(val instance: GameInstance) {
     val preGameScoreboard = Bukkit.getScoreboardManager().newScoreboard
-    private var preGameObjective = preGameScoreboard.registerNewObjective(
+    var preGameObjective = preGameScoreboard.registerNewObjective(
         "${plugin.name.lowercase()}-pregame-info-${instance.gameInstanceId}",
         Criteria.DUMMY,
         Formatting.allTags.deserialize("<green><bold>${SG_FONT_TAG}Awaiting players...<reset>")
@@ -81,10 +81,10 @@ class GameInstanceInfo(val instance: GameInstance) {
     }
 
     val gameScoreboard = Bukkit.getScoreboardManager().newScoreboard
-    private var gameObjective = gameScoreboard.registerNewObjective(
+    var gameObjective = gameScoreboard.registerNewObjective(
         "${plugin.name.lowercase()}-game-info-${instance.gameInstanceId}",
         Criteria.DUMMY,
-        Formatting.allTags.deserialize("<gold><bold>${SG_FONT_TAG}Survival Games<reset>")
+        Formatting.allTags.deserialize("<playercolour><bold>${SG_FONT_TAG}Survival Games<reset>")
     )
     private var gameTimeLine = gameScoreboard.registerNewTeam("gameTimeLine")
     private val gameTimeLineKey = ChatColor.GRAY.toString()
@@ -121,6 +121,7 @@ class GameInstanceInfo(val instance: GameInstance) {
     }
 
     fun updatePreGameTitle(time: Int = 0) {
+        if(!preGameObjective.isModifiable) return
         if(instance.manager.getGameState() == GameState.IDLE) {
             if(instance.manager.isAutoStarting) {
                 preGameObjective.displayName(Formatting.allTags.deserialize("<playercolour><bold>${SG_FONT_TAG}Starting in <white>${String.format("%02d:%02d", (time + 1) / 60, (time + 1) % 60)}<reset>"))

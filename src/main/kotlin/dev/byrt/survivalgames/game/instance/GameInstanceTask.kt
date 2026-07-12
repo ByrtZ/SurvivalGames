@@ -1,14 +1,14 @@
 package dev.byrt.survivalgames.game.instance
 
+import dev.byrt.survivalgames.game.visuals.GameVisuals
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.JukeboxTrack
 import dev.byrt.survivalgames.player.PlayerType
-import dev.byrt.survivalgames.player.PlayerVisuals
 import dev.byrt.survivalgames.plugin
-import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.text.Formatting
+import dev.byrt.survivalgames.text.SG_FONT_TAG
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -132,11 +132,11 @@ class GameInstanceTask(val instance: GameInstance) {
                     }
                     if (instance.timer.getTimer() % 60 == 0) {
                         if(instance.timer.getTimer() == (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH - 60 else GameTime.IN_GAME_TIME - 60) && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= instance.manager.map.borderSize) {
-                            PlayerVisuals.shrinkBorder(instance.currentContainer)
+                            GameVisuals.shrinkBorder(instance.currentContainer)
                         }
                     }
                     // Supply drop spawning
-                    if (instance.timer.getTimer() < (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME) && instance.timer.getTimer() > (if(instance.manager.map.isQuickMatch) 80 else 120) && instance.timer.getTimer() % 75 == 0) {
+                    if (instance.manager.isGracePeriod == false && instance.timer.getTimer() < (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME) && instance.timer.getTimer() > (if(instance.manager.map.isQuickMatch) 80 else 120) && instance.timer.getTimer() % 75 == 0) {
                         SGLoot.spawnSupplyDrop(instance.currentContainer, instance.manager.map)
                     }
 
@@ -160,10 +160,10 @@ class GameInstanceTask(val instance: GameInstance) {
                         }
                     }
                     if (instance.timer.getTimer() <= (GameTime.OVERTIME_TIME - 60) && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= 50.0) {
-                        PlayerVisuals.shrinkBorder(instance.currentContainer, newSize = 20.0, overrideTicks = 20L * 12L)
+                        GameVisuals.shrinkBorder(instance.currentContainer, newSize = 20.0, overrideTicks = 20L * 12L)
                     }
                     if (instance.timer.getTimer() <= (GameTime.OVERTIME_TIME - 80) && instance.currentContainer?.containerWorld?.worldBorder?.size!! >= 20.0) {
-                        PlayerVisuals.shrinkBorder(instance.currentContainer, newSize = 10.0, overrideTicks = 20L * 8L)
+                        GameVisuals.shrinkBorder(instance.currentContainer, newSize = 10.0, overrideTicks = 20L * 8L)
                     }
                     if (instance.timer.getTimer() <= 0) {
                         instance.manager.nextState()

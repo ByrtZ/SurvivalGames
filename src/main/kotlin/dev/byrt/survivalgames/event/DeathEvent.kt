@@ -2,7 +2,7 @@ package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
-import dev.byrt.survivalgames.player.PlayerVisuals
+import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent

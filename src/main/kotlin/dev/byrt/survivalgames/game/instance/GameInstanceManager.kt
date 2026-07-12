@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.game.instance
 
 import dev.byrt.survivalgames.defaultCoroutineScope
 import dev.byrt.survivalgames.game.GameManager
+import dev.byrt.survivalgames.game.visuals.GameVisuals
 import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
@@ -10,7 +11,7 @@ import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.player.PlayerType
-import dev.byrt.survivalgames.player.PlayerVisuals
+import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import dev.byrt.survivalgames.player.progression.SGExperienceLevels
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
@@ -45,8 +46,8 @@ class GameInstanceManager(val instance: GameInstance) {
         set(value) {
             if(field == value) return
             field = value
-            if(field == true) PlayerVisuals.gracePeriodStart(instance.currentContainer)
-            if(field == false) PlayerVisuals.gracePeriodEnd(instance.currentContainer)
+            if(field == true) GameVisuals.gracePeriodStart(instance.currentContainer)
+            if(field == false) GameVisuals.gracePeriodEnd(instance.currentContainer)
         }
     var isAutoStarting: Boolean = false
         set(value) {
@@ -176,7 +177,7 @@ class GameInstanceManager(val instance: GameInstance) {
         instance.currentContainer?.containerWorld?.worldBorder?.damageAmount = 0.05
         /** Spawn allocation, only use first available spectator spawn and cast participant spawns to list and iterate for each participant **/
         val spectatorSpawn = map.spectatorSpawns.first()
-        val participantSpawns = map.participantSpawns.flatMap { listOf(Location(instance.currentContainer?.containerWorld, it.x, it.y, it.z)).shuffled() }
+        val participantSpawns = map.participantSpawns.flatMap { listOf(Location(instance.currentContainer?.containerWorld, it.x, it.y, it.z)) }.shuffled()
         var participantSpawnIndex = 0
 
         instance.info.updateGamePlayersRemaining()
@@ -186,7 +187,10 @@ class GameInstanceManager(val instance: GameInstance) {
             PlayerVisuals.resetPlayerState(player.bukkitPlayer(), shouldClearInventory = true)
             player.bukkitPlayer().scoreboard = instance.info.gameScoreboard
             when(player.playerType) {
-                PlayerType.SPECTATOR -> player.bukkitPlayer().teleport(Location(instance.currentContainer?.containerWorld, spectatorSpawn.x, spectatorSpawn.y, spectatorSpawn.z))
+                PlayerType.SPECTATOR -> {
+                    player.bukkitPlayer().teleport(Location(instance.currentContainer?.containerWorld, spectatorSpawn.x, spectatorSpawn.y, spectatorSpawn.z))
+                    player.bukkitPlayer().give(SGItem.getSpectatorCompass())
+                }
                 PlayerType.PARTICIPANT -> {
                     if(participantSpawnIndex > participantSpawns.size - 1) participantSpawnIndex = 0
                     player.bukkitPlayer().teleport(participantSpawns[participantSpawnIndex])
@@ -288,7 +292,7 @@ class GameInstanceManager(val instance: GameInstance) {
                 SGExperienceLevels.appendExperience(remainingPlayer.bukkitPlayer(), 200)
                 repeat(5) {
                     PlayerVisuals.firework(
-                        remainingPlayer.bukkitPlayer().location.clone().add(Random.nextDouble(-3.0, 3.0), Random.nextDouble(-3.0, 3.0), Random.nextDouble(-3.0, 3.0)),
+                        remainingPlayer.bukkitPlayer().location.clone().add(Random.nextDouble(-2.0, 2.0), Random.nextDouble(2.0, 6.0), Random.nextDouble(-2.0, 2.0)),
                         flicker = true,
                         trail = true,
                         color = Color.ORANGE,

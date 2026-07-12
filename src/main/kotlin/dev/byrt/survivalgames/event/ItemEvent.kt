@@ -32,7 +32,7 @@ class ItemEvent: Listener {
             val container = e.player.sgPlayer().currentContainer!!
             e.isCancelled = container.instance.manager.getGameState() !in listOf(GameState.IN_GAME, GameState.OVERTIME)
         } else {
-            e.isCancelled = false
+            e.isCancelled = true
         }
     }
 }

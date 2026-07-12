@@ -3,7 +3,7 @@ package dev.byrt.survivalgames.event
 import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
-import dev.byrt.survivalgames.player.PlayerVisuals
+import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import org.bukkit.damage.DamageType
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
@@ -20,7 +20,11 @@ class DamageEvent: Listener {
             e.isCancelled = true
             return
         }
-        if (e.entity is Player) {
+        if(e.damageSource.causingEntity is Player && (e.damageSource.causingEntity as Player).sgPlayer().playerType != PlayerType.PARTICIPANT) {
+            e.isCancelled = true
+            return
+        }
+        if(e.entity is Player) {
             val player = e.entity as Player
             if (player.sgPlayer().currentContainer != null && player.sgPlayer().playerType == PlayerType.PARTICIPANT) {
                 val currentContainer = player.sgPlayer().currentContainer!!
@@ -58,6 +62,10 @@ class DamageEvent: Listener {
     @EventHandler
     private fun onDamageByEntity(e: EntityDamageByEntityEvent) {
         if(e.damager is Firework) {
+            e.isCancelled = true
+            return
+        }
+        if(e.damager is Player && (e.damager as Player).sgPlayer().playerType != PlayerType.PARTICIPANT) {
             e.isCancelled = true
             return
         }

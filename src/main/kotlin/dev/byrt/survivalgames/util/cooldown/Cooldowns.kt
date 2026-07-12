@@ -37,4 +37,15 @@ object Cooldowns {
             false
         }
     }
+
+    private var spectatorCompassCooldowns = HashMap<UUID, Long>()
+    private const val SPECTATOR_COMPASS_COOLDOWN_TIME = 1250
+    fun attemptUseSpectatorCompass(player: Player): Boolean {
+        return if(!spectatorCompassCooldowns.containsKey(player.uniqueId) || System.currentTimeMillis() - spectatorCompassCooldowns[player.uniqueId]!! > SPECTATOR_COMPASS_COOLDOWN_TIME) {
+            spectatorCompassCooldowns[player.uniqueId] = System.currentTimeMillis()
+            true
+        } else {
+            false
+        }
+    }
 }

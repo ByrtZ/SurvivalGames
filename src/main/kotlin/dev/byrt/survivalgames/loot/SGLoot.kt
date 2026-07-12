@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.loot
 
 import dev.byrt.survivalgames.game.GameContainer
 import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.game.visuals.GameVisuals
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.logger
@@ -9,7 +10,7 @@ import dev.byrt.survivalgames.loot.data.SGLootItem
 import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.loot.pool.SGLootPool
 import dev.byrt.survivalgames.map.SGMap
-import dev.byrt.survivalgames.player.PlayerVisuals
+import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
@@ -110,7 +111,7 @@ object SGLoot {
                                 override fun run() {
                                     if(container?.instance?.manager?.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME)) {
                                         container?.instance?.manager?.activeSupplyDrops?.remove(supplyDropID)
-                                        PlayerVisuals.shrinkBorder(container)
+                                        GameVisuals.shrinkBorder(container)
                                     }
                                 }
                             }.runTaskLater(plugin, 20L * 8L)
@@ -130,7 +131,7 @@ object SGLoot {
                         cancel()
                     }
                 }
-            }.runTaskTimer(plugin, 20L * 14L, 4L)
+            }.runTaskTimer(plugin, 20L * 18L, 4L)
         } else return
     }
 

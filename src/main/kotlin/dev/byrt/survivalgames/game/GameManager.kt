@@ -2,6 +2,7 @@ package dev.byrt.survivalgames.game
 
 import dev.byrt.survivalgames.game.instance.GamePlayerCount
 import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
@@ -10,7 +11,7 @@ import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.JukeboxTrack
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.PlayerType
-import dev.byrt.survivalgames.player.PlayerVisuals
+import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
@@ -29,6 +30,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.scheduler.BukkitRunnable
 import java.time.Duration
@@ -118,6 +120,29 @@ object GameManager {
         return items
     }
 
+    fun getParticipantItems(container: GameContainer): List<ItemStack> {
+        val items = mutableListOf<ItemStack>()
+        val participants = container.players.filter { it.playerType == PlayerType.PARTICIPANT }
+        for(participant in participants) {
+            items.add(
+                ItemStack(Material.PLAYER_HEAD).apply {
+                    editMeta {
+                        it as SkullMeta
+                        it.playerProfile = participant.bukkitPlayer().playerProfile
+                        it.displayName(Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>${participant.playerName}"))
+                        it.lore(listOf(
+                            Formatting.allTags.deserialize("<!i>"),
+                            Formatting.allTags.deserialize("<!i>${SG_FONT_TAG}<b><green>CLICK TO SPECTATE"),
+                            Formatting.allTags.deserialize("<!i>")
+                        ))
+                        it.persistentDataContainer.set(Keys.PARTICIPANT_UUID, PersistentDataType.STRING, participant.uuid.toString())
+                    }
+                }
+            )
+        }
+        return items
+    }
+
     fun addPlayerToContainer(player: Player, gameContainer: GameContainer, forceJoinAsSpectator: Boolean = false) {
         if(gameContainer.isEditMode && !player.isOp) {
             player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<#ff3333>You do not have permission to join this instance."))
@@ -139,6 +164,7 @@ object GameManager {
             player.sgPlayer().setType(PlayerType.SPECTATOR)
             player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<gray>You joined the match as a spectator."))
             player.teleport(spectatorSpawn)
+            player.give(SGItem.getSpectatorCompass())
         } else {
             if(gameContainer.instance.manager.getGameState() == GameState.IDLE && gameContainer.players.filter { p -> p.playerType == PlayerType.PARTICIPANT }.size < GamePlayerCount.MAX_PLAYERS) {
                 player.sgPlayer().setType(PlayerType.PARTICIPANT)
@@ -148,6 +174,7 @@ object GameManager {
                 player.sgPlayer().setType(PlayerType.SPECTATOR)
                 player.sendMessage(Formatting.allTags.deserialize("${Translation.Generic.ARROW_PREFIX}$SG_FONT_TAG<gray>You joined the match as a spectator; this match is already running or full."))
                 player.teleport(spectatorSpawn)
+                player.give(SGItem.getSpectatorCompass())
             }
         }
         gameContainer.players.add(player.sgPlayer())
@@ -200,7 +227,11 @@ object GameManager {
                         } else {
                             gameContainer.instance.manager.isAutoStarting = false
                             startBossBar.name(TextAlignment.centreBossBarText("AWAITING PLAYERS (${gameContainer.players.size}/${GamePlayerCount.MAX_PLAYERS})"))
-                            gameContainer.instance.info.updatePreGameTitle()
+                            if(gameContainer.instance.info.preGameObjective.isModifiable) {
+                                gameContainer.instance.info.updatePreGameTitle()
+                            } else {
+                                cancel()
+                            }
                             gameContainer.players.forEach { player ->
                                 if(player.bukkitPlayer().activeBossBars().contains(startBossBar)) startBossBar.removeViewer(player.bukkitPlayer())
                                 player.bukkitPlayer().playSound(Sounds.Alert.GAME_AUTO_START_CANCELLED)
@@ -223,11 +254,17 @@ object GameManager {
     }
 
     fun removePlayerFromContainer(player: Player) {
-        player.sgPlayer().currentContainer?.players?.remove(player.sgPlayer())
+        val container = player.sgPlayer().currentContainer
+        container?.players?.remove(player.sgPlayer())
+        container?.instance?.manager?.gameEndCheck()
         player.sgPlayer().currentContainer = null
         player.sgPlayer().setType(PlayerType.IDLE)
+        if(container?.instance?.manager?.getGameState() == GameState.IDLE) {
+            container.instance.info.updatePreGamePlayersRequired()
+        } else {
+            container?.instance?.info?.updateGamePlayersRemaining()
+        }
         PlayerVisuals.resetPlayerState(player, shouldClearBossBar = true, shouldClearInventory = true, shouldResetScoreboard = true, shouldResetVehicle = true)
-        player.sgPlayer().currentContainer?.instance?.manager?.gameEndCheck()
         player.teleport(Location(Bukkit.getWorlds()[0], -1914.5, 78.0, -1680.5, 0f, 0f))
         Jukebox.startMusicLoop(player, JukeboxTrack.LOBBY)
     }

@@ -1,6 +1,8 @@
 package dev.byrt.survivalgames.event
 
+import dev.byrt.survivalgames.defaultCoroutineScope
 import dev.byrt.survivalgames.game.instance.GameState
+import dev.byrt.survivalgames.interfaces.SGSpectatorInterface
 import dev.byrt.survivalgames.lobby.npc.SGNPC
 import dev.byrt.survivalgames.map.MapDataPointType
 import dev.byrt.survivalgames.map.MapTools
@@ -9,6 +11,7 @@ import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.util.Keys
 import dev.byrt.survivalgames.util.cooldown.Cooldowns
 import dev.byrt.survivalgames.util.extension.decrementItemInHand
+import kotlinx.coroutines.launch
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.entity.Mannequin
@@ -45,6 +48,12 @@ class InteractEvent: Listener {
                     if(dataPointType != null) {
                         MapTools.createDataPoint(e.player,e.clickedBlock!!, dataPointType, container.instance.manager.map)
                     }
+                }
+            }
+            /** Spectator compass logic **/
+            if(e.player.sgPlayer().playerType == PlayerType.SPECTATOR && e.player.sgPlayer().currentContainer != null && e.player.inventory.itemInMainHand.persistentDataContainer.has(Keys.SPECTATOR_COMPASS) && e.action.isRightClick) {
+                if(Cooldowns.attemptUseSpectatorCompass(e.player)) {
+                    defaultCoroutineScope.launch { SGSpectatorInterface.create(e.player) }
                 }
             }
             if(container.instance.manager.getGameState() in listOf(GameState.IN_GAME, GameState.OVERTIME) && e.player.sgPlayer().playerType == PlayerType.PARTICIPANT) {

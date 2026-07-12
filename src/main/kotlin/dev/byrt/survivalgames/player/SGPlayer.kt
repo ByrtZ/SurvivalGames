@@ -8,6 +8,8 @@ import dev.byrt.survivalgames.nametag.provider.GameNameTagProvider
 import dev.byrt.survivalgames.nametag.provider.LobbyNameTagProvider
 import dev.byrt.survivalgames.player.data.Rank
 import dev.byrt.survivalgames.player.progression.SGLevel
+import dev.byrt.survivalgames.player.visuals.PlayerVisibility
+import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import org.bukkit.Bukkit
@@ -63,13 +65,20 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
         nameTagProvider = null // Always remove existing name tag prior to teleportation, because you obviously cannot teleport a player with passengers... also delay setting name tag later for safety
         when(newType) {
             PlayerType.IDLE -> {
+                bukkitPlayer().gameMode = GameMode.ADVENTURE
+                isHidden = false
+                canFly = false
                 Bukkit.getScheduler().runTaskLater(plugin, Runnable { nameTagProvider = LobbyNameTagProvider() }, 20L)
             }
             PlayerType.SPECTATOR -> {
-                if (currentContainer == null) bukkitPlayer().gameMode = GameMode.ADVENTURE else bukkitPlayer().gameMode = GameMode.SPECTATOR
+                bukkitPlayer().gameMode = GameMode.ADVENTURE
+                isHidden = true
+                canFly = true
             }
             PlayerType.PARTICIPANT -> {
                 bukkitPlayer().gameMode = GameMode.ADVENTURE
+                isHidden = false
+                canFly = false
                 Bukkit.getScheduler().runTaskLater(plugin, Runnable { nameTagProvider = GameNameTagProvider() }, 20L)
             } else -> {}
         }
@@ -107,6 +116,24 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
             if (field == value) return
             field = value
             logger.info("Dead State: ${this.playerName} now has value $value")
+        }
+
+    var isHidden: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            if(field) PlayerVisibility.hide(this)
+            if(!field) PlayerVisibility.show(this)
+            logger.info("Hidden: ${this.playerName} now has value $value")
+        }
+
+    var canFly: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            if(field) this.bukkitPlayer().allowFlight = true
+            if(!field) this.bukkitPlayer().allowFlight = false
+            logger.info("Flight: ${this.playerName} now has value $value")
         }
 
     var currentContainer: GameContainer? = null

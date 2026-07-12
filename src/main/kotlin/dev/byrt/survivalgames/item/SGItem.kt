@@ -27,6 +27,23 @@ object SGItem {
         return supplyDropCompass
     }
 
+    fun getSpectatorCompass(): ItemStack {
+        val spectatorCompass = ItemStack(Material.RECOVERY_COMPASS, 1)
+        val spectatorCompassMeta = spectatorCompass.itemMeta
+        spectatorCompassMeta.displayName(Formatting.allTags.deserialize("<!i><playercolour>${SG_FONT_TAG}Spectator Compass</playercolour>"))
+        val loreList = mutableListOf(
+            Formatting.allTags.deserialize("<!i>"),
+            Formatting.allTags.deserialize("<!i><#ffff00>${SG_FONT_TAG}Press '<yellow><key:key.use></yellow>' to open"),
+            Formatting.allTags.deserialize("<!i><#ffff00>${SG_FONT_TAG}the spectator interface."),
+            Formatting.allTags.deserialize("<!i>")
+        )
+        spectatorCompassMeta.lore(loreList)
+        spectatorCompassMeta.persistentDataContainer.set(Keys.SPECTATOR_COMPASS, PersistentDataType.BOOLEAN, true)
+        spectatorCompass.itemMeta = spectatorCompassMeta
+        return spectatorCompass
+    }
+
+
     fun getLantern(): ItemStack {
         val lantern = ItemStack(Material.LANTERN, 1)
         val lanternMeta = lantern.itemMeta

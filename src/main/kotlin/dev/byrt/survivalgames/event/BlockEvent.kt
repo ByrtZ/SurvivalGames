@@ -1,7 +1,7 @@
 package dev.byrt.survivalgames.event
 
 import com.destroystokyo.paper.event.block.BlockDestroyEvent
-import org.bukkit.GameMode
+
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
@@ -12,6 +12,7 @@ import org.bukkit.event.block.BlockGrowEvent
 import org.bukkit.event.block.BlockPhysicsEvent
 import org.bukkit.event.block.BlockPlaceEvent
 
+@Suppress("unused")
 class BlockEvent: Listener {
     @EventHandler
     private fun onBlockPlace(e: BlockPlaceEvent) {

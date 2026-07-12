@@ -64,7 +64,7 @@ class InventoryEvent: Listener {
                     if(e.view.title() == SGDeathInterface.INTERFACE_TITLE) {
                         Bukkit.getScheduler().runTaskLater(plugin, Runnable {
                             defaultCoroutineScope.launch { SGDeathInterface.create(player) }
-                        }, 2L)
+                        }, 1L)
                     }
                 }
             }

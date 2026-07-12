@@ -12,6 +12,8 @@ object Keys {
      * Gameplay related
      */
     val SUPPLY_DROP_COMPASS = NamespacedKey(plugin, "supply_drop_compass")
+    val SPECTATOR_COMPASS = NamespacedKey(plugin, "spectator_compass")
+    val PARTICIPANT_UUID = NamespacedKey(plugin, "participant_uuid")
     val LANTERN = NamespacedKey(plugin, "lantern")
     val LOOT_ITEM = NamespacedKey(plugin, "loot")
     /**

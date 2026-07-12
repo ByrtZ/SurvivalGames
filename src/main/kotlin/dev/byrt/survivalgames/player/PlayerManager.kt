@@ -4,6 +4,8 @@ import dev.byrt.survivalgames.exception.PlayerManagerException
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.player.data.SGPlayerData
+import dev.byrt.survivalgames.player.visuals.PlayerVisibility
+import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -20,7 +22,10 @@ object PlayerManager {
             shouldResetScoreboard = true,
             shouldResetVehicle = true
         )
-        PlayerVisuals.showPlayer(player)
+        PlayerVisibility.show(sgPlayer)
+        PlayerVisibility.hideHiddenPlayers(sgPlayer)
+        PlayerVisuals.updateXp(player)
+        PlayerVisuals.updateLevel(player)
     }
 
     fun unregisterPlayer(sgPlayer: SGPlayer) {
