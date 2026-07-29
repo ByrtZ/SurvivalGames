@@ -1,7 +1,6 @@
 package dev.byrt.survivalgames.player
 
 import dev.byrt.survivalgames.game.GameContainer
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.nametag.NameTag
 import dev.byrt.survivalgames.nametag.NameTagProvider
 import dev.byrt.survivalgames.nametag.provider.GameNameTagProvider
@@ -11,6 +10,7 @@ import dev.byrt.survivalgames.player.progression.SGLevel
 import dev.byrt.survivalgames.player.visuals.PlayerVisibility
 import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import dev.byrt.survivalgames.plugin
+import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
@@ -19,7 +19,7 @@ import java.util.*
 
 class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerType) {
     init {
-        logger.info("Player Manager: Registered player ${this.playerName} as SGPlayer.")
+        ChatUtility.broadcastDebug("Player Manager: Registered player ${this.playerName} as SGPlayer.")
     }
 
     var exp = 0
@@ -83,7 +83,7 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
             } else -> {}
         }
         setTabName()
-        logger.info("Type: ${this.playerName} now has value ${this.playerType}.")
+        ChatUtility.broadcastDebug("Type: ${this.playerName} now has value ${this.playerType}.")
     }
 
     private fun setTabName() {
@@ -115,7 +115,7 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
         set(value) {
             if (field == value) return
             field = value
-            logger.info("Dead State: ${this.playerName} now has value $value")
+            ChatUtility.broadcastDebug("Dead State: ${this.playerName} now has value $value")
         }
 
     var isHidden: Boolean = false
@@ -124,7 +124,7 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
             field = value
             if(field) PlayerVisibility.hide(this)
             if(!field) PlayerVisibility.show(this)
-            logger.info("Hidden: ${this.playerName} now has value $value")
+            ChatUtility.broadcastDebug("Hidden: ${this.playerName} now has value $value")
         }
 
     var canFly: Boolean = false
@@ -133,14 +133,14 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
             field = value
             if(field) this.bukkitPlayer().allowFlight = true
             if(!field) this.bukkitPlayer().allowFlight = false
-            logger.info("Flight: ${this.playerName} now has value $value")
+            ChatUtility.broadcastDebug("Flight: ${this.playerName} now has value $value")
         }
 
     var currentContainer: GameContainer? = null
         set(value) {
             if (field == value) return
             field = value
-            logger.info("Container: ${this.playerName} now has value ${value?.containerId}")
+            ChatUtility.broadcastDebug("Container: ${this.playerName} now has value ${value?.containerId}")
         }
 
     /* NameTag related properties and methods */
@@ -152,13 +152,13 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
             field?.destroy(this)
             field = value ?: run {
                 removeNameTag()
-                logger.info("Nametag: ${this.playerName} now has no nametag.")
+                ChatUtility.broadcastDebug("Nametag: ${this.playerName} now has no nametag.")
                 return
             }
             ensureNameTag(value.lines)
             value.initialise(this)
             value.update(this)
-            logger.info("Nametag: ${this.playerName} now has value $value")
+            ChatUtility.broadcastDebug("Nametag: ${this.playerName} now has value $value")
         }
 
     private fun removeNameTag() {

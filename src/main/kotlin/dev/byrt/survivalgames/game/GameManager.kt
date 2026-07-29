@@ -103,7 +103,7 @@ object GameManager {
                         it.displayName(Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour><b>Survival Games"))
                         it.lore(listOf(
                             Formatting.allTags.deserialize("<!i>"),
-                            Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Players: ${if(containerPlayersSize < 16) "<green>" else "<#ff3333>"}${containerPlayersSize}<white>/${GamePlayerCount.MAX_PLAYERS}"),
+                            Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Players: ${if(containerPlayersSize < GamePlayerCount.MAX_PLAYERS) "<green>" else "<#ff3333>"}${containerPlayersSize}<white>/${GamePlayerCount.MAX_PLAYERS}"),
                             Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Map: <white>${container.instance.manager.map.mapName}"),
                             Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>State: <white>${gameState.name.clean()}"),
                             Formatting.allTags.deserialize("<!i>$SG_FONT_TAG<playercolour>Instance: <white>${container.containerId.trimmed()}"),

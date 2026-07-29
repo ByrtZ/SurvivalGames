@@ -1,14 +1,14 @@
 package dev.byrt.survivalgames.map
 
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.plugin
+import dev.byrt.survivalgames.text.ChatUtility
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 
 object MapManager {
     private val configMap = mutableMapOf<String, List<MapDataPoint>>()
     fun readAllMapConfigs() {
-        logger.info("Loading all map configurations")
+        ChatUtility.broadcastDebug("Loading all map configurations")
         val mapFolderPath = "${plugin.dataFolder.path}/maps"
         val mapFolder = File(mapFolderPath)
         if(!mapFolder.exists()) {
@@ -16,7 +16,7 @@ object MapManager {
         }
         val configs = mapFolder.listFiles()
         if(configs.isNullOrEmpty()) {
-            logger.severe("Failed to find map configurations.")
+            ChatUtility.broadcastDebug("Failed to find map configurations.")
             return
         } else {
             for(file in configs) {
@@ -28,9 +28,9 @@ object MapManager {
 
     fun readMapConfig(name: String) {
         if(!name.endsWith(".yml")) {
-            logger.warning("Map configuration file '$name' is not of type YAML or is invalid, aborting configuration loading.")
+            ChatUtility.broadcastDebug("Map configuration file '$name' is not of type YAML or is invalid, aborting configuration loading.")
         } else {
-            logger.info("Loading map configuration for $name")
+            ChatUtility.broadcastDebug("Loading map configuration for $name")
             val mapFilePath = "${plugin.dataFolder.path}/maps/$name"
             val mapFile = File(mapFilePath)
             if(!mapFile.exists()) {
@@ -61,30 +61,30 @@ object MapManager {
                             MapDataPointType.WORLD_CENTER -> map.worldCenter.add(point)
                         }
                     }
-                    logger.info("Assigned ${mapFile.name} data points to map ${map.mapName}")
+                    ChatUtility.broadcastDebug("Assigned ${mapFile.name} data points to map ${map.mapName}")
                 }
             }
             configMap[mapFile.name] = allPoints
-            logger.info("Loaded map configuration for ${mapFile.name}")
+            ChatUtility.broadcastDebug("Loaded map configuration for ${mapFile.name}")
         }
     }
 
     fun verifyMapData() {
         val allPoints = MapDataPointType.entries
         SGMap.entries.forEach { map ->
-           logger.info("Verifying map configuration for map '${map.mapName}'")
+           ChatUtility.broadcastDebug("Verifying map configuration for map '${map.mapName}'")
            allPoints.forEach { point ->
                 when(point) {
-                    MapDataPointType.PREGAME_SPAWN -> if(map.preGameSpawns.isEmpty()) logger.warning("No data points found for $point")
-                    MapDataPointType.PARTICIPANT_SPAWN -> if(map.participantSpawns.isEmpty()) logger.warning("No data points found for $point")
-                    MapDataPointType.SPECTATOR_SPAWN -> if(map.spectatorSpawns.isEmpty()) logger.warning("No data points found for $point")
-                    MapDataPointType.SUPPLY_DROP_SPAWN -> if(map.supplyDropSpawns.isEmpty()) logger.warning("No data points found for $point")
-                    MapDataPointType.LOOT_CHEST -> if(map.lootChests.isEmpty()) logger.warning("No data points found for $point")
-                    MapDataPointType.WORLD_CENTER -> if(map.worldCenter.isEmpty()) logger.warning("No data points found for $point")
+                    MapDataPointType.PREGAME_SPAWN -> if(map.preGameSpawns.isEmpty()) ChatUtility.broadcastDebug("No data points found for $point")
+                    MapDataPointType.PARTICIPANT_SPAWN -> if(map.participantSpawns.isEmpty()) ChatUtility.broadcastDebug("No data points found for $point")
+                    MapDataPointType.SPECTATOR_SPAWN -> if(map.spectatorSpawns.isEmpty()) ChatUtility.broadcastDebug("No data points found for $point")
+                    MapDataPointType.SUPPLY_DROP_SPAWN -> if(map.supplyDropSpawns.isEmpty()) ChatUtility.broadcastDebug("No data points found for $point")
+                    MapDataPointType.LOOT_CHEST -> if(map.lootChests.isEmpty()) ChatUtility.broadcastDebug("No data points found for $point")
+                    MapDataPointType.WORLD_CENTER -> if(map.worldCenter.isEmpty()) ChatUtility.broadcastDebug("No data points found for $point")
                 }
             }
         }
     }
 
-    fun getMapData(config: String) = configMap[config] ?: emptyList<MapDataPoint>().also { logger.warning("Failed to load config '$config' or config is empty.") }
+    fun getMapData(config: String) = configMap[config] ?: emptyList<MapDataPoint>().also { ChatUtility.broadcastDebug("Failed to load config '$config' or config is empty.") }
 }

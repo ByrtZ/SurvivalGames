@@ -80,15 +80,15 @@ object PlayerVisuals {
         )
         player.playSound(Sounds.Score.DEATH)
         player.playSound(Sounds.Score.DEATH_BACKGROUND)
-        SGExperienceLevels.appendExperience(player, 5) // Consolation XP :pensive:
+        SGExperienceLevels.appendExperience(player, 10) // Consolation XP :pensive:
         player.sgPlayer().currentContainer?.players?.forEach { p -> p.bukkitPlayer().sendMessage(deathMessage) }
 
         // Append XP to survivors for survival
-        player.sgPlayer().currentContainer?.players?.filter { p -> p.playerType == PlayerType.PARTICIPANT }?.forEach { p -> SGExperienceLevels.appendExperience(p.bukkitPlayer(), 10) }
+        player.sgPlayer().currentContainer?.players?.filter { p -> p.playerType == PlayerType.PARTICIPANT }?.forEach { p -> SGExperienceLevels.appendExperience(p.bukkitPlayer(), 20) }
         // Append XP and statistic increment to killer for elimination
         if(killer != player && killer != null) {
             killer.sgPlayer().eliminations++
-            SGExperienceLevels.appendExperience(killer, 25)
+            SGExperienceLevels.appendExperience(killer, 50)
         }
 
         repeat(3) {
@@ -123,6 +123,7 @@ object PlayerVisuals {
         val deathOverlayItemMeta = deathOverlayItem.itemMeta
         deathOverlayItem.addEnchantment(Enchantment.BINDING_CURSE, 1)
         deathOverlayItemMeta.itemModel = NamespacedKey("minecraft", "air")
+        deathOverlayItemMeta.isHideTooltip = true
         deathOverlayItem.itemMeta = deathOverlayItemMeta
         player.inventory.helmet = deathOverlayItem
         val deathVehicle = player.world.spawn(player.location.add(0.0, 0.6, 0.0), ItemDisplay::class.java).apply {
@@ -174,7 +175,7 @@ object PlayerVisuals {
                         }
                     }
                 } else {
-                    deathVehicle.remove()
+                    fullRespawn(player, deathVehicle)
                     cancel()
                 }
             }
@@ -248,6 +249,7 @@ object PlayerVisuals {
             player.eject()
             vehicle?.remove()
         }
+        player.sgPlayer().isDead = false
         player.gameMode = GameMode.ADVENTURE
         player.clearActivePotionEffects()
         player.getAttribute(Attribute.MAX_HEALTH)?.baseValue = 20.0

@@ -1,9 +1,9 @@
 package dev.byrt.survivalgames.loot.pool
 
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.loot.data.SGLootItem
 import dev.byrt.survivalgames.loot.data.SGLootOdds
 import dev.byrt.survivalgames.loot.items.SGItems
+import dev.byrt.survivalgames.text.ChatUtility
 import kotlin.random.Random
 
 @Suppress("unstableApiUsage")
@@ -26,7 +26,7 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>,
         SGLootItem(SGItems.IRON_INGOT, SGLootOdds(weight = 1.0)),
         SGLootItem(SGItems.TNT, SGLootOdds(weight = 1.0)),
         SGLootItem(SGItems.ARROW, SGLootOdds(weight = 2.0))),
-        lootPoolChance = 0.65
+        lootPoolChance = 0.7
         ),
     LOOT_CHEST_2("loot_chest_2", listOf(
         SGLootItem(SGItems.COOKED_COD, SGLootOdds(weight = 4.0, amountMax = 3)),
@@ -48,7 +48,7 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>,
         SGLootItem(SGItems.FISHING_ROD, SGLootOdds(weight = 1.0)),
         SGLootItem(SGItems.IRON_INGOT, SGLootOdds(weight = 1.0)),
         SGLootItem(SGItems.ENDER_PEARL, SGLootOdds(weight = 0.5))),
-        lootPoolChance = 0.25
+        lootPoolChance = 0.35
     ),
     LOOT_CHEST_3("loot_chest_3", listOf(
         SGLootItem(SGItems.COOKED_PORKCHOP, SGLootOdds(weight = 6.0, amountMax = 3)),
@@ -65,7 +65,7 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>,
         SGLootItem(SGItems.IRON_LEGGINGS, SGLootOdds(weight = 1.0)),
         SGLootItem(SGItems.IRON_BOOTS, SGLootOdds(weight = 1.0)),
         SGLootItem(SGItems.BOW, SGLootOdds(weight = 3.0)),
-        SGLootItem(SGItems.CROSSBOW, SGLootOdds(weight = 2.0)),
+        SGLootItem(SGItems.CROSSBOW, SGLootOdds(weight = 0.5)),
         SGLootItem(SGItems.TNT, SGLootOdds(weight = 2.5)),
         SGLootItem(SGItems.STICK, SGLootOdds(weight = 3.0, amountMax = 2)),
         SGLootItem(SGItems.FISHING_ROD, SGLootOdds(weight = 3.0)),
@@ -84,12 +84,12 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>,
         SGLootItem(SGItems.IRON_BOOTS, SGLootOdds(weight = 3.0)),
         SGLootItem(SGItems.DIAMOND, SGLootOdds(weight = 0.75)),
         SGLootItem(SGItems.GOLDEN_APPLE, SGLootOdds(weight = 1.5)),
-        SGLootItem(SGItems.CROSSBOW, SGLootOdds(weight = 2.0)),
-        SGLootItem(SGItems.LOYALTY_TRIDENT, SGLootOdds(weight = 0.25)),
+        SGLootItem(SGItems.CROSSBOW, SGLootOdds(weight = 0.75)),
+        SGLootItem(SGItems.LOYALTY_TRIDENT, SGLootOdds(weight = 0.1)),
         SGLootItem(SGItems.TNT, SGLootOdds(weight = 1.75, amountMax = 2)),
         SGLootItem(SGItems.ENDER_PEARL, SGLootOdds(weight = 1.0, amountMax = 2)),
-        SGLootItem(SGItems.MACE, SGLootOdds(weight = 0.1)),
-        SGLootItem(SGItems.TOTEM_OF_UNDYING, SGLootOdds(weight = 0.5))),
+        SGLootItem(SGItems.MACE, SGLootOdds(weight = 0.05)),
+        SGLootItem(SGItems.TOTEM_OF_UNDYING, SGLootOdds(weight = 0.25))),
         lootPoolChance = 0.0
     );
     companion object {
@@ -103,7 +103,7 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>,
                     return pool
                 }
             }
-            logger.warning("Unreachable code hit! No loot pool selected")
+            ChatUtility.broadcastDebug("Unreachable code hit! No loot pool selected")
             return LOOT_CHEST_1 // Should be unreachable but default to tier 1 in case of issue
         }
 
@@ -118,7 +118,7 @@ enum class SGLootPool(val lootPoolName: String, val lootItems: List<SGLootItem>,
                     return item
                 }
             }
-            logger.warning("Unreachable code hit! No item selected")
+            ChatUtility.broadcastDebug("Unreachable code hit! No item selected")
             return SGLootItem(SGItems.APPLE, SGLootOdds(weight = 1.0)) // Should be unreachable but default to low value item in case of issue
         }
     }

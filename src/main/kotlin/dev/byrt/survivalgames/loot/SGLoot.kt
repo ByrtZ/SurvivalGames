@@ -5,13 +5,13 @@ import dev.byrt.survivalgames.game.instance.GameState
 import dev.byrt.survivalgames.game.visuals.GameVisuals
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.loot.data.SGLootItem
 import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.loot.pool.SGLootPool
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import dev.byrt.survivalgames.plugin
+import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.util.Keys
@@ -28,14 +28,14 @@ import kotlin.random.Random
 @Suppress("unstableApiUsage")
 object SGLoot {
     fun populateMapLoot(world: World, map: SGMap) {
-        logger.info("Started populating loot for map '${map.mapName}'")
+        ChatUtility.broadcastDebug("Started populating loot for map '${map.mapName}'")
         if(map.lootChests.isEmpty()) {
-            logger.info("No possible loot locations in map '${map.mapName}'")
+            ChatUtility.broadcastDebug("No possible loot locations in map '${map.mapName}'")
         } else {
             map.lootChests.forEach { point ->
                 spawnLootChest(world, point.x.toInt(), point.y.toInt(), point.z.toInt(), SGLootPool.getRandomLootPool())
             }
-            logger.info("Finished populating loot for map '${map.mapName}'")
+            ChatUtility.broadcastDebug("Finished populating loot for map '${map.mapName}'")
         }
     }
 

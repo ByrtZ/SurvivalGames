@@ -1,6 +1,5 @@
 package dev.byrt.survivalgames.lobby.leaderboard
 
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.player.data.SGPlayerData
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
@@ -24,7 +23,6 @@ object SGLeaderboards {
         object: BukkitRunnable() {
             override fun run() {
                 if(plugin.server.isStopping) cancel()
-                logger.info("[Leaderboard Data] Refreshing all leaderboard data")
                 SGPlayerData.getLeaderboardData()
             }
         }.runTaskTimer(plugin, 20L * 895L, 20L * 895L)

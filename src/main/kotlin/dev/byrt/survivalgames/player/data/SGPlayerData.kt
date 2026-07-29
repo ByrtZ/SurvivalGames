@@ -2,13 +2,11 @@ package dev.byrt.survivalgames.player.data
 
 import dev.byrt.survivalgames.ioCoroutineScope
 import dev.byrt.survivalgames.lobby.leaderboard.SGLeaderboards
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.player.SGPlayer
 import dev.byrt.survivalgames.player.progression.SGLevel
 import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.ChatUtility
-import dev.byrt.survivalgames.text.SG_FONT_TAG
 import kotlinx.coroutines.launch
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
@@ -16,7 +14,6 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
 import java.util.UUID
-import kotlin.toString
 
 object SGPlayerData {
     private val playerData = mutableMapOf<UUID, FileConfiguration>()
@@ -52,10 +49,9 @@ object SGPlayerData {
             fileConfiguration.save(playerFile)
             if(playerData.containsKey(player.uuid)) playerData.remove(player.uuid)
             playerData[player.uuid] = fileConfiguration
-            logger.info("Player data fetched for player ${player.playerName} (${player.uuid})")
+            ChatUtility.broadcastDebug("Player data fetched for player ${player.playerName} (${player.uuid})")
         } catch(e: Exception) {
-            ChatUtility.broadcastDev("$SG_FONT_TAG<#ff3333>Something went wrong while trying to fetch player data for player ${player.playerName} (${player.uuid}).", false)
-            logger.warning("Something went wrong while trying to fetch player data for player ${player.playerName} (${player.uuid}).")
+            ChatUtility.broadcastDebug("Something went wrong while trying to fetch player data for player ${player.playerName} (${player.uuid}).", false)
             e.printStackTrace()
         }
     }
@@ -71,7 +67,7 @@ object SGPlayerData {
         config.set("${player.uuid}${SGStatistics.GAMES_PLAYED.statistic.statisticConfigPath}", player.matchesPlayed)
         ioCoroutineScope.launch {
             config.save(File("${plugin.dataFolder}/players","${player.uuid}.yml"))
-        }.invokeOnCompletion { logger.info("Player data saved for player ${player.playerName} (${player.uuid})") }
+        }.invokeOnCompletion { ChatUtility.broadcastDebug("Player data saved for player ${player.playerName} (${player.uuid})") }
     }
 
     fun getLeaderboardData() {
@@ -92,7 +88,7 @@ object SGPlayerData {
                         SGLeaderboards.leaderboardEliminationsData[uuid] = sgPlayer.eliminations
                         SGLeaderboards.leaderboardMatchesPlayedData[uuid] = sgPlayer.matchesPlayed
                     } catch (e: Exception) {
-                        logger.warning("[Leaderboard Data] Failed to fetch online player data for player ${sgPlayer.playerName} (${sgPlayer.uuid})")
+                        ChatUtility.broadcastDebug("[Leaderboard Data] Failed to fetch online player data for player ${sgPlayer.playerName} (${sgPlayer.uuid})")
                         e.printStackTrace()
                     }
                 } else {
@@ -106,7 +102,6 @@ object SGPlayerData {
             SGLeaderboards.leaderboardEliminationsData = SGLeaderboards.leaderboardEliminationsData.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
             SGLeaderboards.leaderboardMatchesPlayedData = SGLeaderboards.leaderboardMatchesPlayedData.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
         }.invokeOnCompletion {
-            logger.info("[Leaderboard Data] Data finished populating for all leaderboards. ")
             Bukkit.getScheduler().runTask(plugin, Runnable {
                 if(SGLeaderboards.leaderboards.isEmpty()) {
                     SGLeaderboards.spawnAllLeaderboards()

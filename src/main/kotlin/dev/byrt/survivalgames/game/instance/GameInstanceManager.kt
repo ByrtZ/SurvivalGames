@@ -6,7 +6,6 @@ import dev.byrt.survivalgames.game.visuals.GameVisuals
 import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.Sounds
 import dev.byrt.survivalgames.library.Translation
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.music.Jukebox
@@ -14,6 +13,7 @@ import dev.byrt.survivalgames.player.PlayerType
 import dev.byrt.survivalgames.player.visuals.PlayerVisuals
 import dev.byrt.survivalgames.player.progression.SGExperienceLevels
 import dev.byrt.survivalgames.plugin
+import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import dev.byrt.survivalgames.util.extension.trimmed
@@ -84,7 +84,7 @@ class GameInstanceManager(val instance: GameInstance) {
     fun setGameState(newState: GameState) {
         if(instance.currentContainer?.isEditMode == true) return
         if (newState == gameState) return
-        logger.info("Game State: $gameState -> $newState.")
+        ChatUtility.broadcastDebug("Game State: $gameState -> $newState.")
         this.gameState = newState
         instance.info.updateGameStatus()
         when(this.gameState) {
@@ -165,7 +165,7 @@ class GameInstanceManager(val instance: GameInstance) {
         defaultCoroutineScope.launch {
             GameManager.createContainer()
         }.invokeOnCompletion { _ ->
-            logger.info("[Matchmaking] Game started in instance ${instance.gameInstanceId.trimmed()}, server generated another match.")
+            ChatUtility.broadcastDebug("[Matchmaking] Game started in instance ${instance.gameInstanceId.trimmed()}, server generated another match.")
         }
         /** Populate map loot **/
         instance.currentContainer?.containerWorld?.let { SGLoot.populateMapLoot(it, map) }
@@ -198,7 +198,7 @@ class GameInstanceManager(val instance: GameInstance) {
                     participantSpawnIndex++
                     player.matchesPlayed++
                 }
-                else -> logger.info("Unregistered player in container.")
+                else -> ChatUtility.broadcastDebug("Unregistered player in container.")
             }
             Jukebox.disconnect(player.bukkitPlayer())
         }

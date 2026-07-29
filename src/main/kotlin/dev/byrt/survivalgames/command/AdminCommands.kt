@@ -3,7 +3,6 @@ package dev.byrt.survivalgames.command
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.item.SGItem
 import dev.byrt.survivalgames.library.Translation
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.map.MapDataPointType
@@ -103,14 +102,10 @@ class AdminCommands {
     @CommandDescription("Lists all running tasks")
     @Permission("sg.cmd.debug")
     fun debugTasks(sender: CommandSender) {
-        ChatUtility.broadcastDev(
-            "<dark_gray>Tasks printed to console, <click:open_url:'https://panel.pebblehost.com'>[Click here]</click> to view.",
-            true
-        )
-        logger.warning("Active Workers:")
-        Bukkit.getScheduler().activeWorkers.forEach { w -> logger.info("ID: ${w.taskId} ||||| Thread: ${w.thread} ||||| Thread name: ${w.thread.name} ||||| Owner: ${w.owner.name}") }
-        logger.warning("Pending Tasks:")
-        Bukkit.getScheduler().pendingTasks.forEach { t -> logger.info("ID: ${t.taskId} ||||| Sync: ${t.isSync} ||||| Owner: ${t.owner.name} ||||| Cancelled: ${t.isCancelled}") }
+        ChatUtility.broadcastDebug("Active Workers:")
+        Bukkit.getScheduler().activeWorkers.forEach { w -> ChatUtility.broadcastDebug("ID: ${w.taskId} ||||| Thread: ${w.thread} ||||| Thread name: ${w.thread.name} ||||| Owner: ${w.owner.name}") }
+        ChatUtility.broadcastDebug("Pending Tasks:")
+        Bukkit.getScheduler().pendingTasks.forEach { t -> ChatUtility.broadcastDebug("ID: ${t.taskId} ||||| Sync: ${t.isSync} ||||| Owner: ${t.owner.name} ||||| Cancelled: ${t.isCancelled}") }
     }
 
     @Command("debug bossbar <text>")

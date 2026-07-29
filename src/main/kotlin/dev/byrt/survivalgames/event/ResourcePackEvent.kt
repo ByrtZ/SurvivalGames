@@ -1,6 +1,5 @@
 package dev.byrt.survivalgames.event
 
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.JukeboxTrack
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
@@ -27,7 +26,6 @@ class ResourcePackEvent: Listener {
                         Jukebox.startMusicLoop(e.player, JukeboxTrack.LOBBY)
                     }
                 }.runTaskLater(plugin, 30L)
-                //TODO: title screen
             }
             in listOf(
                 PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD,
@@ -35,8 +33,7 @@ class ResourcePackEvent: Listener {
                 PlayerResourcePackStatusEvent.Status.DISCARDED,
                 PlayerResourcePackStatusEvent.Status.INVALID_URL
             ) -> {
-                ChatUtility.broadcastDev("Pack failed for ${e.player.name} due to ${e.status.name} (${e.id}).", false)
-                logger.severe("Pack failed for ${e.player.name} due to ${e.status.name} (${e.id}).")
+                ChatUtility.broadcastDebug("Pack failed for ${e.player.name} due to ${e.status.name} (${e.id}).", false)
             } else -> {}
         }
     }

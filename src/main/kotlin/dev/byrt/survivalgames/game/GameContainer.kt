@@ -1,17 +1,17 @@
 package dev.byrt.survivalgames.game
 
 import dev.byrt.survivalgames.game.instance.GameInstance
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.map.MapTools
 import dev.byrt.survivalgames.map.SGMap
 import dev.byrt.survivalgames.player.SGPlayer
+import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.world.SGWorld
 import org.bukkit.World
 import java.util.*
 
 data class GameContainer(val containerName: String, val containerId: UUID, val containerWorld: World) {
     init {
-        logger.info("Initialising game container $containerId")
+        ChatUtility.broadcastDebug("Initialising game container $containerId")
     }
     /* Container flags */
     var isEditMode: Boolean = false
@@ -29,13 +29,13 @@ data class GameContainer(val containerName: String, val containerId: UUID, val c
         if(forcedMap != null) instance.manager.map = forcedMap!!
         /** Automagically spawn data point visualisations when [isEditMode] is enabled **/
         if(isEditMode) MapTools.visualiseDataPoints(this, instance.manager.map)
-        logger.info("Game container $containerId finished initialisation.")
+        ChatUtility.broadcastDebug("Game container $containerId finished initialisation.")
     }
 
     fun onDestroy() {
         instance.task.stopGameLoop()
         instance.info.destroyAllScoreboards()
         SGWorld.deleteGameWorld(containerWorld)
-        logger.info("Game container $containerId was destroyed.")
+        ChatUtility.broadcastDebug("Game container $containerId was destroyed.")
     }
 }

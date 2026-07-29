@@ -2,8 +2,8 @@ package dev.byrt.survivalgames.world
 
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.ioCoroutineScope
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.plugin
+import dev.byrt.survivalgames.text.ChatUtility
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bukkit.*
@@ -72,7 +72,7 @@ object SGWorld: Listener {
                 if(!unloaded) { // Unload game world when no players are in it
                     unloaded = Bukkit.unloadWorld(world, false)
                     if (!unloaded) {
-                        logger.warning("Failed to unload game world '${world.name}'")
+                        ChatUtility.broadcastDebug("Failed to unload game world '${world.name}'")
                         return
                     }
                     return
@@ -86,7 +86,7 @@ object SGWorld: Listener {
                 }
                 val deleted = path.toFile().deleteRecursively()
                 if(deleted) {
-                    logger.info("Game world '${world.name}' has been deleted")
+                    ChatUtility.broadcastDebug("Game world '${world.name}' has been deleted")
                     cancel()
                 }
             }
@@ -96,7 +96,7 @@ object SGWorld: Listener {
     @EventHandler
     private fun onWorldLoad(e: WorldLoadEvent) {
         if(e.world.generator == SGChunkGenerator) {
-            logger.info("Game world '${e.world.name}' loaded, applying game rules")
+            ChatUtility.broadcastDebug("Game world '${e.world.name}' loaded, applying game rules")
             e.world.apply {
                 isAutoSave = false
                 isVoidDamageEnabled = false

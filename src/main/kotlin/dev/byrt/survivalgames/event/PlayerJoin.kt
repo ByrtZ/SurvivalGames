@@ -1,9 +1,9 @@
 package dev.byrt.survivalgames.event
 
 import dev.byrt.survivalgames.lobby.info.LobbyInfo
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.player.PlayerManager
 import dev.byrt.survivalgames.plugin
+import dev.byrt.survivalgames.text.ChatUtility
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import net.kyori.adventure.text.Component
@@ -29,7 +29,7 @@ class PlayerJoin: Listener {
     fun onAttemptJoin(e: AsyncPlayerPreLoginEvent) {
         val player = Bukkit.getOfflinePlayer(e.uniqueId)
         if(!player.isOp && !player.isWhitelisted && plugin.server.isWhitelistEnforced) {
-            logger.info("Player ${player.name} (${player.uniqueId}) attempted to join but is not whitelisted.")
+            ChatUtility.broadcastAdmin("Player ${player.name} (${player.uniqueId}) attempted to join but is not whitelisted.")
         }
     }
 }

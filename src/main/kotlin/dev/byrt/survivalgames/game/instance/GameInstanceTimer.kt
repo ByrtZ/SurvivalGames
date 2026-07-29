@@ -1,6 +1,5 @@
 package dev.byrt.survivalgames.game.instance
 
-import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.text.ChatUtility
 import org.bukkit.command.CommandSender
 
@@ -15,7 +14,7 @@ class GameInstanceTimer(val instance: GameInstance) {
         this.displayTime = String.format("%02d:%02d", (this.timer + 1) / 60, (this.timer + 1) % 60)
         instance.info.updateGameTimer()
         if (sender != null) {
-            logger.info("Timer Updated: ${newTime}s remaining [${sender.name}].")
+            ChatUtility.broadcastDebug("Timer Updated: ${newTime}s remaining [${sender.name}].")
         }
     }
 
@@ -44,7 +43,7 @@ class GameInstanceTimer(val instance: GameInstance) {
 
     fun setTimerState(newState : GameTimerState, sender: CommandSender?) {
         if (newState == gameTimerState) return
-        logger.info("Timer State: $gameTimerState -> $newState${if (sender != null) " [${sender.name}]." else "."}")
+        ChatUtility.broadcastDebug("Timer State: $gameTimerState -> $newState${if (sender != null) " [${sender.name}]." else "."}")
         this.gameTimerState = newState
     }
 

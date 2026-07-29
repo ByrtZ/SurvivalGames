@@ -1,6 +1,7 @@
 package dev.byrt.survivalgames.text
 
 import dev.byrt.survivalgames.library.Sounds
+import dev.byrt.survivalgames.logger
 import dev.byrt.survivalgames.player.PlayerManager.sgPlayer
 import dev.byrt.survivalgames.text.Formatting.allTags
 import dev.byrt.survivalgames.text.Formatting.restrictedTags
@@ -15,8 +16,18 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 object ChatUtility {
+    /** Sends a message to the debug channel which includes those with the relevant permission. **/
+    fun broadcastDebug(rawMessage: String, isSilent: Boolean = true) {
+        val staff = Audience.audience(Bukkit.getOnlinePlayers()).filterAudience { (it as Player).hasPermission("sg.debug_chat") }
+        staff.sendMessage(allTags.deserialize("<b><red>[DEBUG]</red></b><reset> <gray>$rawMessage</gray>"))
+        logger.info(rawMessage)
+        if(!isSilent) {
+            staff.playSound(Sounds.Misc.ADMIN_MESSAGE)
+        }
+    }
+
     /** Sends a message to the admin channel which includes all online staff. **/
-    fun broadcastStaff(rawMessage: String, isSilent: Boolean) {
+    fun broadcastStaff(rawMessage: String, isSilent: Boolean = true) {
         val staff = Audience.audience(Bukkit.getOnlinePlayers()).filterAudience { (it as Player).hasPermission("sg.staff_chat") }
         staff.sendMessage(allTags.deserialize("<speccolour>[<reset><prefix:staff><speccolour>]<reset> $rawMessage"))
         if(!isSilent) {
@@ -25,7 +36,7 @@ object ChatUtility {
     }
 
     /** Sends a message to the admin channel which includes all online admins. **/
-    fun broadcastAdmin(rawMessage: String, isSilent: Boolean) {
+    fun broadcastAdmin(rawMessage: String, isSilent: Boolean = true) {
         val admin = Audience.audience(Bukkit.getOnlinePlayers()).filterAudience { (it as Player).hasPermission("sg.admin_chat") }
         admin.sendMessage(allTags.deserialize("<speccolour>[<reset><prefix:admin><speccolour>]<reset> $rawMessage"))
         if(!isSilent) {
@@ -34,7 +45,7 @@ object ChatUtility {
     }
 
     /** Sends a message to the dev channel which includes all online devs. **/
-    fun broadcastDev(rawMessage: String, isSilent: Boolean) {
+    fun broadcastDev(rawMessage: String, isSilent: Boolean = true) {
         val dev = Audience.audience(Bukkit.getOnlinePlayers()).filterAudience { (it as Player).hasPermission("sg.dev_chat") }
         dev.sendMessage(allTags.deserialize("<speccolour>[<reset><prefix:dev><speccolour>]<reset> $rawMessage"))
         if(!isSilent) {
