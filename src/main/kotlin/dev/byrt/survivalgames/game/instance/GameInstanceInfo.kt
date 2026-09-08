@@ -216,7 +216,7 @@ class GameInstanceInfo(val instance: GameInstance) {
                             }
 
                             GameState.STARTING -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("GAME STARTING IN: ${if (instance.timer.getTimer() <= 9) "<#ff3333>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("STARTING IN: ${if (instance.timer.getTimer() <= 9) "<#ff3333>" else "<#ffff00>"}${instance.timer.getDisplayTimer()}"))
                             }
 
                             GameState.IN_GAME -> {
@@ -228,7 +228,7 @@ class GameInstanceInfo(val instance: GameInstance) {
                             }
 
                             GameState.ROUND_END -> {
-                                timerBossBar.name(TextAlignment.centreBossBarText("NEXT ROUND IN: <#ffff00>${instance.timer.getDisplayTimer()}"))
+                                timerBossBar.name(TextAlignment.centreBossBarText("NEXT ROUND: <#ffff00>${instance.timer.getDisplayTimer()}"))
                             }
 
                             GameState.GAME_END -> {
@@ -246,7 +246,7 @@ class GameInstanceInfo(val instance: GameInstance) {
                     }
 
                     GameTimerState.PAUSED -> {
-                        timerBossBar.name(TextAlignment.centreBossBarText("<yellow>TIMER PAUSED"))
+                        timerBossBar.name(TextAlignment.centreBossBarText("<playercolour>TIMER PAUSED"))
                     }
                 }
             }

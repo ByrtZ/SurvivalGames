@@ -68,12 +68,14 @@ class Main : JavaPlugin() {
         LobbyInfo.build()
         SGNPCs.spawnAllNPCs()
         SGRecipes.registerRecipes()
-        SGPlayerData.getLeaderboardData()
+
         defaultCoroutineScope.launch {
             GameManager.createContainer()
         }.invokeOnCompletion { _ ->
             logger.info("[Matchmaking] Server generated a match on enable.")
         }
+
+        SGPlayerData.getLeaderboardData()
     }
 
     override fun onDisable() {

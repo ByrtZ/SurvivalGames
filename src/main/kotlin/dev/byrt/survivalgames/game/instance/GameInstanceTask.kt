@@ -1,8 +1,8 @@
 package dev.byrt.survivalgames.game.instance
 
+import dev.byrt.survivalgames.game.mechanic.drop.SGSupplyDrop
 import dev.byrt.survivalgames.game.visuals.GameVisuals
 import dev.byrt.survivalgames.library.Sounds
-import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.music.Jukebox
 import dev.byrt.survivalgames.music.JukeboxTrack
 import dev.byrt.survivalgames.player.PlayerType
@@ -10,8 +10,6 @@ import dev.byrt.survivalgames.plugin
 import dev.byrt.survivalgames.text.Formatting
 import dev.byrt.survivalgames.text.SG_FONT_TAG
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
 import org.bukkit.attribute.Attribute
 import org.bukkit.scheduler.BukkitRunnable
@@ -60,30 +58,6 @@ class GameInstanceTask(val instance: GameInstance) {
                     if (instance.timer.getTimer() == 26) {
                         for (player in instance.currentContainer?.players!!) {
                             Jukebox.startMusicLoop(player.bukkitPlayer(), JukeboxTrack.IN_GAME)
-                        }
-                    }
-                    if (instance.timer.getTimer() == 15) {
-                        for (player in instance.currentContainer?.players!!) {
-                            player.bukkitPlayer().playSound(player.bukkitPlayer().location, Sounds.Tutorial.TUTORIAL_POP, 1f, 1f)
-                            player.bukkitPlayer().sendMessage(
-                                Component.text("-----------------------------------------------------")
-                                    .color(NamedTextColor.GREEN).decoration(TextDecoration.STRIKETHROUGH, true).append(
-                                        Component.text(" Starting soon:\n\n").color(NamedTextColor.WHITE)
-                                            .decoration(TextDecoration.BOLD, true)
-                                            .decoration(TextDecoration.STRIKETHROUGH, false).append(
-                                                Component.text("      When she survival on my game.\n\n")
-                                                    .color(NamedTextColor.RED).decoration(TextDecoration.BOLD, false)
-                                                    .decoration(TextDecoration.ITALIC, true)
-                                                    .append(Component.text("\n\n\n").append(
-                                                        Component.text("-----------------------------------------------------")
-                                                            .color(NamedTextColor.GREEN)
-                                                            .decoration(TextDecoration.STRIKETHROUGH, true)
-                                                            .decoration(TextDecoration.ITALIC, false)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
                         }
                     }
                     if (instance.timer.getTimer() in 1..10) {
@@ -137,7 +111,7 @@ class GameInstanceTask(val instance: GameInstance) {
                     }
                     // Supply drop spawning
                     if (instance.manager.isGracePeriod == false && instance.timer.getTimer() < (if(instance.manager.map.isQuickMatch) GameTime.IN_GAME_TIME_QUICK_MATCH else GameTime.IN_GAME_TIME) && instance.timer.getTimer() > (if(instance.manager.map.isQuickMatch) 80 else 120) && instance.timer.getTimer() % 75 == 0) {
-                        SGLoot.spawnSupplyDrop(instance.currentContainer, instance.manager.map)
+                        SGSupplyDrop.spawn(instance.currentContainer, instance.manager.map)
                     }
 
                     if (instance.timer.getTimer() <= 0) {

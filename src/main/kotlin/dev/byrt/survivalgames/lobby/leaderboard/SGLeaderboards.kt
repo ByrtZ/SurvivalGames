@@ -25,7 +25,7 @@ object SGLeaderboards {
                 if(plugin.server.isStopping) cancel()
                 SGPlayerData.getLeaderboardData()
             }
-        }.runTaskTimer(plugin, 20L * 895L, 20L * 895L)
+        }.runTaskTimer(plugin, 20L * 3595L, 20L * 3595L)
     }
 
     fun spawnLeaderboard(leaderboard: SGLeaderboard, refreshTime: Int) {
@@ -79,15 +79,19 @@ object SGLeaderboards {
                 val index = start + i
                 if (index < sorted.size) {
                     val entry = sorted[index]
-                    val player = Bukkit.getOfflinePlayer(entry.key).name ?: "Unknown"
-                    append("$SG_FONT_TAG${index + 1}. <playercolour>$player</playercolour> - ${entry.value}")
+                    if(entry.value > 0) {
+                        val player = Bukkit.getOfflinePlayer(entry.key).name ?: "Unknown"
+                        append("$SG_FONT_TAG${index + 1}. <playercolour>$player</playercolour> - ${entry.value}")
+                    } else {
+                        append("$SG_FONT_TAG-")
+                    }
                 } else {
                     append("$SG_FONT_TAG-")
                 }
                 if (i != 9) append("<newline>")
             }
             append("<newline>${SG_FONT_TAG}Page ${currentPage + 1}/$totalPages")
-            append("<newline>${SG_FONT_TAG}<yellow>Leaderboard update ${if (refreshInMins >= 1) "in ${refreshInMins}m" else "shortly!"}</yellow>")
+            append("<newline>${SG_FONT_TAG}<playercolour>Leaderboard update ${if (refreshInMins >= 1) "in ${refreshInMins}m" else "shortly!"}</playercolour>")
             append("<newline>")
         }
         display.text(Formatting.allTags.deserialize(text))

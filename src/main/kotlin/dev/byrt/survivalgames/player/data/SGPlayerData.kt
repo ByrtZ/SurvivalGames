@@ -84,29 +84,33 @@ object SGPlayerData {
                     val uuid = UUID.fromString(playerFile.nameWithoutExtension)
                     val sgPlayer = uuid.sgPlayer()
                     try {
-                        SGLeaderboards.leaderboardWinsData[uuid] = sgPlayer.wins
-                        SGLeaderboards.leaderboardEliminationsData[uuid] = sgPlayer.eliminations
-                        SGLeaderboards.leaderboardMatchesPlayedData[uuid] = sgPlayer.matchesPlayed
+                        if(sgPlayer.wins > 0) SGLeaderboards.leaderboardWinsData[uuid] = sgPlayer.wins
+                        if(sgPlayer.eliminations > 0) SGLeaderboards.leaderboardEliminationsData[uuid] = sgPlayer.eliminations
+                        if(sgPlayer.matchesPlayed > 0) SGLeaderboards.leaderboardMatchesPlayedData[uuid] = sgPlayer.matchesPlayed
                     } catch (e: Exception) {
                         ChatUtility.broadcastDebug("[Leaderboard Data] Failed to fetch online player data for player ${sgPlayer.playerName} (${sgPlayer.uuid})")
                         e.printStackTrace()
                     }
                 } else {
                     val config = YamlConfiguration.loadConfiguration(playerFile)
-                    SGLeaderboards.leaderboardWinsData[UUID.fromString(playerFile.nameWithoutExtension)] = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.WINS.statistic.statisticConfigPath}")
-                    SGLeaderboards.leaderboardEliminationsData[UUID.fromString(playerFile.nameWithoutExtension)] = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.ELIMINATIONS.statistic.statisticConfigPath}")
-                    SGLeaderboards.leaderboardMatchesPlayedData[UUID.fromString(playerFile.nameWithoutExtension)] = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.GAMES_PLAYED.statistic.statisticConfigPath}")
+                    val wins = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.WINS.statistic.statisticConfigPath}")
+                    val eliminations = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.ELIMINATIONS.statistic.statisticConfigPath}")
+                    val matchesPlayed = config.getInt("${UUID.fromString(playerFile.nameWithoutExtension)}${SGStatistics.GAMES_PLAYED.statistic.statisticConfigPath}")
+
+                    if(wins > 0) SGLeaderboards.leaderboardWinsData[UUID.fromString(playerFile.nameWithoutExtension)] = wins
+                    if(eliminations > 0) SGLeaderboards.leaderboardEliminationsData[UUID.fromString(playerFile.nameWithoutExtension)] = eliminations
+                    if(matchesPlayed > 0) SGLeaderboards.leaderboardMatchesPlayedData[UUID.fromString(playerFile.nameWithoutExtension)] = matchesPlayed
                 }
             }
             SGLeaderboards.leaderboardWinsData = SGLeaderboards.leaderboardWinsData.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
             SGLeaderboards.leaderboardEliminationsData = SGLeaderboards.leaderboardEliminationsData.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
             SGLeaderboards.leaderboardMatchesPlayedData = SGLeaderboards.leaderboardMatchesPlayedData.toList().sortedBy { (_, value) -> value }.toMap().toMutableMap()
         }.invokeOnCompletion {
-            Bukkit.getScheduler().runTask(plugin, Runnable {
+            Bukkit.getScheduler().runTaskLater(plugin, Runnable {
                 if(SGLeaderboards.leaderboards.isEmpty()) {
                     SGLeaderboards.spawnAllLeaderboards()
                 }
-            })
+            }, 20L)
         }
     }
 

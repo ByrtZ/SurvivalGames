@@ -3,6 +3,7 @@ package dev.byrt.survivalgames.player.visuals
 import dev.byrt.survivalgames.player.SGPlayer
 import dev.byrt.survivalgames.plugin
 import org.bukkit.Bukkit
+import org.bukkit.entity.TextDisplay
 
 object PlayerVisibility {
     private var hiddenPlayers = mutableSetOf<SGPlayer>()
@@ -27,5 +28,7 @@ object PlayerVisibility {
             p.showPlayer(plugin, player.bukkitPlayer())
         }
         hiddenPlayers.remove(player)
+        // Re-hide nametags
+        player.bukkitPlayer().passengers.forEach { entity -> if(entity is TextDisplay) player.bukkitPlayer().hideEntity(plugin, entity) }
     }
 }
