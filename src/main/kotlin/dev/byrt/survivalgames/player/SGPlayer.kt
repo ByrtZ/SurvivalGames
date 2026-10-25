@@ -131,7 +131,10 @@ class SGPlayer(val uuid: UUID, val playerName: String, var playerType: PlayerTyp
         set(value) {
             if (field == value) return
             field = value
-            if(field) this.bukkitPlayer().allowFlight = true
+            if(field) {
+                this.bukkitPlayer().allowFlight = true
+                this.bukkitPlayer().isFlying = true
+            }
             if(!field) this.bukkitPlayer().allowFlight = false
             ChatUtility.broadcastDebug("Flight: ${this.playerName} now has value $value")
         }

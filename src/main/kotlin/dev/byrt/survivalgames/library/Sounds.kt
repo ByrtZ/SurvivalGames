@@ -64,4 +64,22 @@ object Sounds {
         val LEVEL_UP = sound(key("entity.illusioner.prepare_mirror"), Source.PLAYER, 5f, 1f)
         val RANK_UP = sound(key("entity.lightning_bolt.thunder"), Source.PLAYER, 5f, 1f)
     }
+
+    object Fishing {
+        val FISH_FLOP = sound(key("entity.cod.flop"), Source.VOICE, 1f, 1f)
+        val EPIC_CATCH = sound(key("entity.wither.spawn"), Source.VOICE, 0.5f, 1.25f)
+        val LEGENDARY_CATCH = sound(key("entity.ender_dragon.death"), Source.VOICE, 0.15f, 2f)
+        val LEGENDARY_CATCH_EXPLODE = sound(key("entity.generic.explode"), Source.VOICE, 0.5f, 1f)
+        val MYTHIC_CATCH = sound(key("block.portal.travel"), Source.VOICE, 0.5f, 2f)
+        val UNREAL_CATCH = sound(key("ambient.cave"), Source.VOICE, 10f, 2f)
+        val UNREAL_CATCH_SPAWN = sound(key("entity.warden.sonic_boom"), Source.VOICE, 2f, 2f)
+        val UNREAL_CATCH_SPAWN_BATS = sound(key("entity.warden.death"), Source.VOICE, 2f, 1f)
+        val TRANSCENDENT_CATCH = sound(key("entity.blaze.ambient"), Source.VOICE, 2f, 0.75f)
+        val TRANSCENDENT_CATCH_SPAWN = sound(key("entity.elder_guardian.curse"), Source.VOICE, 1.5f, 0.5f)
+        val CELESTIAL_CATCH = sound(key("item.totem.use"), Source.VOICE, 2f, 0.75f)
+        val CELESTIAL_CATCH_SPAWN = sound(key("item.trident.thunder"), Source.VOICE, 5f, 1.25f)
+        val SHINY_CATCH = sound(key("block.amethyst_cluster.step"), Source.VOICE, 2f, 2f)
+        val SHADOW_CATCH = sound(key("entity.wither.ambient"), Source.VOICE, 0.5f, 0f)
+        val OBFUSCATED_CATCH = sound(key("entity.shulker.ambient"), Source.VOICE, 1.25f, 0.75f)
+    }
 }

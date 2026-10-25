@@ -1,6 +1,6 @@
 import java.io.BufferedReader
 
-val patch = "1.1.1"
+val patch = "1.2"
 val minecraftVersion = "1.21.11"
 
 val commitHash = Runtime

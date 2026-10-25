@@ -92,6 +92,17 @@ class InteractEvent: Listener {
                     }
                 }
             }
+        } else {
+            /** Item interactions **/
+            val item = when(e.hand) {
+                EquipmentSlot.HAND -> e.player.inventory.itemInMainHand
+                EquipmentSlot.OFF_HAND -> e.player.inventory.itemInOffHand
+                else -> return
+            }
+            val material = item.type
+            if(e.action.isRightClick && material == Material.FISHING_ROD) {
+                e.setUseItemInHand(Event.Result.ALLOW)
+            }
         }
     }
 

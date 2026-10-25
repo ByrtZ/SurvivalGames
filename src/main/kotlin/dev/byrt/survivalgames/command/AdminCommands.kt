@@ -2,7 +2,10 @@ package dev.byrt.survivalgames.command
 
 import dev.byrt.survivalgames.game.GameManager
 import dev.byrt.survivalgames.item.SGItem
+import dev.byrt.survivalgames.item.rarity.SubRarity
 import dev.byrt.survivalgames.library.Translation
+import dev.byrt.survivalgames.lobby.fishing.FishRarity
+import dev.byrt.survivalgames.lobby.fishing.Fishing
 import dev.byrt.survivalgames.loot.SGLoot
 import dev.byrt.survivalgames.loot.items.SGItems
 import dev.byrt.survivalgames.map.MapDataPointType
@@ -22,9 +25,13 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.ShadowColor
 import net.kyori.adventure.text.format.Style
 import org.bukkit.Bukkit
+import org.bukkit.GameMode
+import org.bukkit.Material
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerTeleportEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
 import org.incendo.cloud.annotation.specifier.Greedy
 import org.incendo.cloud.annotations.Argument
@@ -161,6 +168,26 @@ class AdminCommands {
             player.give(itemStack)
             sender.sendMessage(Formatting.allTags.deserialize("<green>Gave x${amount ?: "1"} $item to ${player.name}</green>"))
             player.sendMessage(Formatting.allTags.deserialize("<green>Received x${amount ?: "1"} $item</green>"))
+        }
+    }
+
+    @Command("debug catch <rarity> <subrarity>")
+    @Permission("sg.command.fish")
+    fun debug(
+        player: Player,
+        @Argument("rarity") rarity: FishRarity,
+        @Argument("subrarity") subrarity: SubRarity
+    ) {
+        if (player.gameMode == GameMode.CREATIVE) {
+            player.sendMessage(Component.text("Simulating catch of rarity $rarity"))
+            val loc = player.location
+            object : BukkitRunnable() {
+                override fun run() {
+                    val item = loc.world.spawn(loc, Item::class.java)
+                    item.itemStack = ItemStack(Material.BEEF, 1)
+                    Fishing.catchFish(player, item, item.location, rarity, subrarity)
+                }
+            }.runTaskLater(plugin, 100L)
         }
     }
 
