@@ -15,6 +15,7 @@ import java.io.File
 import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.io.path.pathString
 
 object SGWorld: Listener {
     init {
@@ -26,7 +27,9 @@ object SGWorld: Listener {
             ioCoroutineScope.launch {
                 try {
                     val worldName = "sg-game-$worldId"
-                    val worldFolder = File(Bukkit.getWorldContainer(), worldName)
+                    val worldKey = NamespacedKey(plugin, worldName)
+
+                    val worldFolder = File(Bukkit.getServer().levelDirectory.pathString, "dimensions/survivalgames/$worldName")
                     val regionSource = File(plugin.dataFolder, "worlds/master/region")
                     val regionTarget = File(worldFolder, "region")
                     if (worldFolder.exists()) worldFolder.deleteRecursively()
@@ -42,7 +45,7 @@ object SGWorld: Listener {
                         override fun run() {
                             try {
                                 Bukkit.getWorld(worldName)?.let { Bukkit.unloadWorld(it, false) }
-                                val world = getWorldCreator(worldId).createWorld() ?: error("Failed to create world")
+                                val world = getWorldCreator(worldKey).createWorld() ?: error("Failed to create world")
                                 cont.resume(world)
 
                             } catch (e: Exception) {
@@ -72,7 +75,7 @@ object SGWorld: Listener {
                 if(!unloaded) { // Unload game world when no players are in it
                     unloaded = Bukkit.unloadWorld(world, false)
                     if (!unloaded) {
-                        ChatUtility.broadcastDebug("Failed to unload game world '${world.name}'")
+                        ChatUtility.broadcastDebug("Failed to unload game world '${world.key}'")
                         return
                     }
                     return
@@ -86,7 +89,7 @@ object SGWorld: Listener {
                 }
                 val deleted = path.toFile().deleteRecursively()
                 if(deleted) {
-                    ChatUtility.broadcastDebug("Game world '${world.name}' has been deleted")
+                    ChatUtility.broadcastDebug("Game world '${world.key}' has been deleted")
                     cancel()
                 }
             }
@@ -96,7 +99,7 @@ object SGWorld: Listener {
     @EventHandler
     private fun onWorldLoad(e: WorldLoadEvent) {
         if(e.world.generator == SGChunkGenerator) {
-            ChatUtility.broadcastDebug("Game world '${e.world.name}' loaded, applying game rules")
+            ChatUtility.broadcastDebug("Game world '${e.world.key}' loaded, applying game rules")
             e.world.apply {
                 isAutoSave = false
                 isVoidDamageEnabled = false
@@ -120,8 +123,8 @@ object SGWorld: Listener {
         }
     }
 
-    private fun getWorldCreator(worldId: UUID): WorldCreator {
-        return WorldCreator("sg-game-$worldId", NamespacedKey(plugin, "sg-game-$worldId")).apply {
+    private fun getWorldCreator(worldKey: NamespacedKey): WorldCreator {
+        return WorldCreator(worldKey).apply {
             generator(SGChunkGenerator)
             environment(World.Environment.NORMAL)
             type(WorldType.FLAT)
