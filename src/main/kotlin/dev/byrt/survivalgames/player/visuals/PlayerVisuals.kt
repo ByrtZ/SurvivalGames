@@ -125,7 +125,7 @@ object PlayerVisuals {
         deathOverlayItemMeta.itemModel = NamespacedKey("minecraft", "air")
         deathOverlayItemMeta.isHideTooltip = true
         deathOverlayItem.itemMeta = deathOverlayItemMeta
-        player.inventory.helmet = deathOverlayItem
+        player.inventory.setHelmet(deathOverlayItem)
         val deathVehicle = player.world.spawn(player.location.add(0.0, 0.6, 0.0), ItemDisplay::class.java).apply {
             teleportDuration = 1
             addScoreboardTag("${player.uniqueId}-death-vehicle")
@@ -219,7 +219,7 @@ object PlayerVisuals {
         player.fireTicks = 0
         player.health = player.getAttribute(Attribute.MAX_HEALTH)!!.value
         player.foodLevel = 20
-        player.inventory.helmet = null
+        player.inventory.setHelmet(null)
         player.give(SGItem.getSpectatorCompass())
     }
 

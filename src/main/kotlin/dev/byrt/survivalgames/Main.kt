@@ -51,7 +51,7 @@ class Main : JavaPlugin() {
         logger.info("Starting Survival Games plugin.")
         GlobalTranslator.translator().addSource(SGTranslator())
         server.pluginManager.registerEvents(TextAlignment, this)
-        resourcePackLoader = ResourcePackLoader(
+         resourcePackLoader = ResourcePackLoader(
             GitHubReleasesRegistry("ByrtZ/SurvivalGamesResourcePack"),
             dataPath.resolve("packs").createDirectories(),
             "master"

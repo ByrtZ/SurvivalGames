@@ -1,7 +1,7 @@
 import java.io.BufferedReader
 
-val patch = "1.2"
-val minecraftVersion = "1.21.11"
+val patch = "1.3"
+val minecraftVersion = "26.3"
 
 val commitHash = Runtime
     .getRuntime()
@@ -19,10 +19,9 @@ plugins {
     kotlin("jvm") version "2.3.21"
     kotlin("kapt") version "2.3.0"
     kotlin("plugin.serialization") version "2.0.0"
-    id("com.gradleup.shadow") version "9.3.1"
-    id("xyz.jpenilla.run-paper") version "2.3.1"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21"
-
+    id("com.gradleup.shadow") version "9.4.1"
+    id("xyz.jpenilla.run-paper") version "3.1.0"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.24"
 }
 
 group = "dev.byrt"
@@ -35,10 +34,10 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("$minecraftVersion-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("$minecraftVersion.build.+")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.incendo:cloud-core:2.0.0")
-    implementation("org.incendo:cloud-paper:2.0.0-beta.10")
+    implementation("org.incendo:cloud-paper:2.0.1")
     implementation("org.incendo:cloud-annotations:2.0.0")
     implementation("org.incendo:cloud-kotlin-coroutines-annotations:2.0.0")
     kapt("org.incendo:cloud-kotlin-coroutines-annotations:2.0.0")
@@ -70,7 +69,7 @@ tasks {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
     compilerOptions {
         javaParameters = true
         freeCompilerArgs.add("-Xexplicit-backing-fields")
